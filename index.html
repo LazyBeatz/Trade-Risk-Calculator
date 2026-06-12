@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Trade Risk Calculator</title>
+<style>
+  :root{
+    --bg:#F2F3F6; --card:#FFFFFF; --ink:#15171C; --muted:#697080;
+    --line:#E2E5EB; --accent:#2F6FED; --accent-ink:#FFFFFF;
+    --green:#15803D; --green-bg:#EAF7EF; --red:#DC2626; --red-bg:#FCEDED;
+    --amber:#B45309; --chip:#EEF1F6; --ticket:#FBFBF9; --focus:#2F6FED;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  [data-theme="dark"]{
+    --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1;
+    --line:#272C38; --accent:#5B8CFF; --accent-ink:#0F1116;
+    --green:#34C77B; --green-bg:#12251A; --red:#F06A6A; --red-bg:#2A1517;
+    --amber:#E0A458; --chip:#222735; --ticket:#1B1F28; --focus:#5B8CFF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:16px}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    min-height:100vh; padding:14px 12px 48px;
+    -webkit-font-smoothing:antialiased; transition:background .25s,color .25s;
+  }
+  .wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  header.app h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
+  header.app p{font-size:.78rem;color:var(--muted);margin-top:2px}
+
+  /* settings strip */
+  .strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .strip select,.seg{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    color:var(--ink);font-size:.8rem;padding:7px 9px;font-family:inherit;
+  }
+  .seg{display:inline-flex;padding:3px;gap:2px}
+  .seg button{
+    border:0;background:transparent;color:var(--muted);font-size:.78rem;
+    padding:5px 10px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;
+  }
+  .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px;transition:background .25s,border-color .25s;
+  }
+  .card h2{
+    font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .card h2 .tag{font-size:.66rem;letter-spacing:.05em;color:var(--accent)}
+
+  label.fl{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:12px 0 5px}
+  label.fl:first-of-type{margin-top:0}
+  .inrow{position:relative;display:flex;align-items:center}
+  .inrow .pre,.inrow .suf{
+    position:absolute;font-family:var(--mono);font-size:.95rem;color:var(--muted);pointer-events:none;
+  }
+  .inrow .pre{left:13px}.inrow .suf{right:13px}
+  input[type="text"],input[type="number"],textarea{
+    width:100%;background:var(--bg);border:1px solid var(--line);border-radius:11px;
+    color:var(--ink);font-family:var(--mono);font-size:1.02rem;padding:11px 12px;
+    font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield;
+  }
+  .inrow.haspre input{padding-left:30px}
+  .inrow.hassuf input{padding-right:32px}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:transparent}
+  textarea{font-family:var(--sans);font-size:.92rem;resize:vertical;min-height:64px;line-height:1.45}
+
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* preset chips */
+  .chips{display:flex;gap:6px;margin-top:8px;align-items:center}
+  .chips .set{display:flex;gap:6px;flex:1}
+  .chip{
+    flex:1;border:1px solid var(--line);background:var(--chip);color:var(--ink);
+    font-family:var(--mono);font-size:.8rem;font-weight:600;padding:8px 2px;
+    border-radius:9px;cursor:pointer;text-align:center;font-variant-numeric:tabular-nums;
+  }
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .chip-edit{
+    flex:0 0 auto;width:34px;border:1px solid var(--line);background:transparent;color:var(--muted);
+    border-radius:9px;cursor:pointer;font-size:.85rem;padding:8px 0;
+  }
+  .chips input.chipin{
+    flex:1;width:0;min-width:0;padding:7px 2px;font-size:.8rem;text-align:center;border-radius:9px;
+  }
+
+  /* long/short */
+  .lsrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+  .ls{
+    border:1px solid var(--line);background:var(--chip);border-radius:11px;padding:10px;
+    cursor:pointer;text-align:center;font-weight:700;font-size:.86rem;color:var(--muted);
+  }
+  .ls small{display:block;font-weight:500;font-size:.66rem;margin-top:2px;letter-spacing:.02em}
+  .ls.long[aria-pressed="true"]{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+  .ls.short[aria-pressed="true"]{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+
+  /* ticket */
+  .ticket{
+    background:var(--ticket);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  }
+  .ticket .thead{
+    padding:12px 16px;border-bottom:1px dashed var(--line);display:flex;justify-content:space-between;align-items:center;
+  }
+  .ticket .thead .t{font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .ticket .thead .dir{font-family:var(--mono);font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:6px}
+  .dir.long{color:var(--green);background:var(--green-bg)} .dir.short{color:var(--red);background:var(--red-bg)}
+  .trows{padding:6px 16px 12px}
+  .trow{
+    display:flex;justify-content:space-between;align-items:center;padding:9px 0;
+    border-bottom:1px solid var(--line);gap:8px;
+  }
+  .trow:last-child{border-bottom:0}
+  .trow .k{font-size:.8rem;color:var(--muted)}
+  .trow .v{
+    font-family:var(--mono);font-size:1rem;font-weight:600;font-variant-numeric:tabular-nums;
+    display:flex;align-items:center;gap:7px;text-align:right;
+  }
+  .trow .v.big{font-size:1.18rem}
+  .trow.hl .v{color:var(--accent)}
+  .copybtn{
+    border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:7px;
+    font-size:.68rem;padding:4px 7px;cursor:pointer;font-family:var(--sans);font-weight:600;
+  }
+  .copybtn.done{color:var(--green);border-color:var(--green)}
+  /* risk gauge — signature */
+  .gauge{padding:13px 16px 16px;border-top:1px dashed var(--line)}
+  .gauge .grow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .gauge .gl{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .gauge .gv{font-family:var(--mono);font-size:.95rem;font-weight:700}
+  .bar{height:10px;border-radius:6px;background:var(--chip);position:relative;overflow:hidden}
+  .bar .fill{height:100%;border-radius:6px;background:var(--green);width:0%;transition:width .3s,background .3s}
+  .bar .mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.55}
+  .gauge .cap{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-top:5px;font-family:var(--mono)}
+  .gauge .cap .capmid{font-weight:700;color:var(--ink)}
+  .gauge.over .fill{background:var(--red)} .gauge.over .gv{color:var(--red)}
+  .warn{
+    margin:0 16px 14px;background:var(--red-bg);border:1px solid var(--red);color:var(--red);
+    border-radius:10px;padding:9px 11px;font-size:.8rem;font-weight:600;display:none;
+  }
+  .warn.show{display:block}
+  .thresh{display:flex;align-items:center;gap:8px;padding:0 16px 14px;font-size:.74rem;color:var(--muted)}
+  .thresh input{width:64px;padding:5px 8px;font-size:.8rem;border-radius:8px}
+
+  /* actions */
+  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .btn{
+    border:1px solid var(--line);border-radius:12px;padding:12px 6px;cursor:pointer;
+    font-weight:700;font-size:.86rem;font-family:inherit;background:var(--card);color:var(--ink);
+  }
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn:active{transform:scale(.985)}
+  .hint{font-size:.72rem;color:var(--muted);text-align:center;margin-top:2px}
+
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(10,12,18,.5);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:12px}
+  .modal.show{display:flex}
+  .sheet{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:520px;width:100%;padding:18px}
+  .sheet h3{font-size:1rem;margin-bottom:10px}
+  .sheet p{font-size:.82rem;color:var(--muted);margin-bottom:10px;line-height:1.5}
+  .sheet .srow{display:flex;gap:8px;margin-top:12px}
+  .sheet .srow .btn{flex:1}
+  @media(min-width:560px){.modal{align-items:center}}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-theme="light">
+<div class="wrap">
+
+  <header class="app">
+    <h1>Trade Risk Calculator</h1>
+    <p>Position size · stop loss · risk, on one ticket.</p>
+  </header>
+
+  <div class="strip" role="toolbar" aria-label="Settings">
+    <select id="currency" aria-label="Currency">
+      <option value="$|USD">$ USD</option><option value="€|EUR">€ EUR</option>
+      <option value="£|GBP">£ GBP</option><option value="¥|JPY">¥ JPY</option>
+      <option value="₹|INR">₹ INR</option><option value="C$|CAD">C$ CAD</option>
+      <option value="A$|AUD">A$ AUD</option><option value="custom">Custom…</option>
+    </select>
+    <div class="seg" role="group" aria-label="Theme">
+      <button data-theme-opt="auto">Auto</button><button data-theme-opt="light">Light</button><button data-theme-opt="dark">Dark</button>
+    </div>
+    <div class="seg" role="group" aria-label="Stop price decimals">
+      <button data-dec="2">.00</button><button data-dec="4">.0000</button>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <section class="card" id="sec1">
+    <h2>1 · Position size <span class="tag" id="s1tag"></span></h2>
+    <label class="fl" for="portfolio">Portfolio size</label>
+    <div class="inrow haspre"><span class="pre cur">$</span>
+      <input id="portfolio" type="text" inputmode="decimal" placeholder="100,000" autocomplete="off">
+    </div>
+    <div class="duo">
+      <div>
+        <label class="fl" for="riskPct">% of portfolio</label>
+        <div class="inrow hassuf"><input id="riskPct" type="text" inputmode="decimal" placeholder="1" autocomplete="off"><span class="suf">%</span></div>
+      </div>
+      <div>
+        <label class="fl" for="riskAmt">Trade amount</label>
+        <div class="inrow haspre"><span class="pre cur">$</span><input id="riskAmt" type="text" inputmode="decimal" placeholder="1,000" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="chips" id="chipsPct" aria-label="Portfolio % presets"></div>
+  </section>
+
+  <!-- Section 2 -->
+  <section class="card" id="sec2">
+    <h2>2 · Stop loss</h2>
+    <div class="lsrow" role="radiogroup" aria-label="Trade direction">
+      <button class="ls long" id="btnLong" role="radio" aria-pressed="true">Long trade<small>stop below entry</small></button>
+      <button class="ls short" id="btnShort" role="radio" aria-pressed="false">Short trade<small>stop above entry</small></button>
+    </div>
+    <div class="duo">
+      <div>
+        <label class="fl" for="entry">Stock price (entry)</label>
+        <div class="inrow haspre"><span class="pre cur">$</span><input id="entry" type="text" inputmode="decimal" placeholder="100.00" autocomplete="off"></div>
+      </div>
+      <div>
+        <label class="fl" for="stopPct">Stop loss buffer</label>
+        <div class="inrow hassuf"><input id="stopPct" type="text" inputmode="decimal" placeholder="5" autocomplete="off"><span class="suf">%</span></div>
+      </div>
+    </div>
+    <div class="chips" id="chipsStop" aria-label="Stop % presets"></div>
+  </section>
+
+  <!-- Ticket -->
+  <section class="ticket" aria-live="polite">
+    <div class="thead">
+      <span class="t">Order ticket</span>
+      <span class="dir long" id="dirBadge">LONG</span>
+    </div>
+    <div class="trows">
+      <div class="trow hl"><span class="k">Stop loss price</span>
+        <span class="v big"><span id="oStop">—</span><button class="copybtn" data-copy="oStop">Copy</button></span></div>
+      <div class="trow"><span class="k">Shares (whole)</span>
+        <span class="v"><span id="oShares">—</span><button class="copybtn" data-copy="oShares">Copy</button></span></div>
+      <div class="trow"><span class="k">Trade allocation</span><span class="v" id="oAlloc">—</span></div>
+      <div class="trow"><span class="k">Loss per share</span><span class="v" id="oLps">—</span></div>
+      <div class="trow"><span class="k">Total at risk</span><span class="v" id="oRisk">—</span></div>
+    </div>
+    <div class="gauge" id="gauge">
+      <div class="grow"><span class="gl">Portfolio at risk</span><span class="gv" id="oRiskPct">—</span></div>
+      <div class="bar"><div class="fill" id="gFill"></div><div class="mark" id="gMark" style="left:50%"></div></div>
+      <div class="cap"><span>0%</span><span class="capmid" id="gCap">2% limit</span><span id="gMax">4%</span></div>
+    </div>
+    <div class="warn" id="warn">⚠ Risk exceeds your <span id="warnT">2</span>% per-trade limit.</div>
+    <div class="thresh">
+      <label for="threshold">Max risk per trade</label>
+      <input id="threshold" type="text" inputmode="decimal" value="2"> <span>%</span>
+    </div>
+  </section>
+
+  <!-- Memo -->
+  <section class="card">
+    <h2>Memo · trade catalyst</h2>
+    <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="500"></textarea>
+  </section>
+
+  <div class="actions">
+    <button class="btn primary" id="btnShare">Share</button>
+    <button class="btn" id="btnImport">Import</button>
+    <button class="btn" id="btnReset">Reset</button>
+  </div>
+  <p class="hint">Share sends your numbers + memo with a code anyone can import here.</p>
+
+</div>
+
+<!-- share fallback / import sheet -->
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <h3 id="mTitle">Share</h3>
+    <p id="mBody"></p>
+    <textarea id="mText" rows="4"></textarea>
+    <div class="srow" id="mActions"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const DEFAULTS={
+  portfolio:"",riskPct:"",riskAmt:"",lastSide:"pct",
+  entry:"",stopPct:"",direction:"long",memo:"",
+  presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
+  threshold:2,curSym:"$",curCode:"USD",theme:"auto",decimals:2
+};
+let S=JSON.parse(JSON.stringify(DEFAULTS));
+let mem={}; // in-memory fallback
+const KEY="trade-risk-calc-v1";
+
+/* ---------- storage: artifact storage -> localStorage -> memory ---------- */
+async function store(val){
+  const str=JSON.stringify(val);
+  if(window.storage&&window.storage.set){try{await window.storage.set(KEY,str);return}catch(e){}}
+  try{window.localStorage.setItem(KEY,str);return}catch(e){}
+  mem[KEY]=str;
+}
+async function load(){
+  if(window.storage&&window.storage.get){
+    try{const r=await window.storage.get(KEY);if(r&&r.value)return JSON.parse(r.value)}catch(e){}
+  }
+  try{const r=window.localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}
+  if(mem[KEY])return JSON.parse(mem[KEY]);
+  return null;
+}
+let saveT;function persist(){clearTimeout(saveT);saveT=setTimeout(()=>store(S),350)}
+
+/* ---------- helpers ---------- */
+function num(v){if(v===""||v==null)return NaN;const n=parseFloat(String(v).replace(/,/g,""));return isFinite(n)?n:NaN}
+function fmtMoney(n,dec){if(!isFinite(n))return"—";
+  return S.curSym+n.toLocaleString("en-US",{minimumFractionDigits:dec??2,maximumFractionDigits:dec??2})}
+function fmtPct(n){if(!isFinite(n))return"—";return(Math.round(n*100)/100).toLocaleString("en-US",{maximumFractionDigits:2})+"%"}
+function clean(v){return String(v).replace(/[^0-9.,]/g,"")}
+
+/* ---------- theme ---------- */
+const mq=window.matchMedia("(prefers-color-scheme: dark)");
+function applyTheme(){
+  const t=S.theme==="auto"?(mq.matches?"dark":"light"):S.theme;
+  document.body.setAttribute("data-theme",t);
+  document.querySelectorAll("[data-theme-opt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeOpt===S.theme)));
+}
+mq.addEventListener?mq.addEventListener("change",applyTheme):mq.addListener(applyTheme);
+
+/* ---------- presets ---------- */
+function renderChips(holder,arr,onPick,onSave,activeVal){
+  holder.innerHTML="";
+  const set=document.createElement("div");set.className="set";
+  const editing=holder.dataset.editing==="1";
+  function commit(){
+    const vals=[...set.querySelectorAll("input")].map(i=>num(i.value)).map(v=>isFinite(v)&&v>0?Math.round(v*100)/100:null);
+    const ok=vals.filter(v=>v!=null);
+    if(ok.length===arr.length)onSave(ok);
+    holder.dataset.editing="0";
+    renderAll();
+  }
+  arr.forEach((p,i)=>{
+    if(editing){
+      const inp=document.createElement("input");
+      inp.className="chipin";inp.type="text";inp.inputMode="decimal";inp.value=p;inp.setAttribute("aria-label","Preset "+(i+1));
+      inp.setAttribute("enterkeyhint","go");
+      inp.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();inp.blur();commit()}});
+      set.appendChild(inp);
+    }else{
+      const b=document.createElement("button");b.className="chip";b.type="button";
+      b.textContent=p+"%";b.setAttribute("aria-pressed",String(num(activeVal)===p));
+      b.addEventListener("click",()=>onPick(p));set.appendChild(b);
+    }
+  });
+  holder.appendChild(set);
+  const e=document.createElement("button");e.className="chip-edit";e.type="button";
+  e.title=editing?"Save presets":"Edit presets";e.textContent=editing?"✓":"✎";
+  e.addEventListener("click",()=>{
+    if(editing)commit();
+    else{holder.dataset.editing="1";renderAll()}
+  });
+  holder.appendChild(e);
+}
+
+/* ---------- core calc ---------- */
+function compute(){
+  const port=num(S.portfolio);
+  let pct=num(S.riskPct),amt=num(S.riskAmt);
+  // bidirectional sync based on last edited side
+  if(isFinite(port)&&port>0){
+    if(S.lastSide==="pct"&&isFinite(pct)){amt=port*pct/100;S.riskAmt=amt?String(Math.round(amt*100)/100):""}
+    else if(S.lastSide==="amt"&&isFinite(amt)){pct=amt/port*100;S.riskPct=isFinite(pct)?String(Math.round(pct*10000)/10000):""}
+  }
+  const alloc=isFinite(amt)?amt:NaN;                       // standalone: trade amount works without portfolio
+  const entry=num(S.entry),sp=num(S.stopPct);
+  const lps=(isFinite(entry)&&isFinite(sp))?entry*sp/100:NaN;
+  const stop=(isFinite(entry)&&isFinite(sp))?(S.direction==="long"?entry*(1-sp/100):entry*(1+sp/100)):NaN;
+  const shares=(isFinite(alloc)&&isFinite(entry)&&entry>0)?Math.floor(alloc/entry):NaN;
+  const risk=(isFinite(shares)&&isFinite(lps))?shares*lps:NaN;
+  const riskPctPort=(isFinite(risk)&&isFinite(port)&&port>0)?risk/port*100:NaN;
+  return{port,pct,amt,alloc,entry,sp,lps,stop,shares,risk,riskPctPort};
+}
+
+/* ---------- render ---------- */
+function renderAll(){
+  const c=compute(); // run sync + math first so inputs/outputs render fresh values
+  applyTheme();
+  document.querySelectorAll(".cur").forEach(e=>e.textContent=S.curSym);
+  const co=$("currency");co.value=[...co.options].some(o=>o.value===S.curSym+"|"+S.curCode)?S.curSym+"|"+S.curCode:"custom";
+  if(co.value==="custom"&&S.curCode!=="CUSTOM"&&[...co.options].every(o=>o.value!==S.curSym+"|"+S.curCode)){
+    /* custom symbol active; leave select on Custom */
+  }
+  document.querySelectorAll("[data-dec]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.dec===S.decimals)));
+  // inputs (don't clobber focused field)
+  [["portfolio","portfolio"],["riskPct","riskPct"],["riskAmt","riskAmt"],["entry","entry"],["stopPct","stopPct"]]
+    .forEach(([id,k])=>{const el=$(id);if(document.activeElement!==el)el.value=S[k]});
+  if(document.activeElement!==$("memo"))$("memo").value=S.memo;
+  if(document.activeElement!==$("threshold"))$("threshold").value=S.threshold;
+  $("btnLong").setAttribute("aria-pressed",String(S.direction==="long"));
+  $("btnShort").setAttribute("aria-pressed",String(S.direction==="short"));
+  renderChips($("chipsPct"),S.presetsPct,p=>{S.riskPct=String(p);S.lastSide="pct";onChange()},a=>{S.presetsPct=a;persist()},S.riskPct);
+  renderChips($("chipsStop"),S.presetsStop,p=>{S.stopPct=String(p);onChange()},a=>{S.presetsStop=a;persist()},S.stopPct);
+  $("s1tag").textContent=isFinite(c.port)?"":"standalone mode";
+  const badge=$("dirBadge");badge.textContent=S.direction.toUpperCase();
+  badge.className="dir "+S.direction;
+  $("oStop").textContent=isFinite(c.stop)?fmtMoney(c.stop,S.decimals):"—";
+  $("oShares").textContent=isFinite(c.shares)?c.shares.toLocaleString("en-US"):"—";
+  $("oAlloc").textContent=fmtMoney(c.alloc);
+  $("oLps").textContent=fmtMoney(c.lps);
+  $("oRisk").textContent=fmtMoney(c.risk);
+  $("oRiskPct").textContent=fmtPct(c.riskPctPort);
+  // gauge: scale = 2× threshold
+  const th=num(S.threshold)||2,g=$("gauge");
+  const max=th*2,v=isFinite(c.riskPctPort)?c.riskPctPort:0;
+  $("gFill").style.width=Math.min(100,v/max*100)+"%";
+  $("gMark").style.left=Math.min(100,th/max*100)+"%";
+  $("gCap").textContent=(Math.round(th*100)/100)+"% limit";
+  $("gMax").textContent=(Math.round(th*2*100)/100)+"%";
+  const over=isFinite(c.riskPctPort)&&c.riskPctPort>th;
+  g.classList.toggle("over",over);
+  $("warn").classList.toggle("show",over);
+  $("warnT").textContent=th;
+}
+function onChange(){persist();renderAll()}
+
+/* ---------- input wiring ---------- */
+function bindNum(id,key,side){
+  const el=$(id);
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();renderAll()}});
+  el.addEventListener("input",e=>{
+    e.target.value=clean(e.target.value);
+    S[key]=e.target.value;if(side)S.lastSide=side;onChange();
+  });
+}
+bindNum("portfolio","portfolio");
+bindNum("riskPct","riskPct","pct");
+bindNum("riskAmt","riskAmt","amt");
+bindNum("entry","entry");
+bindNum("stopPct","stopPct");
+$("memo").addEventListener("input",e=>{S.memo=e.target.value;persist()});
+$("threshold").addEventListener("input",e=>{e.target.value=clean(e.target.value);S.threshold=num(e.target.value)||"";onChange()});
+$("btnLong").addEventListener("click",()=>{S.direction="long";onChange()});
+$("btnShort").addEventListener("click",()=>{S.direction="short";onChange()});
+document.querySelectorAll("[data-theme-opt]").forEach(b=>b.addEventListener("click",()=>{S.theme=b.dataset.themeOpt;onChange()}));
+document.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click",()=>{S.decimals=+b.dataset.dec;onChange()}));
+$("currency").addEventListener("change",e=>{
+  if(e.target.value==="custom"){
+    const sym=prompt("Enter a currency symbol (e.g. CHF, kr, ₿):",S.curSym);
+    if(sym&&sym.trim()){S.curSym=sym.trim().slice(0,4);S.curCode="CUSTOM"}
+  }else{const[sym,code]=e.target.value.split("|");S.curSym=sym;S.curCode=code}
+  onChange();
+});
+
+/* ---------- copy ---------- */
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);return true}
+  catch(e){
+    const ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();let ok=false;
+    try{ok=document.execCommand("copy")}catch(_){ }
+    document.body.removeChild(ta);return ok;
+  }
+}
+document.querySelectorAll(".copybtn").forEach(b=>b.addEventListener("click",async()=>{
+  const t=$(b.dataset.copy).textContent;if(t==="—")return;
+  if(await copyText(t.replace(/[^\d.,-]/g,""))){b.textContent="✓";b.classList.add("done");
+    setTimeout(()=>{b.textContent="Copy";b.classList.remove("done")},1200)}
+}));
+
+/* ---------- share / import ---------- */
+function encodeState(){
+  const p={portfolio:S.portfolio,riskPct:S.riskPct,riskAmt:S.riskAmt,lastSide:S.lastSide,
+    entry:S.entry,stopPct:S.stopPct,direction:S.direction,memo:S.memo,
+    threshold:S.threshold,curSym:S.curSym,curCode:S.curCode,decimals:S.decimals};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function decodeState(code){
+  const b=code.trim().replace(/-/g,"+").replace(/_/g,"/");
+  return JSON.parse(decodeURIComponent(escape(atob(b+"===".slice(0,(4-b.length%4)%4)))));
+}
+function shareText(){
+  const c=compute(),L=[];
+  L.push("📈 Trade Risk Calculator");
+  L.push(`Direction: ${S.direction.toUpperCase()}`);
+  if(isFinite(c.port))L.push(`Portfolio: ${fmtMoney(c.port)}`);
+  if(isFinite(c.alloc))L.push(`Trade allocation: ${fmtMoney(c.alloc)}${isFinite(c.pct)?" ("+fmtPct(c.pct)+" of portfolio)":""}`);
+  if(isFinite(c.entry))L.push(`Entry: ${fmtMoney(c.entry,S.decimals)}  ·  Stop buffer: ${fmtPct(c.sp)}`);
+  if(isFinite(c.stop))L.push(`Stop loss price: ${fmtMoney(c.stop,S.decimals)}`);
+  if(isFinite(c.shares))L.push(`Shares: ${c.shares}  ·  Loss/share: ${fmtMoney(c.lps)}`);
+  if(isFinite(c.risk))L.push(`Total at risk: ${fmtMoney(c.risk)}${isFinite(c.riskPctPort)?" ("+fmtPct(c.riskPctPort)+" of portfolio)":""}`);
+  if(S.memo.trim())L.push(`Memo: ${S.memo.trim()}`);
+  const code=encodeState();
+  if(isDeployed()){
+    L.push("");L.push("Open with these values pre-filled:");
+    L.push(location.origin+location.pathname+"#d="+code);
+  }else{
+    L.push("");L.push("Import code (paste in the app via Import):");L.push(code);
+  }
+  return L.join("\n");
+}
+// deployed standalone site (not the Claude artifact sandbox)?
+function isDeployed(){return !window.storage&&/^https?:$/.test(location.protocol)&&location.hostname!==""}
+// load state from a shared #d= link
+function importFromHash(){
+  const m=location.hash.match(/[#&]d=([A-Za-z0-9_-]+)/);
+  if(!m)return false;
+  try{
+    const p=decodeState(m[1]);
+    Object.keys(p).forEach(k=>{if(k in S)S[k]=p[k]});
+    history.replaceState(null,"",location.pathname+location.search); // clean the URL
+    return true;
+  }catch(e){return false}
+}
+const modal=$("modal");
+function openSheet(title,body,text,actions){
+  $("mTitle").textContent=title;$("mBody").textContent=body;
+  const ta=$("mText");ta.value=text;ta.readOnly=!!text;ta.style.display=text!==null?"block":"none";
+  const A=$("mActions");A.innerHTML="";
+  actions.forEach(([label,fn,primary])=>{
+    const b=document.createElement("button");b.className="btn"+(primary?" primary":"");b.textContent=label;
+    b.addEventListener("click",fn);A.appendChild(b);
+  });
+  modal.classList.add("show");
+}
+function closeSheet(){modal.classList.remove("show")}
+modal.addEventListener("click",e=>{if(e.target===modal)closeSheet()});
+
+$("btnShare").addEventListener("click",async()=>{
+  const text=shareText();
+  if(navigator.share){
+    try{await navigator.share({title:"Trade setup",text});return}catch(e){if(e&&e.name==="AbortError")return}
+  }
+  openSheet("Share this setup","Your share sheet isn't available here — use email or copy instead.",text,[
+    ["Email",async function(){
+      // copy first as a guaranteed fallback, then try to open the mail app
+      const copied=await copyText(text);
+      const a=document.createElement("a");
+      a.href="mailto:?subject="+encodeURIComponent("Trade setup")+"&body="+encodeURIComponent(text);
+      a.target="_blank";a.rel="noopener";
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      $("mBody").textContent=copied
+        ?"Mail app opening… If it didn't (some environments block this), the full message is already copied — just paste it into an email."
+        :"If your mail app didn't open, select the text above and copy it manually.";
+      this.textContent=copied?"✓ Copied too":"Email";
+    },false],
+    ["Copy",async function(){if(await copyText(text)){this.textContent="✓ Copied"}},true],
+    ["Close",closeSheet,false]
+  ]);
+});
+$("btnImport").addEventListener("click",()=>{
+  openSheet("Import a setup","Paste a share code (or a full shared message — the code is the last line).","",[
+    ["Load",function(){
+      try{
+        const raw=$("mText").value.trim();
+        const code=raw.split(/\s+/).pop();
+        const p=decodeState(code);
+        Object.keys(p).forEach(k=>{if(k in S)S[k]=p[k]});
+        closeSheet();onChange();
+      }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely and try again."}
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
+$("btnReset").addEventListener("click",()=>{
+  ["portfolio","riskPct","riskAmt","entry","stopPct","memo"].forEach(k=>S[k]="");
+  S.lastSide="pct";S.direction="long";onChange();
+});
+
+/* ---------- boot ---------- */
+(async function(){
+  const saved=await load();
+  if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
+  if(importFromHash())persist(); // a shared link's values win over the saved session
+  renderAll();
+})();
+})();
+</script>
+</body>
+</html>
