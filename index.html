@@ -6,7 +6,7 @@
 <title>Trade Risk Calculator</title>
 <style>
   :root{
-    --bg:#F2F3F6; --card:#FFFFFF; --ink:#15171C; --muted:#697080;
+    --bg:#F2F3F6; --card:#FFFFFF; --ink:#15171C; --muted:#697080; --ph:#ABB2BF;
     --line:#E2E5EB; --accent:#2F6FED; --accent-ink:#FFFFFF;
     --green:#15803D; --green-bg:#EAF7EF; --red:#DC2626; --red-bg:#FCEDED;
     --amber:#B45309; --chip:#EEF1F6; --ticket:#FBFBF9; --focus:#2F6FED;
@@ -14,7 +14,7 @@
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   [data-theme="dark"]{
-    --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1;
+    --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1; --ph:#5E677B;
     --line:#272C38; --accent:#5B8CFF; --accent-ink:#0F1116;
     --green:#34C77B; --green-bg:#12251A; --red:#F06A6A; --red-bg:#2A1517;
     --amber:#E0A458; --chip:#222735; --ticket:#1B1F28; --focus:#5B8CFF;
@@ -57,9 +57,10 @@
   label.fl:first-of-type{margin-top:0}
   .inrow{position:relative;display:flex;align-items:center}
   .inrow .pre,.inrow .suf{
-    position:absolute;font-family:var(--mono);font-size:.95rem;color:var(--muted);pointer-events:none;
+    position:absolute;font-family:var(--mono);font-size:.95rem;color:var(--ink);font-weight:700;pointer-events:none;
   }
   .inrow .pre{left:13px}.inrow .suf{right:13px}
+  input::placeholder,textarea::placeholder{color:var(--ph);opacity:1;font-weight:400}
   input[type="text"],input[type="number"],textarea{
     width:100%;background:var(--bg);border:1px solid var(--line);border-radius:11px;
     color:var(--ink);font-family:var(--mono);font-size:1.02rem;padding:11px 12px;
@@ -67,6 +68,14 @@
   }
   .inrow.haspre input{padding-left:30px}
   .inrow.hassuf input{padding-right:32px}
+  .inrow.haslock input{padding-right:42px}
+  .lockbtn{
+    position:absolute;right:6px;border:0;background:transparent;cursor:pointer;
+    color:var(--muted);padding:7px;border-radius:8px;display:flex;align-items:center;
+  }
+  .lockbtn svg{width:16px;height:16px}
+  .lockbtn[aria-pressed="true"]{color:var(--accent)}
+  .inrow.locked input{border-color:var(--accent)}
   input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
   input:focus,textarea:focus,select:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:transparent}
   textarea{font-family:var(--sans);font-size:.92rem;resize:vertical;min-height:64px;line-height:1.45}
@@ -197,8 +206,9 @@
   <section class="card" id="sec1">
     <h2>1 · Position size <span class="tag" id="s1tag"></span></h2>
     <label class="fl" for="portfolio">Portfolio size</label>
-    <div class="inrow haspre"><span class="pre cur">$</span>
+    <div class="inrow haspre haslock" id="portRow"><span class="pre cur">$</span>
       <input id="portfolio" type="text" inputmode="decimal" placeholder="100,000" autocomplete="off">
+      <button class="lockbtn" id="portLock" type="button" aria-pressed="false" title="Lock portfolio size"></button>
     </div>
     <div class="duo">
       <div>
@@ -290,7 +300,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const DEFAULTS={
-  portfolio:"",riskPct:"",riskAmt:"",lastSide:"pct",
+  portfolio:"",riskPct:"",riskAmt:"",editOrder:["pct","port"],portLock:false,
   entry:"",stopPct:"",direction:"long",memo:"",
   presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
   threshold:2,curSym:"$",curCode:"USD",theme:"auto",decimals:2
@@ -322,6 +332,15 @@ function fmtMoney(n,dec){if(!isFinite(n))return"—";
   return S.curSym+n.toLocaleString("en-US",{minimumFractionDigits:dec??2,maximumFractionDigits:dec??2})}
 function fmtPct(n){if(!isFinite(n))return"—";return(Math.round(n*100)/100).toLocaleString("en-US",{maximumFractionDigits:2})+"%"}
 function clean(v){return String(v).replace(/[^0-9.,]/g,"")}
+function groupNum(v){ // 1234567.89 -> 1,234,567.89
+  let s=String(v).replace(/,/g,"");
+  if(s==="")return"";
+  const dot=s.indexOf(".");
+  if(dot!==-1)s=s.slice(0,dot+1)+s.slice(dot+1).replace(/\./g,""); // keep only first dot
+  const[i,d]=s.split(".");
+  const gi=i.replace(/\B(?=(\d{3})+(?!\d))/g,",");
+  return d!==undefined?gi+"."+d:gi;
+}
 
 /* ---------- theme ---------- */
 const mq=window.matchMedia("(prefers-color-scheme: dark)");
@@ -368,13 +387,24 @@ function renderChips(holder,arr,onPick,onSave,activeVal){
 }
 
 /* ---------- core calc ---------- */
+function touch(f){S.editOrder=[f,...S.editOrder.filter(x=>x!==f)].slice(0,2)}
 function compute(){
-  const port=num(S.portfolio);
-  let pct=num(S.riskPct),amt=num(S.riskAmt);
-  // bidirectional sync based on last edited side
-  if(isFinite(port)&&port>0){
-    if(S.lastSide==="pct"&&isFinite(pct)){amt=port*pct/100;S.riskAmt=amt?String(Math.round(amt*100)/100):""}
-    else if(S.lastSide==="amt"&&isFinite(amt)){pct=amt/port*100;S.riskPct=isFinite(pct)?String(Math.round(pct*10000)/10000):""}
+  let port=num(S.portfolio),pct=num(S.riskPct),amt=num(S.riskAmt);
+  // three-way solve: derive whichever of portfolio / % / $ was least recently edited.
+  // when the portfolio is locked it is never the derived field — % and $ solve between themselves.
+  let derived;
+  if(S.portLock){
+    const lastPA=S.editOrder.find(f=>f!=="port")||"pct";
+    derived=lastPA==="pct"?"amt":"pct";
+  }else{
+    derived=["port","pct","amt"].find(f=>!S.editOrder.includes(f));
+  }
+  if(derived==="amt"&&isFinite(port)&&port>0&&isFinite(pct)){
+    amt=port*pct/100;S.riskAmt=String(Math.round(amt*100)/100);
+  }else if(derived==="pct"&&isFinite(port)&&port>0&&isFinite(amt)){
+    pct=amt/port*100;S.riskPct=String(Math.round(pct*10000)/10000);
+  }else if(derived==="port"&&isFinite(pct)&&pct>0&&isFinite(amt)){
+    port=amt/(pct/100);S.portfolio=String(Math.round(port*100)/100);
   }
   const alloc=isFinite(amt)?amt:NaN;                       // standalone: trade amount works without portfolio
   const entry=num(S.entry),sp=num(S.stopPct);
@@ -391,19 +421,32 @@ function renderAll(){
   const c=compute(); // run sync + math first so inputs/outputs render fresh values
   applyTheme();
   document.querySelectorAll(".cur").forEach(e=>e.textContent=S.curSym);
+  // wide symbols (C$, A$, CHF…) need more room — pad each input to its symbol's width
+  document.querySelectorAll(".inrow.haspre").forEach(r=>{
+    const pre=r.querySelector(".pre"),inp=r.querySelector("input");
+    if(pre&&inp)inp.style.paddingLeft=Math.max(30,pre.offsetWidth+19)+"px";
+  });
   const co=$("currency");co.value=[...co.options].some(o=>o.value===S.curSym+"|"+S.curCode)?S.curSym+"|"+S.curCode:"custom";
   if(co.value==="custom"&&S.curCode!=="CUSTOM"&&[...co.options].every(o=>o.value!==S.curSym+"|"+S.curCode)){
     /* custom symbol active; leave select on Custom */
   }
   document.querySelectorAll("[data-dec]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.dec===S.decimals)));
-  // inputs (don't clobber focused field)
-  [["portfolio","portfolio"],["riskPct","riskPct"],["riskAmt","riskAmt"],["entry","entry"],["stopPct","stopPct"]]
-    .forEach(([id,k])=>{const el=$(id);if(document.activeElement!==el)el.value=S[k]});
+  // inputs (don't clobber focused field); money fields display with comma grouping
+  [["portfolio","portfolio",1],["riskPct","riskPct",0],["riskAmt","riskAmt",1],["entry","entry",1],["stopPct","stopPct",0]]
+    .forEach(([id,k,money])=>{const el=$(id);if(document.activeElement!==el)el.value=money?groupNum(S[k]):S[k]});
   if(document.activeElement!==$("memo"))$("memo").value=S.memo;
   if(document.activeElement!==$("threshold"))$("threshold").value=S.threshold;
   $("btnLong").setAttribute("aria-pressed",String(S.direction==="long"));
   $("btnShort").setAttribute("aria-pressed",String(S.direction==="short"));
-  renderChips($("chipsPct"),S.presetsPct,p=>{S.riskPct=String(p);S.lastSide="pct";onChange()},a=>{S.presetsPct=a;persist()},S.riskPct);
+  // portfolio lock
+  const ICON_LOCKED='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+  const ICON_OPEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
+  const lk=$("portLock");
+  lk.innerHTML=S.portLock?ICON_LOCKED:ICON_OPEN;
+  lk.setAttribute("aria-pressed",String(S.portLock));
+  lk.title=S.portLock?"Portfolio locked — % and trade amount changes won't alter it. Tap to unlock.":"Lock portfolio size";
+  $("portRow").classList.toggle("locked",S.portLock);
+  renderChips($("chipsPct"),S.presetsPct,p=>{S.riskPct=String(p);touch("pct");onChange()},a=>{S.presetsPct=a;persist()},S.riskPct);
   renderChips($("chipsStop"),S.presetsStop,p=>{S.stopPct=String(p);onChange()},a=>{S.presetsStop=a;persist()},S.stopPct);
   $("s1tag").textContent=isFinite(c.port)?"":"standalone mode";
   const badge=$("dirBadge");badge.textContent=S.direction.toUpperCase();
@@ -429,24 +472,35 @@ function renderAll(){
 function onChange(){persist();renderAll()}
 
 /* ---------- input wiring ---------- */
-function bindNum(id,key,side){
+function bindNum(id,key,field,money){
   const el=$(id);
   el.setAttribute("enterkeyhint","done");
   el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();renderAll()}});
   el.addEventListener("input",e=>{
-    e.target.value=clean(e.target.value);
-    S[key]=e.target.value;if(side)S.lastSide=side;onChange();
+    const t=e.target;
+    if(money){
+      const caret=t.selectionStart;
+      const digitsBefore=(t.value.slice(0,caret).match(/[0-9.]/g)||[]).length;
+      t.value=groupNum(clean(t.value));
+      let pos=0,count=0; // put the caret back after the same number of digits
+      while(pos<t.value.length&&count<digitsBefore){if(/[0-9.]/.test(t.value[pos]))count++;pos++}
+      try{t.setSelectionRange(pos,pos)}catch(_){}
+    }else{
+      t.value=clean(t.value);
+    }
+    S[key]=t.value;if(field)touch(field);onChange();
   });
 }
-bindNum("portfolio","portfolio");
+bindNum("portfolio","portfolio","port",true);
 bindNum("riskPct","riskPct","pct");
-bindNum("riskAmt","riskAmt","amt");
-bindNum("entry","entry");
+bindNum("riskAmt","riskAmt","amt",true);
+bindNum("entry","entry",null,true);
 bindNum("stopPct","stopPct");
 $("memo").addEventListener("input",e=>{S.memo=e.target.value;persist()});
 $("threshold").addEventListener("input",e=>{e.target.value=clean(e.target.value);S.threshold=num(e.target.value)||"";onChange()});
 $("btnLong").addEventListener("click",()=>{S.direction="long";onChange()});
 $("btnShort").addEventListener("click",()=>{S.direction="short";onChange()});
+$("portLock").addEventListener("click",()=>{S.portLock=!S.portLock;onChange()});
 document.querySelectorAll("[data-theme-opt]").forEach(b=>b.addEventListener("click",()=>{S.theme=b.dataset.themeOpt;onChange()}));
 document.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click",()=>{S.decimals=+b.dataset.dec;onChange()}));
 $("currency").addEventListener("change",e=>{
@@ -475,10 +529,22 @@ document.querySelectorAll(".copybtn").forEach(b=>b.addEventListener("click",asyn
 
 /* ---------- share / import ---------- */
 function encodeState(){
-  const p={portfolio:S.portfolio,riskPct:S.riskPct,riskAmt:S.riskAmt,lastSide:S.lastSide,
+  const p={portfolio:S.portfolio,riskPct:S.riskPct,riskAmt:S.riskAmt,editOrder:S.editOrder,
     entry:S.entry,stopPct:S.stopPct,direction:S.direction,memo:S.memo,
     threshold:S.threshold,curSym:S.curSym,curCode:S.curCode,decimals:S.decimals};
   return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function applyImport(p){
+  const myPort=S.portfolio; // recipient's own portfolio wins if they have one (or it's locked)
+  const keepMine=String(myPort).trim()!==""||S.portLock;
+  if(p.lastSide&&!p.editOrder)p.editOrder=[p.lastSide,"port"]; // old share codes
+  delete p.portLock; // lock state is personal, never imported
+  Object.keys(p).forEach(k=>{if(k in S)S[k]=p[k]});
+  if(keepMine){
+    S.portfolio=myPort;
+    // re-derive trade $ from the shared % against THEIR portfolio
+    if(String(S.riskPct).trim()!=="")S.editOrder=["pct","port"];
+  }
 }
 function decodeState(code){
   const b=code.trim().replace(/-/g,"+").replace(/_/g,"/");
@@ -512,7 +578,7 @@ function importFromHash(){
   if(!m)return false;
   try{
     const p=decodeState(m[1]);
-    Object.keys(p).forEach(k=>{if(k in S)S[k]=p[k]});
+    applyImport(p);
     history.replaceState(null,"",location.pathname+location.search); // clean the URL
     return true;
   }catch(e){return false}
@@ -559,8 +625,8 @@ $("btnImport").addEventListener("click",()=>{
       try{
         const raw=$("mText").value.trim();
         const code=raw.split(/\s+/).pop();
-        const p=decodeState(code);
-        Object.keys(p).forEach(k=>{if(k in S)S[k]=p[k]});
+        const p=decodeState(code.replace(/^.*#d=/,""));
+        applyImport(p);
         closeSheet();onChange();
       }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely and try again."}
     },true],
@@ -570,7 +636,7 @@ $("btnImport").addEventListener("click",()=>{
 });
 $("btnReset").addEventListener("click",()=>{
   ["portfolio","riskPct","riskAmt","entry","stopPct","memo"].forEach(k=>S[k]="");
-  S.lastSide="pct";S.direction="long";onChange();
+  S.editOrder=["pct","port"];S.direction="long";onChange();
 });
 
 /* ---------- boot ---------- */
