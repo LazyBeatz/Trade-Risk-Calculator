@@ -29,6 +29,28 @@
   .wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
   header.app h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
   header.app p{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .apptop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .explainbtn{
+    flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
+    background:var(--card);color:var(--muted);font-size:1.05rem;font-weight:800;cursor:pointer;
+    font-family:var(--sans);line-height:1;display:flex;align-items:center;justify-content:center;
+  }
+  .explainbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  /* inline plain-language definitions */
+  .explain{
+    display:none;font-family:var(--sans);font-size:.76rem;line-height:1.45;color:var(--ink);
+    background:var(--chip);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;
+    padding:7px 10px;margin:6px 0 2px;opacity:.92;
+  }
+  .explain strong{color:var(--ink);font-weight:600;opacity:1}
+  body.explainOn .explain{display:block}
+  body.explainOn .trow .explain,body.explainOn .gauge .explain{margin-top:7px}
+  .trow{flex-wrap:wrap}
+  .trow .explain{flex-basis:100%}
+  @media(prefers-reduced-motion:no-preference){
+    .explain{animation:explainIn .18s ease}
+    @keyframes explainIn{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:none}}
+  }
 
   /* settings strip */
   .strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -183,8 +205,13 @@
 <div class="wrap">
 
   <header class="app">
-    <h1>Trade Risk Calculator</h1>
-    <p>Position size · stop loss · risk, on one ticket.</p>
+    <div class="apptop">
+      <div>
+        <h1>Trade Risk Calculator</h1>
+        <p>Position size · stop loss · risk, on one ticket.</p>
+      </div>
+      <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
+    </div>
   </header>
 
   <div class="strip" role="toolbar" aria-label="Settings">
@@ -210,6 +237,8 @@
       <input id="portfolio" type="text" inputmode="decimal" placeholder="100,000" autocomplete="off">
       <button class="lockbtn" id="portLock" type="button" aria-pressed="false" title="Lock portfolio size"></button>
     </div>
+    <div class="explain" data-explain="portfolio"></div>
+    <div class="explain" data-explain="lock"></div>
     <div class="duo">
       <div>
         <label class="fl" for="riskPct">% of portfolio</label>
@@ -220,7 +249,10 @@
         <div class="inrow haspre"><span class="pre cur">$</span><input id="riskAmt" type="text" inputmode="decimal" placeholder="1,000" autocomplete="off"></div>
       </div>
     </div>
+    <div class="explain" data-explain="riskPct"></div>
+    <div class="explain" data-explain="riskAmt"></div>
     <div class="chips" id="chipsPct" aria-label="Portfolio % presets"></div>
+    <div class="explain" data-explain="presets"></div>
   </section>
 
   <!-- Section 2 -->
@@ -230,6 +262,7 @@
       <button class="ls long" id="btnLong" role="radio" aria-pressed="true">Long trade<small>stop below entry</small></button>
       <button class="ls short" id="btnShort" role="radio" aria-pressed="false">Short trade<small>stop above entry</small></button>
     </div>
+    <div class="explain" data-explain="direction"></div>
     <div class="duo">
       <div>
         <label class="fl" for="entry">Stock price (entry)</label>
@@ -240,6 +273,8 @@
         <div class="inrow hassuf"><input id="stopPct" type="text" inputmode="decimal" placeholder="5" autocomplete="off"><span class="suf">%</span></div>
       </div>
     </div>
+    <div class="explain" data-explain="entry"></div>
+    <div class="explain" data-explain="stopPct"></div>
     <div class="chips" id="chipsStop" aria-label="Stop % presets"></div>
   </section>
 
@@ -251,29 +286,37 @@
     </div>
     <div class="trows">
       <div class="trow hl"><span class="k">Stop loss price</span>
-        <span class="v big"><span id="oStop">—</span><button class="copybtn" data-copy="oStop">Copy</button></span></div>
+        <span class="v big"><span id="oStop">—</span><button class="copybtn" data-copy="oStop">Copy</button></span>
+        <div class="explain" data-explain="oStop"></div></div>
       <div class="trow"><span class="k">Shares (whole)</span>
-        <span class="v"><span id="oShares">—</span><button class="copybtn" data-copy="oShares">Copy</button></span></div>
-      <div class="trow"><span class="k">Trade allocation</span><span class="v" id="oAlloc">—</span></div>
-      <div class="trow"><span class="k">Loss per share</span><span class="v" id="oLps">—</span></div>
-      <div class="trow"><span class="k">Total at risk</span><span class="v" id="oRisk">—</span></div>
+        <span class="v"><span id="oShares">—</span><button class="copybtn" data-copy="oShares">Copy</button></span>
+        <div class="explain" data-explain="oShares"></div></div>
+      <div class="trow"><span class="k">Trade allocation</span><span class="v" id="oAlloc">—</span>
+        <div class="explain" data-explain="oAlloc"></div></div>
+      <div class="trow"><span class="k">Loss per share</span><span class="v" id="oLps">—</span>
+        <div class="explain" data-explain="oLps"></div></div>
+      <div class="trow"><span class="k">Total at risk</span><span class="v" id="oRisk">—</span>
+        <div class="explain" data-explain="oRisk"></div></div>
     </div>
     <div class="gauge" id="gauge">
       <div class="grow"><span class="gl">Portfolio at risk</span><span class="gv" id="oRiskPct">—</span></div>
       <div class="bar"><div class="fill" id="gFill"></div><div class="mark" id="gMark" style="left:50%"></div></div>
       <div class="cap"><span>0%</span><span class="capmid" id="gCap">2% limit</span><span id="gMax">4%</span></div>
+      <div class="explain" data-explain="gauge"></div>
     </div>
     <div class="warn" id="warn">⚠ Risk exceeds your <span id="warnT">2</span>% per-trade limit.</div>
     <div class="thresh">
       <label for="threshold">Max risk per trade</label>
       <input id="threshold" type="text" inputmode="decimal" value="2"> <span>%</span>
     </div>
+    <div class="explain" data-explain="threshold" style="margin:0 16px 14px"></div>
   </section>
 
   <!-- Memo -->
   <section class="card">
     <h2>Memo · trade catalyst</h2>
     <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="500"></textarea>
+    <div class="explain" data-explain="memo"></div>
   </section>
 
   <div class="actions">
@@ -303,11 +346,31 @@ const DEFAULTS={
   portfolio:"",riskPct:"",riskAmt:"",editOrder:["pct","port"],portLock:false,
   entry:"",stopPct:"",direction:"long",memo:"",
   presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
-  threshold:2,curSym:"$",curCode:"USD",theme:"auto",decimals:2
+  threshold:2,curSym:"$",curCode:"USD",theme:"auto",decimals:2,explainMode:false
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 let mem={}; // in-memory fallback
 const KEY="trade-risk-calc-v1";
+
+/* ---------- plain-language glossary (single source; powers Explain Mode) ---------- */
+const GLOSSARY={
+  portfolio:"<strong>Portfolio size</strong> — The total money in your trading account. Everything else is measured against this.",
+  lock:"<strong>Lock (padlock)</strong> — Pins your portfolio size so it won't change while you play with the other numbers. Tap to lock or unlock.",
+  riskPct:"<strong>% of portfolio</strong> — How big a slice of your whole account this one trade uses. Smaller = safer. A rough guide many advisors use: 1–3% for speculative or volatile bets (you're OK losing it all), 3–5% for stable blue-chips, and 5–10% for high-conviction picks you've deeply researched — keeping any single stock modest so one bad trade can't sink you.",
+  riskAmt:"<strong>Trade amount</strong> — The actual dollars going into this trade. Fill in this or the %, and the other fills itself in.",
+  presets:"<strong>Preset chips</strong> — Quick-tap buttons for the % you use most. Tap ✎ to set your own.",
+  direction:"<strong>Long vs Short</strong> — Long = you're betting the price goes <strong>up</strong>, so your safety exit sits <strong>below</strong> where you bought. Short = you're betting it goes <strong>down</strong>, so your exit sits <strong>above</strong>.",
+  entry:"<strong>Stock price (entry)</strong> — The price you're buying (or shorting) the stock at.",
+  stopPct:"<strong>Stop loss buffer</strong> — How far the price can move against you before you bail out, as a %. Example: 5% means \"get me out if it drops 5%.\"",
+  oStop:"<strong>Stop loss price</strong> — The exact price to set your stop-loss order at. Hit this price and you're automatically out, loss capped.",
+  oShares:"<strong>Shares (whole)</strong> — How many whole shares to buy with your trade amount.",
+  oAlloc:"<strong>Trade allocation</strong> — The dollars actually deployed once rounded to whole shares.",
+  oLps:"<strong>Loss per share</strong> — How much you lose on each share if the stop is hit.",
+  oRisk:"<strong>Total at risk</strong> — The real money you'd lose if the stop triggers. This is the number that matters most.",
+  gauge:"<strong>Risk gauge & Portfolio at risk %</strong> — Your potential loss shown as a slice of your whole account. Green = comfortable, red = over your limit. The pros keep this small (1–2%).",
+  threshold:"<strong>Max risk per trade</strong> — Your personal line in the sand for how much of your account one trade can lose. Cross it and the gauge turns red to warn you. Note: this is your <strong>loss</strong> limit, which is different from the \"% of portfolio\" above (how much you put <strong>in</strong>).",
+  memo:"<strong>Memo</strong> — A note to your future self about why you took this trade."
+};
 
 /* ---------- storage: artifact storage -> localStorage -> memory ---------- */
 async function store(val){
@@ -639,11 +702,28 @@ $("btnReset").addEventListener("click",()=>{
   S.editOrder=["pct","port"];S.direction="long";onChange();
 });
 
+/* ---------- Explain Mode ---------- */
+function populateGlossary(){
+  document.querySelectorAll(".explain[data-explain]").forEach(el=>{
+    const txt=GLOSSARY[el.getAttribute("data-explain")];
+    if(txt)el.innerHTML=txt;
+  });
+}
+function applyExplain(){
+  document.body.classList.toggle("explainOn",!!S.explainMode);
+  const b=$("btnExplain");
+  b.setAttribute("aria-pressed",String(!!S.explainMode));
+  b.title=S.explainMode?"Hide plain-language explanations":"Explain terms in plain language";
+}
+$("btnExplain").addEventListener("click",()=>{S.explainMode=!S.explainMode;applyExplain();persist()});
+
 /* ---------- boot ---------- */
 (async function(){
   const saved=await load();
   if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
   if(importFromHash())persist(); // a shared link's values win over the saved session
+  populateGlossary();
+  applyExplain();
   renderAll();
 })();
 })();
