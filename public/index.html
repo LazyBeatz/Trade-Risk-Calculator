@@ -121,13 +121,6 @@
     display:inline-block;font-size:.66rem;font-weight:700;color:var(--amber);background:var(--amber-bg,#FFF4E0);
     border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px;
   }
-  .trigmode{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}
-  .trigmode-lbl{font-size:.72rem;color:var(--muted);font-weight:600}
-  .trigopt{
-    border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:8px;
-    font-size:.74rem;font-weight:600;padding:5px 10px;cursor:pointer;font-family:var(--sans);
-  }
-  .trigopt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 
   /* preset chips */
   .chips{display:flex;gap:6px;margin-top:8px;align-items:center}
@@ -296,11 +289,6 @@
       </div>
     </div>
     <div class="tickstatus" id="tickStatus"></div>
-    <div class="trigmode" id="trigMode" role="group" aria-label="Lookup trigger style">
-      <span class="trigmode-lbl">Lookup style:</span>
-      <button type="button" class="trigopt" data-trig="button" aria-pressed="true">Button / Enter</button>
-      <button type="button" class="trigopt" data-trig="live" aria-pressed="false">Live as I type</button>
-    </div>
     <div class="explain" data-explain="ticker"></div>
     <div class="duo">
       <div>
@@ -386,7 +374,7 @@ const DEFAULTS={
   entry:"",stopPct:"",direction:"long",memo:"",
   presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
   threshold:2,curSym:"$",curCode:"USD",theme:"auto",decimals:2,explainMode:false,
-  ticker:"",trigMode:"button"
+  ticker:""
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 let mem={}; // in-memory fallback
@@ -612,7 +600,7 @@ $("portLock").addEventListener("click",()=>{S.portLock=!S.portLock;onChange()});
 // Finnhub for US, Alpha Vantage for TSX). When not deployed (e.g. in-artifact), the
 // fetch fails and we fall back gracefully to manual entry with a clear message.
 const QUOTE_ENDPOINT="/api/quote";
-let lookupSeq=0,liveTimer=null;
+let lookupSeq=0;
 function setTickStatus(kind,html){
   const el=$("tickStatus");
   el.className="tickstatus show "+kind;
@@ -657,22 +645,10 @@ async function lookupTicker(opts){
 $("ticker").addEventListener("input",e=>{
   e.target.value=normTicker(e.target.value);
   S.ticker=e.target.value;persist();
-  if(S.trigMode==="live"){
-    clearTimeout(liveTimer);
-    const v=e.target.value;
-    if(v.length>=1)liveTimer=setTimeout(()=>{if(S.ticker===v)lookupTicker({silent:true})},650);
-  }
 });
 $("ticker").setAttribute("enterkeyhint","go");
 $("ticker").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("ticker").blur();lookupTicker()}});
 $("btnLookup").addEventListener("click",()=>lookupTicker());
-document.querySelectorAll("[data-trig]").forEach(b=>b.addEventListener("click",()=>{
-  S.trigMode=b.dataset.trig;
-  document.querySelectorAll("[data-trig]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.trig===S.trigMode)));
-  $("btnLookup").style.display=S.trigMode==="live"?"none":"";
-  $("tickWrap").classList.toggle("hastick",S.trigMode!=="live");
-  persist();
-}));
 document.querySelectorAll("[data-theme-opt]").forEach(b=>b.addEventListener("click",()=>{S.theme=b.dataset.themeOpt;onChange()}));
 document.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click",()=>{S.decimals=+b.dataset.dec;onChange()}));
 $("currency").addEventListener("change",e=>{
@@ -833,10 +809,6 @@ $("btnExplain").addEventListener("click",()=>{S.explainMode=!S.explainMode;apply
   if(importFromHash())persist(); // a shared link's values win over the saved session
   populateGlossary();
   applyExplain();
-  // apply ticker trigger-mode UI
-  document.querySelectorAll("[data-trig]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.trig===S.trigMode)));
-  $("btnLookup").style.display=S.trigMode==="live"?"none":"";
-  $("tickWrap").classList.toggle("hastick",S.trigMode!=="live");
   renderAll();
 })();
 })();
