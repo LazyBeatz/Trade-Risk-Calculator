@@ -17,7 +17,7 @@
     --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1; --ph:#5E677B;
     --line:#272C38; --accent:#5B8CFF; --accent-ink:#0F1116;
     --green:#34C77B; --green-bg:#12251A; --red:#F06A6A; --red-bg:#2A1517;
-    --amber:#E0A458; --amber-bg:#2E2410; --chip:#222735; --ticket:#1B1F28; --focus:#5B8CFF;
+    --amber:#E0A458; --amber-bg:#2E2410; --chip:#222735; --ticket:#1B1F28; --focus:#5B8CFF; --accent-deep:#7BA2FF;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{font-size:16px}
@@ -30,6 +30,38 @@
   header.app h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
   header.app p{font-size:.78rem;color:var(--muted);margin-top:2px}
   .apptop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  /* workspace nav */
+  .wsnav{margin-top:12px}
+  .wscircles{display:flex;justify-content:space-between;gap:8px;max-width:340px;margin:0 auto}
+  .wsdot{
+    flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);
+    background:var(--card);color:var(--muted);font-size:1rem;font-weight:700;cursor:pointer;
+    font-family:var(--sans);display:flex;align-items:center;justify-content:center;
+    position:relative;transition:transform .12s,background .2s,color .2s,border-color .2s;
+  }
+  .wsdot:active{transform:scale(.93)}
+  .wsdot[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .wsdot.soon{opacity:.5}
+  .wsdot.soon::after{
+    content:"";position:absolute;top:-1px;right:-1px;width:9px;height:9px;border-radius:50%;
+    background:var(--amber);border:1.5px solid var(--card);
+  }
+  .wsname{
+    text-align:center;font-size:.8rem;font-weight:700;color:var(--accent-deep,#2456C8);
+    margin-top:8px;min-height:1.1em;letter-spacing:.01em;
+  }
+  /* coming soon card */
+  .comingsoon{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:38px 22px;text-align:center;margin-top:4px;
+  }
+  .cs-emoji{font-size:2rem;margin-bottom:6px}
+  .cs-title{font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .cs-sub{font-size:.86rem;color:var(--muted);line-height:1.5;max-width:340px;margin:0 auto 14px}
+  .cs-badge{
+    display:inline-block;font-size:.72rem;font-weight:700;color:var(--amber);
+    background:var(--amber-bg);border-radius:999px;padding:5px 14px;letter-spacing:.03em;
+  }
   .explainbtn{
     flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
     background:var(--card);color:var(--muted);font-size:1.05rem;font-weight:800;cursor:pointer;
@@ -225,13 +257,19 @@
   <header class="app">
     <div class="apptop">
       <div>
-        <h1>Trade Risk Calculator</h1>
-        <p>Position size · stop loss · risk, on one ticket.</p>
+        <h1 id="appTitle">Trade Risk Calculator</h1>
+        <p id="appTagline">Position size · stop loss · risk, on one ticket.</p>
       </div>
       <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
     </div>
+    <nav class="wsnav" id="wsNav" aria-label="Workspaces">
+      <div class="wscircles" role="tablist"></div>
+      <div class="wsname" id="wsName"></div>
+    </nav>
   </header>
 
+  <!-- ===== WORKSPACE 1 · Portfolio Sizer ===== -->
+  <div class="workspace" id="ws-1" data-ws="1">
   <div class="strip" role="toolbar" aria-label="Settings">
     <select id="currency" aria-label="Currency">
       <option value="$|USD">$ USD</option><option value="€|EUR">€ EUR</option>
@@ -352,8 +390,49 @@
     <button class="btn" id="btnReset">Reset</button>
   </div>
   <p class="hint">Share sends your numbers + memo with a code anyone can import here.</p>
+  </div><!-- /ws-1 -->
 
-</div>
+  <!-- ===== WORKSPACE 2 · % Price-Move Ladder (coming soon) ===== -->
+  <div class="workspace" id="ws-2" data-ws="2" hidden>
+    <div class="comingsoon">
+      <div class="cs-emoji">🚧</div>
+      <h2 class="cs-title">% Price-Move Ladder</h2>
+      <p class="cs-sub">See what 1%–20% price moves look like in dollars — built for timing option entries.</p>
+      <span class="cs-badge">Coming soon</span>
+    </div>
+  </div>
+
+  <!-- ===== WORKSPACE 3 · Gain / Loss (coming soon) ===== -->
+  <div class="workspace" id="ws-3" data-ws="3" hidden>
+    <div class="comingsoon">
+      <div class="cs-emoji">🚧</div>
+      <h2 class="cs-title">Gain / Loss Calculator</h2>
+      <p class="cs-sub">Enter your cost and your sale value — get your dollar profit and % change instantly.</p>
+      <span class="cs-badge">Coming soon</span>
+    </div>
+  </div>
+
+  <!-- ===== WORKSPACE 4 · Compound Interest (coming soon) ===== -->
+  <div class="workspace" id="ws-4" data-ws="4" hidden>
+    <div class="comingsoon">
+      <div class="cs-emoji">🚧</div>
+      <h2 class="cs-title">Compound Interest</h2>
+      <p class="cs-sub">Watch an investment compound year over year, with optional annual top-ups.</p>
+      <span class="cs-badge">Coming soon</span>
+    </div>
+  </div>
+
+  <!-- ===== WORKSPACE 5 · Options Sizer (coming soon) ===== -->
+  <div class="workspace" id="ws-5" data-ws="5" hidden>
+    <div class="comingsoon">
+      <div class="cs-emoji">🚧</div>
+      <h2 class="cs-title">Options Sizer</h2>
+      <p class="cs-sub">Size an options position and see profit at different underlying price moves.</p>
+      <span class="cs-badge">Coming soon</span>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
 
 <!-- share fallback / import sheet -->
 <div class="modal" id="modal" role="dialog" aria-modal="true">
@@ -374,11 +453,49 @@ const DEFAULTS={
   entry:"",stopPct:"",direction:"long",memo:"",
   presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
   threshold:2,curSym:"$",curCode:"USD",theme:"auto",decimals:2,explainMode:false,
-  ticker:""
+  ticker:"",activeWs:1
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 let mem={}; // in-memory fallback
 const KEY="trade-risk-calc-v1";
+
+/* ---------- workspaces ---------- */
+const WORKSPACES=[
+  {id:1,name:"Portfolio Sizer",tagline:"Position size · stop loss · risk, on one ticket.",ready:true},
+  {id:2,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:false},
+  {id:3,name:"Gain / Loss",tagline:"Cost vs sale — dollars and % change.",ready:false},
+  {id:4,name:"Compound Interest",tagline:"Watch money compound over time.",ready:false},
+  {id:5,name:"Options Sizer",tagline:"Size options by price-move scenarios.",ready:false}
+];
+function buildNav(){
+  const host=document.querySelector(".wscircles");
+  host.innerHTML="";
+  WORKSPACES.forEach(ws=>{
+    const b=document.createElement("button");
+    b.className="wsdot"+(ws.ready?"":" soon");
+    b.type="button";b.textContent=ws.id;
+    b.setAttribute("role","tab");
+    b.setAttribute("aria-selected",String(ws.id===S.activeWs));
+    b.setAttribute("aria-label","Workspace "+ws.id+": "+ws.name+(ws.ready?"":" (coming soon)"));
+    b.addEventListener("click",()=>switchWs(ws.id));
+    host.appendChild(b);
+  });
+}
+function switchWs(id){
+  S.activeWs=id;persist();
+  const ws=WORKSPACES.find(w=>w.id===id)||WORKSPACES[0];
+  // toggle panels
+  document.querySelectorAll(".workspace").forEach(p=>{
+    p.hidden = (+p.dataset.ws !== id);
+  });
+  // nav state
+  document.querySelectorAll(".wsdot").forEach((d,i)=>d.setAttribute("aria-selected",String(WORKSPACES[i].id===id)));
+  $("wsName").textContent=ws.name;
+  // header title/tagline reflect the active tool
+  $("appTitle").textContent = id===1 ? "Trade Risk Calculator" : ws.name;
+  $("appTagline").textContent = ws.tagline;
+  window.scrollTo({top:0,behavior:"auto"});
+}
 
 /* ---------- plain-language glossary (single source; powers Explain Mode) ---------- */
 const GLOSSARY={
@@ -809,6 +926,8 @@ $("btnExplain").addEventListener("click",()=>{S.explainMode=!S.explainMode;apply
   if(importFromHash())persist(); // a shared link's values win over the saved session
   populateGlossary();
   applyExplain();
+  buildNav();
+  switchWs(S.activeWs||1);
   renderAll();
 })();
 })();
