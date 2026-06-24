@@ -1387,7 +1387,9 @@ $("ciModeTrade").addEventListener("click",()=>{S.ciMode="trade";persist();ciRend
 document.querySelectorAll("[data-ciview]").forEach(b=>b.addEventListener("click",()=>{S.ciView=b.dataset.ciview;persist();ciRender();}));
 $("ciReset").addEventListener("click",()=>{
   ["ciStart","ciRate","ciTopup","ciTopupMo","ciStopYr","ciMemo"].forEach(k=>S[k]="");
-  S.ciReinvest="25";S.ciPeriods="70";S.ciMode="annual";S.ciView="all";ciRender();
+  S.ciReinvest="25";S.ciPeriods="70";S.ciMode="annual";S.ciView="all";
+  S.ciStopEnabled=false;S.ciStopYr="";S.ciRowsCollapsed=false;
+  ciApplyStopToggle();ciApplyRowsCollapse();persist();ciRender();
 });
 // share / import for CI
 function ciEncode(){
