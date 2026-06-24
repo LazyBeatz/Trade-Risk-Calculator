@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Trade Risk Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&display=swap">
 <style>
   :root{
     --bg:#F2F3F6; --card:#FFFFFF; --ink:#15171C; --muted:#697080; --ph:#ABB2BF;
@@ -17,7 +20,7 @@
     --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1; --ph:#5E677B;
     --line:#272C38; --accent:#5B8CFF; --accent-ink:#0F1116;
     --green:#34C77B; --green-bg:#12251A; --red:#F06A6A; --red-bg:#2A1517;
-    --amber:#E0A458; --amber-bg:#2E2410; --chip:#222735; --ticket:#1B1F28; --focus:#5B8CFF; --accent-deep:#7BA2FF;
+    --amber:#E0A458; --amber-bg:#2E2410; --chip:#222735; --ticket:#1B1F28; --focus:#5B8CFF; --accent-deep:#7BA2FF; --ci-mile-bg:#16203A;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{font-size:16px}
@@ -30,6 +33,23 @@
   header.app h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
   header.app p{font-size:.78rem;color:var(--muted);margin-top:2px}
   .apptop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .headbtns{display:flex;gap:8px;flex:0 0 auto;align-items:center}
+  .curpill{
+    position:relative;display:inline-flex;align-items:center;gap:3px;height:34px;padding:0 10px;
+    border:1.5px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);
+    font-family:var(--sans);font-size:.8rem;font-weight:700;cursor:pointer;
+  }
+  .curpill-chev{font-size:.7rem;color:var(--muted)}
+  .curpill select{
+    position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;
+    -webkit-appearance:none;appearance:none;font-size:16px; /* 16px avoids iOS zoom on focus */
+  }
+  .iconbtn{
+    width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
+    background:var(--card);font-size:1rem;cursor:pointer;line-height:1;
+    display:flex;align-items:center;justify-content:center;padding:0;
+  }
+  .iconbtn:active{transform:scale(.93)}
   /* workspace nav */
   .wsnav{margin-top:12px}
   .wscircles{display:flex;justify-content:space-between;gap:8px;max-width:340px;margin:0 auto}
@@ -62,6 +82,84 @@
     display:inline-block;font-size:.72rem;font-weight:700;color:var(--amber);
     background:var(--amber-bg);border-radius:999px;padding:5px 14px;letter-spacing:.03em;
   }
+  /* compound interest */
+  .ciview button{font-size:.78rem}
+  .ci-summary{
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;
+    background:var(--ticket);border:1px solid var(--line);border-radius:14px;padding:13px 12px;
+  }
+  .ci-sum-item{display:flex;flex-direction:column;gap:3px;text-align:center}
+  .ci-sum-lbl{font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .ci-sum-val{font-family:var(--mono);font-size:1.02rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .ci-sum-val.pos{color:var(--green)}
+  .ci-rows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .ci-row{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+    border-left:3px solid transparent;
+  }
+  .ci-row.mile{border-left-color:var(--accent);background:var(--ci-mile-bg,#F0F5FF)}
+  .ci-row-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .ci-row-lbl{font-size:.78rem;font-weight:700;color:var(--ink)}
+  .ci-row.mile .ci-row-lbl{color:var(--accent-deep,#2456C8)}
+  /* CI field labels: bright section titles */
+  #ws-4 label.fl{color:var(--ink)}
+  /* required-field cue (clears when filled) */
+  .req-tag{
+    font-weight:700;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--accent-deep,#2456C8);background:var(--chip);border:1px solid var(--accent);
+    border-radius:999px;padding:1px 7px;margin-left:7px;vertical-align:1px;
+  }
+  .inrow.needfill input{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .ci-needhint{
+    text-align:center;color:var(--accent-deep,#2456C8);font-size:.9rem;font-weight:600;
+    background:var(--chip);border:1px dashed var(--accent);border-radius:12px;padding:18px 16px;margin-top:12px;
+  }
+  .ci-row-bal{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .ci-row-sub{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font-size:.78rem;color:var(--muted);font-family:"Futura PT","Jost",var(--sans);letter-spacing:.01em;font-variant-numeric:tabular-nums}
+  .ci-row-sub .g{color:var(--green)}
+  .ci-row-split{
+    display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font-size:.74rem;font-family:var(--mono);
+    border-top:1px dashed var(--line);padding-top:5px;
+  }
+  .ci-row-split .ri{color:var(--accent-deep,#2456C8)}
+  .ci-row-split .wd{color:var(--amber)}
+  .ci-row-explain{
+    margin-top:7px;padding:7px 9px;font-family:var(--sans);font-size:.73rem;line-height:1.5;
+    color:var(--ink);background:var(--chip);border-left:3px solid var(--accent);
+    border-radius:0 8px 8px 0;opacity:.92;
+  }
+  .ci-row-explain strong{font-weight:700;opacity:1}
+  /* opt-in switch */
+  .ci-optin{margin-top:14px}
+  .ci-switch{
+    display:flex;align-items:center;gap:10px;background:none;border:0;cursor:pointer;padding:0;
+    font-family:var(--sans);
+  }
+  .ci-switch-track{
+    width:42px;height:24px;border-radius:999px;background:var(--line);position:relative;
+    transition:background .2s;flex:0 0 auto;
+  }
+  .ci-switch-thumb{
+    position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+    background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .2s;
+  }
+  .ci-switch[aria-checked="true"] .ci-switch-track{background:var(--accent)}
+  .ci-switch[aria-checked="true"] .ci-switch-thumb{transform:translateX(18px)}
+  .ci-switch-lbl{font-size:.84rem;font-weight:600;color:var(--ink)}
+  /* rows collapse toggle */
+  .ci-rows-toggle{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    background:var(--chip);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;
+    cursor:pointer;font-family:var(--sans);margin-bottom:10px;color:var(--ink);min-height:48px;
+  }
+  .ci-rows-toggle:active{transform:scale(.99)}
+  .ci-rows-icon{
+    flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;line-height:1;
+  }
+  .ci-rows-toggle-lbl{font-size:.92rem;font-weight:600;letter-spacing:.01em;color:var(--muted)}
+  .ci-rows.collapsed{display:none}
+  .ci-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:24px}
   .explainbtn{
     flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
     background:var(--card);color:var(--muted);font-size:1.05rem;font-weight:800;cursor:pointer;
@@ -105,6 +203,7 @@
     font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
     color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;
   }
+  .card h2.pop{font-size:.9rem;letter-spacing:.02em;color:var(--ink);text-transform:none}
   .card h2 .tag{font-size:.66rem;letter-spacing:.05em;color:var(--accent)}
 
   label.fl{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:12px 0 5px}
@@ -260,7 +359,18 @@
         <h1 id="appTitle">Trade Risk Calculator</h1>
         <p id="appTagline">Position size · stop loss · risk, on one ticket.</p>
       </div>
-      <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
+      <div class="headbtns">
+        <span class="curpill" id="curPill"><span id="curPillLbl">USD</span><span class="curpill-chev" aria-hidden="true">▾</span>
+          <select id="currency" aria-label="Currency">
+            <option value="$|USD">$ USD</option><option value="€|EUR">€ EUR</option>
+            <option value="£|GBP">£ GBP</option><option value="¥|JPY">¥ JPY</option>
+            <option value="₹|INR">₹ INR</option><option value="C$|CAD">C$ CAD</option>
+            <option value="A$|AUD">A$ AUD</option><option value="custom">Custom…</option>
+          </select>
+        </span>
+        <button id="btnTheme" class="iconbtn" type="button" aria-label="Theme: Auto" title="Theme">🌓</button>
+        <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
+      </div>
     </div>
     <nav class="wsnav" id="wsNav" aria-label="Workspaces">
       <div class="wscircles" role="tablist"></div>
@@ -271,15 +381,6 @@
   <!-- ===== WORKSPACE 1 · Portfolio Sizer ===== -->
   <div class="workspace" id="ws-1" data-ws="1">
   <div class="strip" role="toolbar" aria-label="Settings">
-    <select id="currency" aria-label="Currency">
-      <option value="$|USD">$ USD</option><option value="€|EUR">€ EUR</option>
-      <option value="£|GBP">£ GBP</option><option value="¥|JPY">¥ JPY</option>
-      <option value="₹|INR">₹ INR</option><option value="C$|CAD">C$ CAD</option>
-      <option value="A$|AUD">A$ AUD</option><option value="custom">Custom…</option>
-    </select>
-    <div class="seg" role="group" aria-label="Theme">
-      <button data-theme-opt="auto">Auto</button><button data-theme-opt="light">Light</button><button data-theme-opt="dark">Dark</button>
-    </div>
     <div class="seg" role="group" aria-label="Stop price decimals">
       <button data-dec="2">.00</button><button data-dec="4">.0000</button>
     </div>
@@ -412,14 +513,99 @@
     </div>
   </div>
 
-  <!-- ===== WORKSPACE 4 · Compound Interest (coming soon) ===== -->
+  <!-- ===== WORKSPACE 4 · Compound Interest ===== -->
   <div class="workspace" id="ws-4" data-ws="4" hidden>
-    <div class="comingsoon">
-      <div class="cs-emoji">🚧</div>
-      <h2 class="cs-title">Compound Interest</h2>
-      <p class="cs-sub">Watch an investment compound year over year, with optional annual top-ups.</p>
-      <span class="cs-badge">Coming soon</span>
+
+    <section class="card">
+      <div class="lsrow" role="radiogroup" aria-label="Compounder mode">
+        <button class="ls long" id="ciModeAnnual" role="radio" aria-pressed="true">Annual Compounder<small>add funds yearly</small></button>
+        <button class="ls short" id="ciModeTrade" role="radio" aria-pressed="false">Trade Compounder<small>reinvest a % of gains</small></button>
+      </div>
+
+      <div class="duo">
+        <div>
+          <label class="fl" for="ciStart">Starting amount<span class="req-tag" id="ciStartReq">Required</span></label>
+          <div class="inrow haspre" id="ciStartRow"><span class="pre cur2">$</span><input id="ciStart" type="text" inputmode="decimal" placeholder="1,000" autocomplete="off"></div>
+        </div>
+        <div>
+          <label class="fl" for="ciRate">Growth rate<span class="req-tag" id="ciRateReq">Required</span></label>
+          <div class="inrow hassuf" id="ciRateRow"><input id="ciRate" type="text" inputmode="decimal" placeholder="10" autocomplete="off"><span class="suf">%</span></div>
+        </div>
+      </div>
+      <div class="chips" id="ciRateChips" aria-label="Growth rate presets"></div>
+
+      <div id="ciAnnualBox">
+        <div class="duo">
+          <div>
+            <label class="fl" for="ciTopup">Annual top-up <span class="opt">each year-end</span></label>
+            <div class="inrow haspre"><span class="pre cur2">$</span><input id="ciTopup" type="text" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+          </div>
+          <div>
+            <label class="fl" for="ciTopupMo">Monthly equivalent</label>
+            <div class="inrow haspre"><span class="pre cur2">$</span><input id="ciTopupMo" type="text" inputmode="decimal" placeholder="0" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="ci-optin">
+          <button type="button" class="ci-switch" id="ciStopToggle" role="switch" aria-checked="false">
+            <span class="ci-switch-track"><span class="ci-switch-thumb"></span></span>
+            <span class="ci-switch-lbl">Stop contributions early?</span>
+          </button>
+        </div>
+        <div id="ciStopField" hidden>
+          <label class="fl" for="ciStopYr">Stop top-ups after</label>
+          <div class="inrow hassuf"><input id="ciStopYr" type="text" inputmode="numeric" placeholder="18" autocomplete="off"><span class="suf">yrs</span></div>
+          <div class="explain" data-explain="ciStopYr"></div>
+        </div>
+      </div>
+
+      <div id="ciTradeBox" hidden>
+        <label class="fl" for="ciReinvest">Reinvest each trade <span class="opt" id="ciReinvestEcho">25% in · 75% out</span></label>
+        <div class="inrow hassuf"><input id="ciReinvest" type="text" inputmode="decimal" placeholder="25" autocomplete="off"><span class="suf">%</span></div>
+      </div>
+
+      <div class="duo" style="margin-top:12px">
+        <div>
+          <label class="fl" for="ciPeriods">Periods</label>
+          <div class="inrow hassuf"><input id="ciPeriods" type="text" inputmode="numeric" placeholder="70" autocomplete="off"><span class="suf" id="ciPeriodUnit">yrs</span></div>
+        </div>
+        <div>
+          <label class="fl">View</label>
+          <div class="seg ciview" role="group" aria-label="Row view">
+            <button type="button" data-ciview="all" aria-pressed="true">All</button><button type="button" data-ciview="miles" aria-pressed="false">Milestones</button>
+          </div>
+        </div>
+      </div>
+      <div class="explain" data-explain="ciMode"></div>
+      <div class="explain" data-explain="ciReinvestExp"></div>
+    </section>
+
+    <!-- summary strip -->
+    <section class="ci-summary" id="ciSummary" aria-live="polite">
+      <div class="ci-sum-item"><span class="ci-sum-lbl">Final balance</span><span class="ci-sum-val" id="ciSumFinal">—</span></div>
+      <div class="ci-sum-item"><span class="ci-sum-lbl">Total gains</span><span class="ci-sum-val pos" id="ciSumGains">—</span></div>
+      <div class="ci-sum-item" id="ciSumWithdrawnWrap"><span class="ci-sum-lbl">Total withdrawn</span><span class="ci-sum-val" id="ciSumWithdrawn">—</span></div>
+    </section>
+
+    <!-- rows -->
+    <button type="button" class="ci-rows-toggle" id="ciRowsToggle" aria-expanded="true" aria-controls="ciRows">
+      <span class="ci-rows-icon" aria-hidden="true">–</span>
+      <span class="ci-rows-toggle-lbl" id="ciRowsToggleLbl">Hide rows</span>
+    </button>
+    <div class="ci-rows" id="ciRows"></div>
+
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Memo · your notes</h2>
+      <textarea id="ciMemo" placeholder="Journal your plan or leave notes to share — e.g. 'Contribute $1k/yr until kids graduate at 18, then let it ride to retirement.'" maxlength="500"></textarea>
+      <div class="explain" data-explain="ciMemo"></div>
+    </section>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="ciShare">Share</button>
+      <button class="btn" id="ciImport">Import</button>
+      <button class="btn" id="ciReset">Reset</button>
     </div>
+    <p class="hint">Milestone years (18, 21, 33, 55, 60, 65, 70) are highlighted. Tap “Milestones” to filter.</p>
+
   </div>
 
   <!-- ===== WORKSPACE 5 · Options Sizer (coming soon) ===== -->
@@ -453,7 +639,10 @@ const DEFAULTS={
   entry:"",stopPct:"",direction:"long",memo:"",
   presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
   threshold:2,curSym:"$",curCode:"USD",theme:"auto",decimals:2,explainMode:false,
-  ticker:"",activeWs:1
+  ticker:"",activeWs:1,
+  ciMode:"annual",ciStart:"",ciRate:"",ciTopup:"",ciTopupMo:"",ciTopupSide:"yr",ciStopYr:"",ciStopEnabled:false,ciReinvest:"25",
+  ciPeriods:"70",ciView:"all",ciMemo:"",ciRowsCollapsed:false,ciRateChips:[5,7,10,15,20],
+  ciMilestones:[18,21,33,55,60,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 let mem={}; // in-memory fallback
@@ -494,6 +683,7 @@ function switchWs(id){
   // header title/tagline reflect the active tool
   $("appTitle").textContent = id===1 ? "Trade Risk Calculator" : ws.name;
   $("appTagline").textContent = ws.tagline;
+  if(id===4 && typeof ciRender==="function") ciRender();
   window.scrollTo({top:0,behavior:"auto"});
 }
 
@@ -515,7 +705,11 @@ const GLOSSARY={
   oRisk:"<strong>Total at risk</strong> — The real money you'd lose if the stop triggers. This is the number that matters most.",
   gauge:"<strong>Risk gauge & Portfolio at risk %</strong> — Your potential loss shown as a slice of your whole account. Green = comfortable, red = over your limit. The pros keep this small (1–2%).",
   threshold:"<strong>Max risk per trade</strong> — Your personal line in the sand for how much of your account one trade can lose. Cross it and the gauge turns red to warn you. Note: this is your <strong>loss</strong> limit, which is different from the \"% of portfolio\" above (how much you put <strong>in</strong>).",
-  memo:"<strong>Memo</strong> — A note to your future self about why you took this trade."
+  memo:"<strong>Memo</strong> — A note to your future self about why you took this trade.",
+  ciMode:"<strong>Annual vs Trade Compounder</strong> — Annual grows your money once per year and lets you add a yearly top-up. Trade grows it per winning trade and lets you reinvest only part of each gain while taking the rest home. Same compounding math, two ways to think about it.",
+  ciReinvestExp:"<strong>Reinvest %</strong> — In Trade mode, the share of each gain you let ride with your principal. The rest is 'withdrawn' (your take-home). Example: 25% reinvested means 75% goes in your pocket — and the calculator tallies both your growing balance and your cumulative take-home.",
+  ciStopYr:"<strong>Stop top-ups after</strong> — The year your yearly contributions end, while the money keeps compounding. Great for 'what if I add $1,000/yr until my kid turns 18, then stop?' Leave blank to contribute every year. The year you enter still gets its top-up; the next year onward gets none.",
+  ciMemo:"<strong>Memo</strong> — A space to journal your plan or leave notes for others — your strategy, your milestones, why you chose these numbers. Saved with your scenario and included when you share."
 };
 
 /* ---------- storage: artifact storage -> localStorage -> memory ---------- */
@@ -553,12 +747,26 @@ function groupNum(v){ // 1234567.89 -> 1,234,567.89
 
 /* ---------- theme ---------- */
 const mq=window.matchMedia("(prefers-color-scheme: dark)");
+const THEME_ICON={auto:"🌓",light:"☀️",dark:"🌙"};
+const THEME_LABEL={auto:"Auto",light:"Light",dark:"Dark"};
 function applyTheme(){
   const t=S.theme==="auto"?(mq.matches?"dark":"light"):S.theme;
   document.body.setAttribute("data-theme",t);
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeOpt===S.theme)));
+  const tb=$("btnTheme");
+  if(tb){
+    tb.textContent=THEME_ICON[S.theme]||"🌓";
+    tb.setAttribute("aria-label","Theme: "+(THEME_LABEL[S.theme]||"Auto")+" (tap to change)");
+    tb.title="Theme: "+(THEME_LABEL[S.theme]||"Auto");
+  }
 }
 mq.addEventListener?mq.addEventListener("change",applyTheme):mq.addListener(applyTheme);
+const THEME_CYCLE=["auto","light","dark"];
+function cycleTheme(){
+  const i=THEME_CYCLE.indexOf(S.theme);
+  S.theme=THEME_CYCLE[(i+1)%THEME_CYCLE.length];
+  applyTheme();persist();
+}
 
 /* ---------- presets ---------- */
 function renderChips(holder,arr,onPick,onSave,activeVal){
@@ -639,6 +847,8 @@ function renderAll(){
   if(co.value==="custom"&&S.curCode!=="CUSTOM"&&[...co.options].every(o=>o.value!==S.curSym+"|"+S.curCode)){
     /* custom symbol active; leave select on Custom */
   }
+  const pill=$("curPillLbl");
+  if(pill)pill.textContent=(S.curCode&&S.curCode!=="CUSTOM")?S.curCode:S.curSym;
   document.querySelectorAll("[data-dec]").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.dec===S.decimals)));
   // inputs (don't clobber focused field); money fields display with comma grouping
   [["portfolio","portfolio",1],["riskPct","riskPct",0],["riskAmt","riskAmt",1],["entry","entry",1],["stopPct","stopPct",0]]
@@ -767,6 +977,7 @@ $("ticker").setAttribute("enterkeyhint","go");
 $("ticker").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("ticker").blur();lookupTicker()}});
 $("btnLookup").addEventListener("click",()=>lookupTicker());
 document.querySelectorAll("[data-theme-opt]").forEach(b=>b.addEventListener("click",()=>{S.theme=b.dataset.themeOpt;onChange()}));
+$("btnTheme").addEventListener("click",cycleTheme);
 document.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click",()=>{S.decimals=+b.dataset.dec;onChange()}));
 $("currency").addEventListener("change",e=>{
   if(e.target.value==="custom"){
@@ -774,6 +985,7 @@ $("currency").addEventListener("change",e=>{
     if(sym&&sym.trim()){S.curSym=sym.trim().slice(0,4);S.curCode="CUSTOM"}
   }else{const[sym,code]=e.target.value.split("|");S.curSym=sym;S.curCode=code}
   onChange();
+  if(typeof ciRender==="function")ciRender();
 });
 
 /* ---------- copy ---------- */
@@ -843,7 +1055,13 @@ function importFromHash(){
   if(!m)return false;
   try{
     const p=decodeState(m[1]);
-    applyImport(p);
+    if(p && p.t==="ci"){
+      ["ciMode","ciStart","ciRate","ciTopup","ciStopYr","ciStopEnabled","ciReinvest","ciPeriods","ciMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      {const tv=num(S.ciTopup);S.ciTopupMo=isFinite(tv)?String(Math.round(tv/12*100)/100):"";S.ciTopupSide="yr";}
+      S._sharedType="ci";
+    }else{
+      applyImport(p);
+    }
     history.replaceState(null,"",location.pathname+location.search); // clean the URL
     return true;
   }catch(e){return false}
@@ -917,17 +1135,322 @@ function applyExplain(){
   b.setAttribute("aria-pressed",String(!!S.explainMode));
   b.title=S.explainMode?"Hide plain-language explanations":"Explain terms in plain language";
 }
-$("btnExplain").addEventListener("click",()=>{S.explainMode=!S.explainMode;applyExplain();persist()});
+$("btnExplain").addEventListener("click",()=>{S.explainMode=!S.explainMode;applyExplain();if(S.activeWs===4&&typeof ciRender==="function")ciRender();persist();});
+
+/* ====================================================================
+   WORKSPACE 4 · COMPOUND INTEREST ENGINE
+   ==================================================================== */
+let ciShownCount=0;
+function ciCompute(){
+  const start=num(S.ciStart), rate=num(S.ciRate);
+  let periods=Math.floor(num(S.ciPeriods));
+  if(!isFinite(periods)||periods<1)periods=0;
+  periods=Math.min(periods,200); // safety cap
+  const annual=S.ciMode==="annual";
+  const topup=annual?(isFinite(num(S.ciTopup))?num(S.ciTopup):0):0;
+  let stopYr=Math.floor(num(S.ciStopYr));
+  if(!S.ciStopEnabled||!isFinite(stopYr)||stopYr<=0)stopYr=Infinity; // off OR blank = contribute every year
+  let reinvest=annual?100:num(S.ciReinvest);
+  if(!isFinite(reinvest))reinvest=annual?100:25;
+  reinvest=Math.max(0,Math.min(100,reinvest));
+  const rows=[];
+  if(!isFinite(start)||start<=0||!isFinite(rate)){
+    return {rows,periods,annual,reinvest,final:NaN,totalGains:NaN,totalWithdrawn:NaN,valid:false};
+  }
+  let bal=start, totalWithdrawn=0, totalTopup=0;
+  for(let p=1;p<=periods;p++){
+    const grossGain = bal*(rate/100);
+    let reinvested=grossGain, withdrawn=0;
+    if(!annual){
+      reinvested = grossGain*(reinvest/100);
+      withdrawn  = grossGain - reinvested;
+      totalWithdrawn += withdrawn;
+    }
+    const grewTo = bal + reinvested;     // balance after compounding, before any top-up
+    let endBal = grewTo;
+    const topupThisYr = (annual && topup>0 && p<=stopYr) ? topup : 0; // stop AFTER stopYr
+    if(topupThisYr){ endBal += topupThisYr; totalTopup += topupThisYr; }
+    bal = endBal;
+    rows.push({
+      p,
+      balance:endBal,            // headline (Option B): includes top-up just added
+      grewTo,                    // Option C: balance from compounding alone, pre-topup
+      topup: topupThisYr,
+      gain:reinvested,           // amount that stayed in this period
+      grossGain,                 // full gain before split
+      reinvested, withdrawn,
+      cumWithdrawn: totalWithdrawn,
+      totalGains: bal - start - totalTopup // pure growth, excludes contributed top-ups
+    });
+  }
+  const last=rows[rows.length-1];
+  return {
+    rows, periods, annual, reinvest,
+    final: last?last.balance:start,
+    totalGains: last?last.totalGains:0,
+    totalWithdrawn: totalWithdrawn,
+    contributed: annual? topup*periods : 0,
+    valid:true
+  };
+}
+function ciFmtMoney(n){
+  if(!isFinite(n))return "—";
+  return S.curSym+Math.round(n).toLocaleString("en-US");
+}
+// Same number, but prefixed with the currency CODE (e.g. "CAD 1,000") for readability.
+function ciFmtMoneyCode(n){
+  if(!isFinite(n))return "—";
+  const code=(S.curCode&&S.curCode!=="CUSTOM")?S.curCode:S.curSym;
+  return code+" "+Math.round(n).toLocaleString("en-US");
+}
+function ciRenderRates(){
+  renderChips($("ciRateChips"),S.ciRateChips,
+    v=>{S.ciRate=String(v);persist();ciRender()},
+    arr=>{S.ciRateChips=arr;persist()},
+    S.ciRate);
+}
+function ciRender(){
+  // mode UI
+  const annual=S.ciMode==="annual";
+  $("ciModeAnnual").setAttribute("aria-pressed",String(annual));
+  $("ciModeTrade").setAttribute("aria-pressed",String(!annual));
+  $("ciAnnualBox").hidden=!annual;
+  $("ciTradeBox").hidden=annual;
+  $("ciPeriodUnit").textContent=annual?"yrs":"trades";
+  $("ciSumWithdrawnWrap").style.display=annual?"none":"";
+  $("ciSummary").style.gridTemplateColumns=annual?"1fr 1fr":"1fr 1fr 1fr";
+  // reinvest echo
+  let ri=num(S.ciReinvest); if(!isFinite(ri))ri=25; ri=Math.max(0,Math.min(100,ri));
+  $("ciReinvestEcho").textContent=Math.round(ri)+"% in · "+Math.round(100-ri)+"% out";
+  // sync inputs (don't clobber focus)
+  [["ciStart","ciStart",1],["ciRate","ciRate",0],["ciReinvest","ciReinvest",0],["ciPeriods","ciPeriods",0],["ciStopYr","ciStopYr",0]]
+    .forEach(([id,k,money])=>{const el=$(id);if(el&&document.activeElement!==el)el.value=money?groupNum(S[k]):S[k];});
+  if($("ciMemo")&&document.activeElement!==$("ciMemo"))$("ciMemo").value=S.ciMemo||"";
+  // top-up pair: keep the side being edited exact, derive & display the other
+  const yrEl=$("ciTopup"), moEl=$("ciTopupMo");
+  if(yrEl&&document.activeElement!==yrEl)yrEl.value=groupNum(S.ciTopup);
+  if(moEl&&document.activeElement!==moEl)moEl.value=groupNum(S.ciTopupMo);
+  // view toggle
+  document.querySelectorAll("[data-ciview]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.ciview===S.ciView)));
+  ciRenderRates();
+  // compute + summary
+  const r=ciCompute();
+  // required-field cues: clear each the moment it has a valid value
+  const startOK=isFinite(num(S.ciStart))&&num(S.ciStart)>0;
+  const rateOK=isFinite(num(S.ciRate));
+  if($("ciStartRow"))$("ciStartRow").classList.toggle("needfill",!startOK);
+  if($("ciRateRow"))$("ciRateRow").classList.toggle("needfill",!rateOK);
+  if($("ciStartReq"))$("ciStartReq").style.display=startOK?"none":"";
+  if($("ciRateReq"))$("ciRateReq").style.display=rateOK?"none":"";
+  $("ciSumFinal").textContent=r.valid?ciFmtMoney(r.final):"—";
+  $("ciSumGains").textContent=r.valid?ciFmtMoney(r.totalGains):"—";
+  $("ciSumWithdrawn").textContent=r.valid?ciFmtMoney(r.totalWithdrawn):"—";
+  // rows
+  const host=$("ciRows"); host.innerHTML="";
+  if(!r.valid){
+    const need=[];if(!startOK)need.push("a starting amount");if(!rateOK)need.push("a growth rate");
+    const msg=need.length?("Enter "+need.join(" and ")+" to see your projection."):"Enter a starting amount and growth rate to see your projection.";
+    host.innerHTML='<div class="ci-needhint">'+msg+'</div>';
+    ciShownCount=0;ciApplyRowsCollapse();return;
+  }
+  const milesOnly=S.ciView==="miles";
+  const mset=new Set(S.ciMilestones);
+  const frag=document.createDocumentFragment();
+  let shown=0;
+  r.rows.forEach(row=>{
+    const isMile=mset.has(row.p);
+    if(milesOnly && !isMile)return;
+    shown++;
+    const card=document.createElement("div");
+    card.className="ci-row"+(isMile?" mile":"");
+    const unit=annual?"Year":"Trade";
+    let html='<div class="ci-row-top"><span class="ci-row-lbl">After '+unit+' '+row.p+'</span><span class="ci-row-bal">'+ciFmtMoney(row.balance)+'</span></div>';
+    html+='<div class="ci-row-sub"><span class="g">+'+ciFmtMoneyCode(row.grossGain)+' this '+(annual?'year':'trade')+'</span><span>'+ciFmtMoneyCode(row.totalGains)+' total growth</span></div>';
+    if(annual && row.topup>0){
+      html+='<div class="ci-row-sub"><span>+'+ciFmtMoneyCode(row.topup)+' added</span></div>';
+    }
+    if(!annual){
+      html+='<div class="ci-row-split"><span class="ri">↺ '+ciFmtMoney(row.reinvested)+' reinvested</span><span class="wd">'+ciFmtMoney(row.withdrawn)+' withdrawn</span><span class="wd">'+ciFmtMoney(row.cumWithdrawn)+' taken home total</span></div>';
+    }
+    // Explain Mode (global ? toggle): show the underlying mechanic
+    if(S.explainMode){
+      if(annual){
+        let ex='Grew to <strong>'+ciFmtMoney(row.grewTo)+'</strong>';
+        if(row.topup>0) ex+=' → +'+ciFmtMoney(row.topup)+' top-up = <strong>'+ciFmtMoney(row.balance)+'</strong>';
+        html+='<div class="ci-row-explain">'+ex+'</div>';
+      }else{
+        html+='<div class="ci-row-explain">Gain <strong>'+ciFmtMoney(row.grossGain)+'</strong> → '+Math.round(r.reinvest)+'% reinvested = +'+ciFmtMoney(row.reinvested)+' · '+Math.round(100-r.reinvest)+'% withdrawn = '+ciFmtMoney(row.withdrawn)+'<br>Take-home so far: <strong>'+ciFmtMoney(row.cumWithdrawn)+'</strong></div>';
+      }
+    }
+    card.innerHTML=html;
+    frag.appendChild(card);
+  });
+  if(shown===0){host.innerHTML='<div class="ci-empty">No milestone periods fall within your '+r.periods+' periods. Switch to “All” or adjust periods.</div>';return;}
+  host.appendChild(frag);
+  ciShownCount=shown;
+  ciApplyRowsCollapse();
+}
+function ciBindMoney(id,key){
+  const el=$(id); if(!el)return;
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();ciRender();}});
+  el.addEventListener("input",e=>{
+    const t=e.target,caret=t.selectionStart;
+    const digitsBefore=(t.value.slice(0,caret).match(/[0-9.]/g)||[]).length;
+    t.value=groupNum(clean(t.value));
+    let pos=0,c=0;while(pos<t.value.length&&c<digitsBefore){if(/[0-9.]/.test(t.value[pos]))c++;pos++;}
+    try{t.setSelectionRange(pos,pos)}catch(_){}
+    S[key]=t.value;persist();ciRender();
+  });
+}
+function ciBindPlain(id,key,intOnly){
+  const el=$(id); if(!el)return;
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();ciRender();}});
+  el.addEventListener("input",e=>{
+    e.target.value=intOnly?e.target.value.replace(/[^0-9]/g,""):clean(e.target.value);
+    S[key]=e.target.value;persist();ciRender();
+  });
+}
+// Bidirectional annual <-> monthly top-up. The box being typed in stays exact;
+// the other is derived and rounded to cents. S.ciTopup (annual) drives compute.
+function ciBindTopup(){
+  function caretFmt(t){
+    const caret=t.selectionStart;
+    const digitsBefore=(t.value.slice(0,caret).match(/[0-9.]/g)||[]).length;
+    t.value=groupNum(clean(t.value));
+    let pos=0,c=0;while(pos<t.value.length&&c<digitsBefore){if(/[0-9.]/.test(t.value[pos]))c++;pos++;}
+    try{t.setSelectionRange(pos,pos)}catch(_){}
+  }
+  const yr=$("ciTopup"), mo=$("ciTopupMo");
+  [yr,mo].forEach(el=>{if(el){el.setAttribute("enterkeyhint","done");
+    el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();ciRender();}});}});
+  if(yr)yr.addEventListener("input",e=>{
+    caretFmt(e.target);
+    S.ciTopup=e.target.value;S.ciTopupSide="yr";
+    const v=num(S.ciTopup);
+    S.ciTopupMo=isFinite(v)?String(Math.round(v/12*100)/100):"";
+    persist();ciRender();
+  });
+  if(mo)mo.addEventListener("input",e=>{
+    caretFmt(e.target);
+    S.ciTopupMo=e.target.value;S.ciTopupSide="mo";
+    const v=num(S.ciTopupMo);
+    S.ciTopup=isFinite(v)?String(Math.round(v*12*100)/100):"";
+    persist();ciRender();
+  });
+}
+ciBindMoney("ciStart","ciStart");
+ciBindPlain("ciRate","ciRate");
+ciBindTopup();
+ciBindPlain("ciReinvest","ciReinvest");
+ciBindPlain("ciPeriods","ciPeriods",true);
+ciBindPlain("ciStopYr","ciStopYr",true);
+function ciApplyStopToggle(){
+  const t=$("ciStopToggle"),f=$("ciStopField");
+  if(!t||!f)return;
+  t.setAttribute("aria-checked",String(!!S.ciStopEnabled));
+  f.hidden=!S.ciStopEnabled;
+}
+$("ciStopToggle").addEventListener("click",()=>{
+  S.ciStopEnabled=!S.ciStopEnabled;
+  ciApplyStopToggle();persist();ciRender();
+  if(S.ciStopEnabled){const fld=$("ciStopYr");if(fld){fld.focus();}}
+});
+$("ciMemo").addEventListener("input",e=>{S.ciMemo=e.target.value;persist();});
+function ciApplyRowsCollapse(){
+  const t=$("ciRowsToggle"),rows=$("ciRows"),lbl=$("ciRowsToggleLbl"),icon=t?t.querySelector(".ci-rows-icon"):null;
+  if(!t||!rows)return;
+  t.setAttribute("aria-expanded",String(!S.ciRowsCollapsed));
+  rows.classList.toggle("collapsed",!!S.ciRowsCollapsed);
+  if(S.ciRowsCollapsed){
+    if(lbl)lbl.textContent="Show "+(ciShownCount||"")+(ciShownCount?" rows":"rows");
+    if(icon)icon.textContent="+";
+    t.setAttribute("aria-label","Show the projection rows");
+  }else{
+    if(lbl)lbl.textContent="Hide rows";
+    if(icon)icon.textContent="–";
+    t.setAttribute("aria-label","Hide the projection rows");
+  }
+}
+$("ciRowsToggle").addEventListener("click",()=>{
+  S.ciRowsCollapsed=!S.ciRowsCollapsed;
+  ciApplyRowsCollapse();persist();
+});
+$("ciModeAnnual").addEventListener("click",()=>{S.ciMode="annual";persist();ciRender();});
+$("ciModeTrade").addEventListener("click",()=>{S.ciMode="trade";persist();ciRender();});
+document.querySelectorAll("[data-ciview]").forEach(b=>b.addEventListener("click",()=>{S.ciView=b.dataset.ciview;persist();ciRender();}));
+$("ciReset").addEventListener("click",()=>{
+  ["ciStart","ciRate","ciTopup","ciTopupMo","ciStopYr","ciMemo"].forEach(k=>S[k]="");
+  S.ciReinvest="25";S.ciPeriods="70";S.ciMode="annual";S.ciView="all";ciRender();
+});
+// share / import for CI
+function ciEncode(){
+  const p={t:"ci",ciMode:S.ciMode,ciStart:S.ciStart,ciRate:S.ciRate,ciTopup:S.ciTopup,
+    ciStopYr:S.ciStopYr,ciStopEnabled:S.ciStopEnabled,ciReinvest:S.ciReinvest,ciPeriods:S.ciPeriods,ciMemo:S.ciMemo,curSym:S.curSym,curCode:S.curCode};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function ciShareText(){
+  const r=ciCompute(),L=[];
+  L.push("📈 Compound Interest — "+(S.ciMode==="annual"?"Annual":"Trade")+" Compounder");
+  if(isFinite(num(S.ciStart)))L.push("Start: "+ciFmtMoney(num(S.ciStart))+"  ·  Rate: "+(num(S.ciRate)||0)+"%");
+  if(S.ciMode==="annual"){
+    if(num(S.ciTopup)>0)L.push("Annual top-up: "+ciFmtMoney(num(S.ciTopup)));
+    if(S.ciStopEnabled&&Math.floor(num(S.ciStopYr))>0)L.push("Top-ups stop after year "+Math.floor(num(S.ciStopYr)));
+  }
+  else{let ri=num(S.ciReinvest)||0;L.push("Reinvest: "+Math.round(ri)+"% in · "+Math.round(100-ri)+"% out");}
+  L.push("Periods: "+(Math.floor(num(S.ciPeriods))||0));
+  if(r.valid){
+    L.push("");L.push("Final balance: "+ciFmtMoney(r.final));
+    L.push("Total growth: "+ciFmtMoney(r.totalGains));
+    if(S.ciMode==="trade")L.push("Total taken home: "+ciFmtMoney(r.totalWithdrawn));
+  }
+  if(S.ciMemo&&S.ciMemo.trim())L.push("Memo: "+S.ciMemo.trim());
+  const code=ciEncode();
+  if(isDeployed()){L.push("");L.push("Open this scenario:");L.push(location.origin+location.pathname+"#d="+code);}
+  else{L.push("");L.push("Import code:");L.push(code);}
+  return L.join("\n");
+}
+$("ciShare").addEventListener("click",async()=>{
+  const text=ciShareText();
+  if(navigator.share){try{await navigator.share({title:"Compounding scenario",text});return}catch(e){if(e&&e.name==="AbortError")return}}
+  openSheet("Share this scenario","Your share sheet isn't available here — use email or copy.",text,[
+    ["Email",async function(){const ok=await copyText(text);const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent("Compounding scenario")+"&body="+encodeURIComponent(text);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);this.textContent=ok?"✓ Copied too":"Email";},false],
+    ["Copy",async function(){if(await copyText(text))this.textContent="✓ Copied";},true],
+    ["Close",closeSheet,false]
+  ]);
+});
+$("ciImport").addEventListener("click",()=>{
+  openSheet("Import a scenario","Paste a Compound Interest share code (or full message).","",[
+    ["Load",function(){
+      try{
+        const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
+        const p=decodeState(code);
+        if(p.t==="ci"){["ciMode","ciStart","ciRate","ciTopup","ciStopYr","ciStopEnabled","ciReinvest","ciPeriods","ciMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+          const tv=num(S.ciTopup);S.ciTopupMo=isFinite(tv)?String(Math.round(tv/12*100)/100):"";S.ciTopupSide="yr";}
+        closeSheet();persist();ciApplyStopToggle();ciRender();renderAll();
+      }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
 
 /* ---------- boot ---------- */
 (async function(){
   const saved=await load();
   if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
-  if(importFromHash())persist(); // a shared link's values win over the saved session
+  // ensure monthly top-up reflects saved annual value (back-compat)
+  if((!S.ciTopupMo||S.ciTopupMo==="")&&num(S.ciTopup)>0){S.ciTopupMo=String(Math.round(num(S.ciTopup)/12*100)/100);}
+  let sharedCI=false;
+  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true;}
   populateGlossary();
   applyExplain();
   buildNav();
-  switchWs(S.activeWs||1);
+  ciApplyStopToggle();
+  ciApplyRowsCollapse();
+  ciRender();
+  switchWs(sharedCI?4:(S.activeWs||1));
   renderAll();
 })();
 })();
