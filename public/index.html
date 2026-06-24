@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap">
 <style>
   :root{
+    color-scheme:light;
     --bg:#F2F3F6; --card:#FFFFFF; --ink:#15171C; --muted:#697080; --ph:#ABB2BF;
     --line:#E2E5EB; --accent:#2F6FED; --accent-ink:#FFFFFF;
     --green:#15803D; --green-bg:#EAF7EF; --red:#DC2626; --red-bg:#FCEDED;
@@ -17,6 +18,7 @@
     --sans:"Futura PT","Jost",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   [data-theme="dark"]{
+    color-scheme:dark;
     --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1; --ph:#5E677B;
     --line:#272C38; --accent:#5B8CFF; --accent-ink:#0F1116;
     --green:#34C77B; --green-bg:#12251A; --red:#F06A6A; --red-bg:#2A1517;
@@ -107,7 +109,7 @@
   .ci-row-lbl{font-size:.78rem;font-weight:700;color:var(--ink)}
   .ci-row.mile .ci-row-lbl{color:var(--accent-deep,#2456C8)}
   /* CI field labels: bright section titles */
-  #ws-4 label.fl{color:var(--ink)}
+  #ws-1 label.fl, #ws-4 label.fl{color:var(--ink)}
   /* required-field cue (clears when filled) */
   .req-tag{
     font-weight:700;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;
@@ -165,6 +167,28 @@
   .ci-rows-toggle-lbl{font-size:.92rem;font-weight:600;letter-spacing:.01em;color:var(--muted)}
   .ci-rows.collapsed{display:none}
   .ci-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:24px}
+  /* gain/loss workspace */
+  #ws-3 label.fl{color:var(--ink)}
+  .glinmode{display:inline-flex}
+  .gl-annual{padding:13px 16px 15px;border-top:1px dashed var(--line)}
+  .gl-up{color:var(--green)} .gl-down{color:var(--red)}
+  .gl-sand-head{display:flex;justify-content:space-between;align-items:center;margin:14px 2px 8px}
+  .gl-sand-title{font-size:.92rem;font-weight:700;color:var(--ink)}
+  .gl-clear{
+    border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:8px;
+    font-size:.74rem;font-weight:600;padding:5px 11px;cursor:pointer;font-family:var(--sans);
+  }
+  .gl-sand-empty{text-align:center;color:var(--muted);font-size:.85rem;padding:22px 16px;
+    background:var(--chip);border:1px dashed var(--line);border-radius:12px}
+  .gl-scn{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:8px;
+    border-left:4px solid var(--line);
+  }
+  .gl-scn.up{border-left-color:var(--green)} .gl-scn.down{border-left-color:var(--red)}
+  .gl-scn-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .gl-scn-move{font-size:.78rem;font-weight:700;color:var(--ink)}
+  .gl-scn-gain{font-family:var(--mono);font-size:1.12rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .gl-scn-sub{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:5px;font-size:.76rem;color:var(--muted);font-family:var(--mono);font-variant-numeric:tabular-nums}
   .explainbtn{
     flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
     background:var(--card);color:var(--muted);font-size:1.05rem;font-weight:800;cursor:pointer;
@@ -219,11 +243,14 @@
   }
   .inrow .pre{left:13px}.inrow .suf{right:13px}
   input::placeholder,textarea::placeholder{color:var(--ph);opacity:1;font-weight:400}
-  input[type="text"],input[type="number"],textarea{
+  input[type="text"],input[type="number"],input[type="date"],textarea{
     width:100%;background:var(--bg);border:1px solid var(--line);border-radius:11px;
     color:var(--ink);font-family:var(--mono);font-size:1.02rem;padding:11px 12px;
     font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield;
   }
+  input[type="date"]{font-family:var(--sans);color-scheme:light} /* dates read better in the sans face */
+  [data-theme="dark"] input[type="date"]{color-scheme:dark} /* makes the popup calendar render dark too */
+  [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.85)} /* keep the calendar glyph visible on dark */
   .inrow.haspre input{padding-left:30px}
   .inrow.hassuf input{padding-right:32px}
   .inrow.haslock input{padding-right:42px}
@@ -393,7 +420,7 @@
 
   <!-- Section 1 -->
   <section class="card" id="sec1">
-    <h2>1 · Position size <span class="tag" id="s1tag"></span></h2>
+    <h2 class="pop">1 · Position size <span class="tag" id="s1tag"></span></h2>
     <label class="fl" for="portfolio">Portfolio size</label>
     <div class="inrow haspre haslock" id="portRow"><span class="pre cur">$</span>
       <input id="portfolio" type="text" inputmode="decimal" placeholder="100,000" autocomplete="off">
@@ -419,7 +446,7 @@
 
   <!-- Section 2 -->
   <section class="card" id="sec2">
-    <h2>2 · Stop loss</h2>
+    <h2 class="pop">2 · Stop loss</h2>
     <div class="lsrow" role="radiogroup" aria-label="Trade direction">
       <button class="ls long" id="btnLong" role="radio" aria-pressed="true">Long trade<small>stop below entry</small></button>
       <button class="ls short" id="btnShort" role="radio" aria-pressed="false">Short trade<small>stop above entry</small></button>
@@ -485,7 +512,7 @@
 
   <!-- Memo -->
   <section class="card">
-    <h2>Memo · trade catalyst</h2>
+    <h2 class="pop">Memo · trade catalyst</h2>
     <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="500"></textarea>
     <div class="explain" data-explain="memo"></div>
   </section>
@@ -510,12 +537,111 @@
 
   <!-- ===== WORKSPACE 3 · Gain / Loss (coming soon) ===== -->
   <div class="workspace" id="ws-3" data-ws="3" hidden>
-    <div class="comingsoon">
-      <div class="cs-emoji">🚧</div>
-      <h2 class="cs-title">Gain / Loss Calculator</h2>
-      <p class="cs-sub">Enter your cost and your sale value — get your dollar profit and % change instantly.</p>
-      <span class="cs-badge">Coming soon</span>
+
+    <section class="card">
+      <div class="lsrow" role="radiogroup" aria-label="Calculator mode">
+        <button class="ls long" id="glModeTracker" role="radio" aria-pressed="true">Tracker<small>log a real trade</small></button>
+        <button class="ls short" id="glModeSandbox" role="radio" aria-pressed="false">Sandbox<small>experiment freely</small></button>
+      </div>
+
+      <!-- TRACKER -->
+      <div id="glTrackerBox">
+        <div class="seg glinmode" role="group" aria-label="Input mode" style="margin-bottom:4px">
+          <button type="button" data-glin="total" aria-pressed="true">Total $</button><button type="button" data-glin="share" aria-pressed="false">Per-share</button>
+        </div>
+        <div id="glTotalInputs">
+          <div class="duo">
+            <div>
+              <label class="fl" for="glCost">Original cost <span class="opt">book cost</span></label>
+              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glCost" type="text" inputmode="decimal" placeholder="5,000" autocomplete="off"></div>
+            </div>
+            <div>
+              <label class="fl" for="glSale">Sale value <span class="opt">settlement</span></label>
+              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glSale" type="text" inputmode="decimal" placeholder="6,500" autocomplete="off"></div>
+            </div>
+          </div>
+        </div>
+        <div id="glShareInputs" hidden>
+          <div class="duo">
+            <div>
+              <label class="fl" for="glBuyPx">Buy price</label>
+              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glBuyPx" type="text" inputmode="decimal" placeholder="50.00" autocomplete="off"></div>
+            </div>
+            <div>
+              <label class="fl" for="glSellPx">Sell price</label>
+              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glSellPx" type="text" inputmode="decimal" placeholder="65.00" autocomplete="off"></div>
+            </div>
+          </div>
+          <label class="fl" for="glShares">Shares</label>
+          <div class="inrow"><input id="glShares" type="text" inputmode="numeric" placeholder="100" autocomplete="off"></div>
+        </div>
+        <div class="explain" data-explain="glTracker"></div>
+      </div>
+
+      <!-- SANDBOX -->
+      <div id="glSandboxBox" hidden>
+        <label class="fl" for="glBase">Base amount <span class="opt">your starting value</span></label>
+        <div class="inrow haspre"><span class="pre cur3">$</span><input id="glBase" type="text" inputmode="decimal" placeholder="10,000" autocomplete="off"></div>
+        <label class="fl">Test a % move</label>
+        <div class="chips" id="glPctChips" aria-label="Percent move presets"></div>
+        <label class="fl">Test a $ move</label>
+        <div class="chips" id="glDolChips" aria-label="Dollar move presets"></div>
+        <div class="explain" data-explain="glSandbox"></div>
+      </div>
+    </section>
+
+    <!-- TRACKER results -->
+    <section class="ticket" id="glTrackerResult" aria-live="polite">
+      <div class="thead"><span class="t">Result</span><span class="dir" id="glDirBadge">—</span></div>
+      <div class="trows">
+        <div class="trow hl"><span class="k">Gain / Loss</span><span class="v big" id="glGain">—</span></div>
+        <div class="trow"><span class="k">% Change</span><span class="v" id="glPct">—</span></div>
+      </div>
+      <div class="gl-annual">
+        <button type="button" class="ci-switch" id="glAnnualToggle" role="switch" aria-checked="false">
+          <span class="ci-switch-track"><span class="ci-switch-thumb"></span></span>
+          <span class="ci-switch-lbl">Show annualized return?</span>
+        </button>
+        <div id="glAnnualField" hidden>
+          <div class="duo" style="margin-top:10px">
+            <div>
+              <label class="fl" for="glDateBuy">Date bought</label>
+              <div class="inrow"><input id="glDateBuy" type="date" autocomplete="off"></div>
+            </div>
+            <div>
+              <label class="fl" for="glDateSell">Date sold</label>
+              <div class="inrow"><input id="glDateSell" type="date" autocomplete="off"></div>
+            </div>
+          </div>
+          <div class="trow" style="padding:9px 0 0"><span class="k">Annualized return</span><span class="v" id="glAnnual">—</span></div>
+          <div class="explain" data-explain="glAnnual"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SANDBOX results -->
+    <div id="glSandboxResult" hidden>
+      <div class="gl-sand-head">
+        <span class="gl-sand-title">Scenarios</span>
+        <button type="button" class="gl-clear" id="glClearStack">Clear all</button>
+      </div>
+      <div id="glStack"></div>
+      <div class="gl-sand-empty" id="glStackEmpty">Tap a % or $ chip above to stack up scenarios and compare them here.</div>
     </div>
+
+    <!-- Memo -->
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Memo · your notes</h2>
+      <textarea id="glMemo" placeholder="Journal this trade or share your win/loss — e.g. 'Sold NVDA +30%, rotated into energy.'" maxlength="500"></textarea>
+      <div class="explain" data-explain="glMemo"></div>
+    </section>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="glShare">Share</button>
+      <button class="btn" id="glImport">Import</button>
+      <button class="btn" id="glReset">Reset</button>
+    </div>
+
   </div>
 
   <!-- ===== WORKSPACE 4 · Compound Interest ===== -->
@@ -647,6 +773,9 @@ const DEFAULTS={
   ticker:"",activeWs:1,
   ciMode:"annual",ciStart:"",ciRate:"",ciTopup:"",ciTopupMo:"",ciTopupSide:"yr",ciStopYr:"",ciStopEnabled:false,ciReinvest:"25",
   ciPeriods:"70",ciView:"all",ciMemo:"",ciRowsCollapsed:false,ciRateChips:[5,7,10,15,20],
+  glMode:"tracker",glInMode:"total",glCost:"",glSale:"",glBuyPx:"",glSellPx:"",glShares:"",
+  glAnnualOn:false,glDateBuy:"",glDateSell:"",
+  glBase:"",glPctChips:[5,10,-10,25,-25],glDolChips:[500,1000,-500,-1000],glStack:[],glMemo:"",
   ciMilestones:[18,21,33,55,60,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
@@ -657,7 +786,7 @@ const KEY="trade-risk-calc-v1";
 const WORKSPACES=[
   {id:1,name:"Portfolio Sizer",tagline:"Position size · stop loss · risk, on one ticket.",ready:true},
   {id:2,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:false},
-  {id:3,name:"Gain / Loss",tagline:"Cost vs sale — dollars and % change.",ready:false},
+  {id:3,name:"Gain / Loss",tagline:"Cost vs sale — dollars and % change.",ready:true},
   {id:4,name:"Compound Interest",tagline:"Watch money compound over time.",ready:true},
   {id:5,name:"Options Sizer",tagline:"Size options by price-move scenarios.",ready:false}
 ];
@@ -714,7 +843,11 @@ const GLOSSARY={
   ciMode:"<strong>Annual vs Trade Compounder</strong> — Annual grows your money once per year and lets you add a yearly top-up. Trade grows it per winning trade and lets you reinvest only part of each gain while taking the rest home. Same compounding math, two ways to think about it.",
   ciReinvestExp:"<strong>Reinvest %</strong> — In Trade mode, the share of each gain you let ride with your principal. The rest is 'withdrawn' (your take-home). Example: 25% reinvested means 75% goes in your pocket — and the calculator tallies both your growing balance and your cumulative take-home.",
   ciStopYr:"<strong>Stop top-ups after</strong> — The year your yearly contributions end, while the money keeps compounding. Great for 'what if I add $1,000/yr until my kid turns 18, then stop?' Leave blank to contribute every year. The year you enter still gets its top-up; the next year onward gets none.",
-  ciMemo:"<strong>Memo</strong> — A space to journal your plan or leave notes for others — your strategy, your milestones, why you chose these numbers. Saved with your scenario and included when you share."
+  ciMemo:"<strong>Memo</strong> — A space to journal your plan or leave notes for others — your strategy, your milestones, why you chose these numbers. Saved with your scenario and included when you share.",
+  glTracker:"<strong>Tracker</strong> — Log a real trade: enter what you paid (cost) and what you sold for (sale value), or switch to per-share to enter buy price, sell price, and share count. You'll get your dollar gain/loss and % change.",
+  glSandbox:"<strong>Sandbox</strong> — Experiment freely. Enter a base amount, then tap % or $ chips to stack up what-if scenarios and compare them side by side — great for seeing what different gains or losses would mean in dollars. Tap ✎ to set your own chip values.",
+  glAnnual:"<strong>Annualized return</strong> — Your return restated as a yearly rate, so trades held for different lengths can be compared fairly. A 10% gain in 6 months is roughly 21% annualized; the same 10% over 2 years is about 5%. Enter your buy and sell dates to calculate it.",
+  glMemo:"<strong>Memo</strong> — Journal this trade or jot notes to share — what you did, why, and how it turned out. Saved with your scenario and included when you share."
 };
 
 /* ---------- storage: artifact storage -> localStorage -> memory ---------- */
@@ -774,12 +907,23 @@ function cycleTheme(){
 }
 
 /* ---------- presets ---------- */
-function renderChips(holder,arr,onPick,onSave,activeVal){
+function renderChips(holder,arr,onPick,onSave,activeVal,suffix,allowNeg){
+  suffix=suffix||"%";
   holder.innerHTML="";
   const set=document.createElement("div");set.className="set";
   const editing=holder.dataset.editing==="1";
+  const isPctSuffix=(suffix==="%");
+  function fmtChip(v){
+    // sign-aware label; % suffix trails the number, currency symbol leads it
+    const sign=v<0?"−":"";
+    const mag=Math.abs(v).toLocaleString("en-US");
+    return isPctSuffix?(sign+mag+"%"):(sign+suffix+mag);
+  }
   function commit(){
-    const vals=[...set.querySelectorAll("input")].map(i=>num(i.value)).map(v=>isFinite(v)&&v>0?Math.round(v*100)/100:null);
+    const vals=[...set.querySelectorAll("input")].map(i=>num(i.value)).map(v=>{
+      if(!isFinite(v)||v===0)return null;
+      return allowNeg?Math.round(v*100)/100:(v>0?Math.round(v*100)/100:null);
+    });
     const ok=vals.filter(v=>v!=null);
     if(ok.length===arr.length)onSave(ok);
     holder.dataset.editing="0";
@@ -788,13 +932,13 @@ function renderChips(holder,arr,onPick,onSave,activeVal){
   arr.forEach((p,i)=>{
     if(editing){
       const inp=document.createElement("input");
-      inp.className="chipin";inp.type="text";inp.inputMode="decimal";inp.value=p;inp.setAttribute("aria-label","Preset "+(i+1));
+      inp.className="chipin";inp.type="text";inp.inputMode=allowNeg?"text":"decimal";inp.value=p;inp.setAttribute("aria-label","Preset "+(i+1));
       inp.setAttribute("enterkeyhint","go");
       inp.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();inp.blur();commit()}});
       set.appendChild(inp);
     }else{
       const b=document.createElement("button");b.className="chip";b.type="button";
-      b.textContent=p+"%";b.setAttribute("aria-pressed",String(num(activeVal)===p));
+      b.textContent=fmtChip(p);b.setAttribute("aria-pressed",String(num(activeVal)===p));
       b.addEventListener("click",()=>onPick(p));set.appendChild(b);
     }
   });
@@ -1064,6 +1208,10 @@ function importFromHash(){
       ["ciMode","ciStart","ciRate","ciTopup","ciStopYr","ciStopEnabled","ciReinvest","ciPeriods","ciMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
       {const tv=num(S.ciTopup);S.ciTopupMo=isFinite(tv)?String(Math.round(tv/12*100)/100):"";S.ciTopupSide="yr";}
       S._sharedType="ci";
+    }else if(p && p.t==="gl"){
+      ["glMode","glInMode","glCost","glSale","glBuyPx","glSellPx","glShares","glAnnualOn","glDateBuy","glDateSell","glBase","glStack","glMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      if(!Array.isArray(S.glStack))S.glStack=[];
+      S._sharedType="gl";
     }else{
       applyImport(p);
     }
@@ -1443,21 +1591,216 @@ $("ciImport").addEventListener("click",()=>{
   $("mText").readOnly=false;$("mText").value="";$("mText").focus();
 });
 
+/* ---------- Gain/Loss workspace (#3) ---------- */
+function glFmt(n){if(!isFinite(n))return "—";return S.curSym+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function glFmtPct(n){if(!isFinite(n))return "—";return Math.abs(Math.round(n*100)/100).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";}
+function glArrow(n){return n>0?"▲ ":(n<0?"▼ ":"");}
+function glSign(n){return n>0?"+":(n<0?"−":"");}
+function glClass(n){return n>0?"gl-up":(n<0?"gl-down":"");}
+
+function glComputeTracker(){
+  let cost,sale;
+  if(S.glInMode==="share"){
+    const bp=num(S.glBuyPx),sp=num(S.glSellPx),sh=num(S.glShares);
+    if(!isFinite(bp)||!isFinite(sp)||!isFinite(sh))return{valid:false};
+    cost=bp*sh;sale=sp*sh;
+  }else{
+    cost=num(S.glCost);sale=num(S.glSale);
+    if(!isFinite(cost)||!isFinite(sale))return{valid:false};
+  }
+  if(cost===0)return{valid:false};
+  const gain=sale-cost, pct=gain/cost*100;
+  let annual=NaN;
+  if(S.glAnnualOn&&S.glDateBuy&&S.glDateSell){
+    const d1=new Date(S.glDateBuy), d2=new Date(S.glDateSell);
+    const days=(d2-d1)/(1000*60*60*24);
+    if(days>0 && (1+gain/cost)>0) annual=(Math.pow(1+gain/cost,365/days)-1)*100;
+  }
+  return{valid:true,cost,sale,gain,pct,annual};
+}
+
+function glRenderTracker(){
+  const r=glComputeTracker();
+  const badge=$("glDirBadge"),gain=$("glGain"),pctEl=$("glPct");
+  if(!r.valid){
+    badge.textContent="—";badge.className="dir";
+    gain.textContent="—";gain.className="v big";
+    pctEl.textContent="—";pctEl.className="v";
+    $("glAnnual").textContent="—";$("glAnnual").className="v";
+    return;
+  }
+  const dir=r.gain>0?"GAIN":(r.gain<0?"LOSS":"FLAT");
+  badge.textContent=dir;
+  badge.className="dir "+(r.gain>0?"long":(r.gain<0?"short":""));
+  gain.textContent=glArrow(r.gain)+glSign(r.gain)+glFmt(r.gain);
+  gain.className="v big "+glClass(r.gain);
+  pctEl.textContent=glArrow(r.pct)+glSign(r.pct)+glFmtPct(r.pct);
+  pctEl.className="v "+glClass(r.pct);
+  const an=$("glAnnual");
+  if(isFinite(r.annual)){an.textContent=glArrow(r.annual)+glSign(r.annual)+glFmtPct(r.annual);an.className="v "+glClass(r.annual);}
+  else{an.textContent="—";an.className="v";}
+}
+
+function glAddScenario(kind,val){
+  const base=num(S.glBase);
+  if(!isFinite(base)||base===0)return;
+  let gain,pct;
+  if(kind==="pct"){pct=val;gain=base*val/100;}
+  else{gain=val;pct=gain/base*100;}
+  S.glStack.unshift({kind,val,gain,pct,fin:base+gain,base});
+  if(S.glStack.length>20)S.glStack.pop();
+  persist();glRenderStack();
+}
+function glRenderStack(){
+  const host=$("glStack"),empty=$("glStackEmpty");
+  host.innerHTML="";
+  if(!S.glStack.length){empty.style.display="";return;}
+  empty.style.display="none";
+  S.glStack.forEach(s=>{
+    const card=document.createElement("div");
+    card.className="gl-scn "+(s.gain>0?"up":(s.gain<0?"down":""));
+    const moveLbl=s.kind==="pct"?(glSign(s.val)+Math.abs(s.val)+"% move"):(glSign(s.val)+glFmt(s.val)+" move");
+    card.innerHTML='<div class="gl-scn-top"><span class="gl-scn-move">'+moveLbl+'</span>'+
+      '<span class="gl-scn-gain '+glClass(s.gain)+'">'+glArrow(s.gain)+glSign(s.gain)+glFmt(s.gain)+'</span></div>'+
+      '<div class="gl-scn-sub"><span>'+glArrow(s.pct)+glSign(s.pct)+glFmtPct(s.pct)+'</span><span>final '+glFmt(s.fin)+'</span><span>on '+glFmt(s.base)+'</span></div>';
+    host.appendChild(card);
+  });
+}
+
+function glApplyMode(){
+  const tracker=S.glMode==="tracker";
+  $("glModeTracker").setAttribute("aria-pressed",String(tracker));
+  $("glModeSandbox").setAttribute("aria-pressed",String(!tracker));
+  $("glTrackerBox").hidden=!tracker;
+  $("glSandboxBox").hidden=tracker;
+  $("glTrackerResult").hidden=!tracker;
+  $("glSandboxResult").hidden=tracker;
+}
+function glApplyInMode(){
+  const total=S.glInMode==="total";
+  document.querySelectorAll("[data-glin]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.glin===S.glInMode)));
+  $("glTotalInputs").hidden=!total;
+  $("glShareInputs").hidden=total;
+}
+function glApplyAnnualToggle(){
+  $("glAnnualToggle").setAttribute("aria-checked",String(!!S.glAnnualOn));
+  $("glAnnualField").hidden=!S.glAnnualOn;
+}
+
+function glRender(){
+  document.querySelectorAll(".cur3").forEach(e=>e.textContent=S.curSym);
+  // sync inputs (don't clobber focus)
+  [["glCost","glCost"],["glSale","glSale"],["glBuyPx","glBuyPx"],["glSellPx","glSellPx"],["glShares","glShares"],["glBase","glBase"]]
+    .forEach(([id,k])=>{const el=$(id);if(el&&document.activeElement!==el)el.value=groupNum(S[k]);});
+  if($("glDateBuy")&&document.activeElement!==$("glDateBuy"))$("glDateBuy").value=S.glDateBuy||"";
+  if($("glDateSell")&&document.activeElement!==$("glDateSell"))$("glDateSell").value=S.glDateSell||"";
+  if($("glMemo")&&document.activeElement!==$("glMemo"))$("glMemo").value=S.glMemo||"";
+  renderChips($("glPctChips"),S.glPctChips,p=>{glAddScenario("pct",p);},a=>{S.glPctChips=a;persist();},null,"%",true);
+  renderChips($("glDolChips"),S.glDolChips,d=>{glAddScenario("dol",d);},a=>{S.glDolChips=a;persist();},null,S.curSym,true);
+  glRenderTracker();
+  glRenderStack();
+}
+
+// wiring
+$("glModeTracker").addEventListener("click",()=>{S.glMode="tracker";glApplyMode();persist();});
+$("glModeSandbox").addEventListener("click",()=>{S.glMode="sandbox";glApplyMode();persist();});
+document.querySelectorAll("[data-glin]").forEach(b=>b.addEventListener("click",()=>{S.glInMode=b.dataset.glin;glApplyInMode();persist();glRenderTracker();}));
+$("glAnnualToggle").addEventListener("click",()=>{S.glAnnualOn=!S.glAnnualOn;glApplyAnnualToggle();persist();glRenderTracker();});
+function glBindMoney(id,key){
+  const el=$(id);if(!el)return;
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();glRenderTracker();}});
+  el.addEventListener("input",e=>{
+    const t=e.target,caret=t.selectionStart;
+    const digitsBefore=(t.value.slice(0,caret).match(/[0-9.]/g)||[]).length;
+    t.value=groupNum(clean(t.value));
+    let pos=0,c=0;while(pos<t.value.length&&c<digitsBefore){if(/[0-9.]/.test(t.value[pos]))c++;pos++;}
+    try{t.setSelectionRange(pos,pos)}catch(_){}
+    S[key]=t.value;persist();glRenderTracker();
+  });
+}
+["glCost","glSale","glBuyPx","glSellPx","glBase"].forEach(id=>glBindMoney(id,id));
+$("glShares").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[^0-9]/g,"");S.glShares=e.target.value;persist();glRenderTracker();});
+$("glDateBuy").addEventListener("change",e=>{S.glDateBuy=e.target.value;persist();glRenderTracker();});
+$("glDateSell").addEventListener("change",e=>{S.glDateSell=e.target.value;persist();glRenderTracker();});
+$("glMemo").addEventListener("input",e=>{S.glMemo=e.target.value;persist();});
+$("glClearStack").addEventListener("click",()=>{S.glStack=[];persist();glRenderStack();});
+$("glReset").addEventListener("click",()=>{
+  ["glCost","glSale","glBuyPx","glSellPx","glShares","glBase","glDateBuy","glDateSell","glMemo"].forEach(k=>S[k]="");
+  S.glStack=[];S.glAnnualOn=false;S.glInMode="total";S.glMode="tracker";
+  glApplyMode();glApplyInMode();glApplyAnnualToggle();persist();glRender();
+});
+function glEncode(){
+  const p={t:"gl",glMode:S.glMode,glInMode:S.glInMode,glCost:S.glCost,glSale:S.glSale,
+    glBuyPx:S.glBuyPx,glSellPx:S.glSellPx,glShares:S.glShares,glAnnualOn:S.glAnnualOn,
+    glDateBuy:S.glDateBuy,glDateSell:S.glDateSell,glBase:S.glBase,glStack:S.glStack,glMemo:S.glMemo,
+    curSym:S.curSym,curCode:S.curCode};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function glShareText(){
+  const L=[];
+  L.push("📊 Gain / Loss — "+(S.glMode==="tracker"?"Tracker":"Sandbox"));
+  if(S.glMode==="tracker"){
+    const r=glComputeTracker();
+    if(r.valid){
+      L.push((r.gain>=0?"Gain":"Loss")+": "+glSign(r.gain)+glFmt(r.gain)+"  ("+glSign(r.pct)+glFmtPct(r.pct)+")");
+      if(isFinite(r.annual))L.push("Annualized: "+glSign(r.annual)+glFmtPct(r.annual));
+    }
+  }else{
+    if(S.glBase)L.push("Base: "+glFmt(num(S.glBase)));
+    S.glStack.slice(0,8).forEach(s=>{
+      const mv=s.kind==="pct"?(glSign(s.val)+Math.abs(s.val)+"%"):(glSign(s.val)+glFmt(s.val));
+      L.push("  "+mv+" → "+glSign(s.gain)+glFmt(s.gain)+" ("+glSign(s.pct)+glFmtPct(s.pct)+"), final "+glFmt(s.fin));
+    });
+  }
+  if(S.glMemo&&S.glMemo.trim())L.push("Memo: "+S.glMemo.trim());
+  L.push("");L.push(location.origin+location.pathname+"#d="+glEncode());
+  return L.join("\n");
+}
+$("glShare").addEventListener("click",async()=>{
+  const text=glShareText();
+  if(navigator.share){try{await navigator.share({title:"Gain / Loss",text});return}catch(e){if(e&&e.name==="AbortError")return}}
+  openSheet("Share this","Your share sheet isn't available here — use email or copy.",text,[
+    ["Email",async function(){const ok=await copyText(text);const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent("Gain / Loss")+"&body="+encodeURIComponent(text);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);this.textContent=ok?"✓ Copied too":"Email";},false],
+    ["Copy",async function(){if(await copyText(text))this.textContent="✓ Copied";},true],
+    ["Close",closeSheet,false]
+  ]);
+});
+$("glImport").addEventListener("click",()=>{
+  openSheet("Import","Paste a Gain / Loss share code (or full message).","",[
+    ["Load",function(){
+      try{
+        const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
+        const p=decodeState(code);
+        if(p.t==="gl"){["glMode","glInMode","glCost","glSale","glBuyPx","glSellPx","glShares","glAnnualOn","glDateBuy","glDateSell","glBase","glStack","glMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+          if(!Array.isArray(S.glStack))S.glStack=[];}
+        closeSheet();persist();glApplyMode();glApplyInMode();glApplyAnnualToggle();glRender();renderAll();
+      }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
+
 /* ---------- boot ---------- */
 (async function(){
   const saved=await load();
   if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
   // ensure monthly top-up reflects saved annual value (back-compat)
   if((!S.ciTopupMo||S.ciTopupMo==="")&&num(S.ciTopup)>0){S.ciTopupMo=String(Math.round(num(S.ciTopup)/12*100)/100);}
-  let sharedCI=false;
-  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true;}
+  let sharedCI=false, sharedGL=false;
+  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true; if(S._sharedType==="gl")sharedGL=true;}
   populateGlossary();
   applyExplain();
   buildNav();
   ciApplyStopToggle();
   ciApplyRowsCollapse();
   ciRender();
-  switchWs(sharedCI?4:(S.activeWs||1));
+  glApplyMode();
+  glApplyInMode();
+  glApplyAnnualToggle();
+  glRender();
+  switchWs(sharedCI?4:(sharedGL?3:(S.activeWs||1)));
   renderAll();
 })();
 })();
