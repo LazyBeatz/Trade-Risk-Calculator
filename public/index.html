@@ -113,9 +113,19 @@
   #ws-1 label.fl, #ws-4 label.fl{color:var(--ink)}
   /* required-field cue (clears when filled) */
   .req-tag{
-    font-weight:700;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;
+    font-weight:700;font-size:.56rem;text-transform:uppercase;letter-spacing:.03em;
     color:var(--accent-deep,#2456C8);background:var(--chip);border:1px solid var(--accent);
-    border-radius:999px;padding:1px 7px;margin-left:7px;vertical-align:1px;
+    border-radius:999px;padding:1px 5px;margin-left:5px;flex:0 0 auto;line-height:1.4;
+  }
+  /* labels with a Required pill: text can shrink so text + pill stay on one line */
+  label.fl:has(.req-tag){display:flex;align-items:center;white-space:nowrap;min-width:0;gap:0}
+  label.fl:has(.req-tag) .reqtext{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  label.fl:has(.req-tag) .req-tag{margin-left:5px}
+  /* stacked Required pill: drops under the label title (for narrow columns like WS3) */
+  .req-stack{
+    display:inline-block;margin-top:3px;font-weight:700;font-size:.56rem;text-transform:uppercase;
+    letter-spacing:.03em;color:var(--accent-deep,#2456C8);background:var(--chip);
+    border:1px solid var(--accent);border-radius:999px;padding:1px 6px;line-height:1.5;
   }
   .inrow.needfill input{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
   .ci-needhint{
@@ -190,6 +200,40 @@
   .gl-scn-move{font-size:.78rem;font-weight:700;color:var(--ink)}
   .gl-scn-gain{font-family:var(--mono);font-size:1.12rem;font-weight:700;font-variant-numeric:tabular-nums}
   .gl-scn-sub{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:5px;font-size:.76rem;color:var(--muted);font-family:var(--mono);font-variant-numeric:tabular-nums}
+  /* price-move ladder */
+  .pm-row{
+    background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:11px 14px;
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  .pm-row.up{border-color:var(--green);background:rgba(21,128,61,.06)}
+  .pm-row.down{border-color:var(--red);background:rgba(200,30,30,.05)}
+  .pm-row.entry{border-color:var(--accent);background:rgba(47,111,237,.07)}
+  [data-theme="dark"] .pm-row.up{background:rgba(52,199,123,.08)}
+  [data-theme="dark"] .pm-row.down{background:rgba(240,106,106,.08)}
+  [data-theme="dark"] .pm-row.entry{background:rgba(91,140,255,.10)}
+  .pm-pct{font-size:.82rem;font-weight:700;color:var(--ink);font-family:var(--sans);min-width:54px}
+  .pm-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .pm-price{font-family:var(--mono);font-size:1.08rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .pm-move{font-family:var(--sans);font-size:.76rem;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+  .pm-sec{
+    font-family:var(--sans);font-size:.98rem;font-weight:800;letter-spacing:.01em;
+    padding:10px 13px;margin-top:14px;border-radius:11px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .pm-sec.tgt{color:#0F6B32;background:rgba(21,128,61,.12);border:1px solid rgba(21,128,61,.30)}
+  .pm-sec.stp{color:#B31717;background:rgba(200,30,30,.10);border:1px solid rgba(200,30,30,.28)}
+  [data-theme="dark"] .pm-sec.tgt{color:#5FE39B;background:rgba(52,199,123,.14);border-color:rgba(52,199,123,.32)}
+  [data-theme="dark"] .pm-sec.stp{color:#FF8A8A;background:rgba(240,106,106,.13);border-color:rgba(240,106,106,.30)}
+  .pm-sec:first-child{margin-top:4px}
+  .pm-move.up{color:#15803D} .pm-move.down{color:#B31717}
+  [data-theme="dark"] .pm-move.up{color:#34C77B} [data-theme="dark"] .pm-move.down{color:#F06A6A}
+  .pm-row.pulse{animation:pmPulse 1.4s ease-out}
+  @keyframes pmPulse{
+    0%{box-shadow:0 0 0 0 var(--accent-ring,rgba(47,111,237,.5)); transform:scale(1)}
+    25%{box-shadow:0 0 0 5px var(--accent-ring,rgba(47,111,237,.32)); transform:scale(1.015)}
+    100%{box-shadow:0 0 0 0 rgba(0,0,0,0); transform:scale(1)}
+  }
+  @media(prefers-reduced-motion:reduce){.pm-row.pulse{animation:none;outline:2px solid var(--accent)}}
   .explainbtn{
     flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);
     background:var(--card);color:var(--muted);font-size:1.05rem;font-weight:800;cursor:pointer;
@@ -233,10 +277,10 @@
     font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
     color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;
   }
-  .card h2.pop{font-size:.9rem;letter-spacing:.02em;color:var(--ink);text-transform:none}
+  .card h2.pop{font-size:.96rem;letter-spacing:.02em;color:var(--ink);text-transform:none}
   .card h2 .tag{font-size:.66rem;letter-spacing:.05em;color:var(--accent)}
 
-  label.fl{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin:12px 0 5px}
+  label.fl{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin:13px 0 5px}
   label.fl:first-of-type{margin-top:0}
   .inrow{position:relative;display:flex;align-items:center}
   .inrow .pre,.inrow .suf{
@@ -306,12 +350,19 @@
   /* long/short */
   .lsrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
   .ls{
-    border:1px solid var(--line);background:var(--chip);border-radius:11px;padding:10px;
-    cursor:pointer;text-align:center;font-weight:700;font-size:.86rem;color:var(--muted);
+    border:1px solid var(--line);background:var(--chip);border-radius:11px;padding:11px;
+    cursor:pointer;text-align:center;font-weight:700;font-size:.92rem;color:var(--muted);
   }
-  .ls small{display:block;font-weight:500;font-size:.66rem;margin-top:2px;letter-spacing:.02em}
+  .ls small{display:block;font-weight:500;font-size:.7rem;margin-top:2px;letter-spacing:.02em}
   .ls.long[aria-pressed="true"]{background:var(--green-bg);border-color:var(--green);color:var(--green)}
   .ls.short[aria-pressed="true"]{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+  /* Workspace 2: larger, more inviting controls */
+  #ws-2 .ls{padding:14px 10px;font-size:1.08rem;border-radius:13px}
+  #ws-2 .ls small{font-size:.76rem;margin-top:4px;font-weight:600}
+  #ws-2 label.fl{font-size:.96rem;margin:16px 0 7px}
+  #ws-2 label.fl .opt{font-size:.74rem}
+  #ws-2 #pmPrice{font-size:1.18rem;padding:14px 12px}
+  #ws-2 .req-tag{font-size:.6rem}
 
   /* ticket */
   .ticket{
@@ -363,8 +414,8 @@
   /* actions */
   .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .btn{
-    border:1px solid var(--line);border-radius:12px;padding:12px 6px;cursor:pointer;
-    font-weight:700;font-size:.86rem;font-family:inherit;background:var(--card);color:var(--ink);
+    border:1px solid var(--line);border-radius:12px;padding:13px 6px;cursor:pointer;
+    font-weight:700;font-size:.92rem;font-family:inherit;background:var(--card);color:var(--ink);
   }
   .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
   .btn:active{transform:scale(.985)}
@@ -528,12 +579,39 @@
 
   <!-- ===== WORKSPACE 2 · % Price-Move Ladder (coming soon) ===== -->
   <div class="workspace" id="ws-2" data-ws="2" hidden>
-    <div class="comingsoon">
-      <div class="cs-emoji">🚧</div>
-      <h2 class="cs-title">% Price-Move Ladder</h2>
-      <p class="cs-sub">See what 1%–20% price moves look like in dollars — built for timing option entries.</p>
-      <span class="cs-badge">Coming soon</span>
+
+    <section class="card">
+      <div class="lsrow" role="radiogroup" aria-label="Trade direction">
+        <button class="ls long" id="pmLong" role="radio" aria-pressed="true">Long<small>betting higher</small></button>
+        <button class="ls short" id="pmShort" role="radio" aria-pressed="false">Short<small>betting lower</small></button>
+      </div>
+
+      <label class="fl reqline" for="pmPrice"><span class="reqtext">Entry price</span><span class="req-tag" id="pmPriceReq">Required</span></label>
+      <div class="inrow haspre" id="pmPriceRow"><span class="pre cur2pm">$</span><input id="pmPrice" type="text" inputmode="decimal" placeholder="100.00" autocomplete="off"></div>
+
+      <label class="fl" style="margin-top:12px">% move steps <span class="opt">tap ✎ to edit</span></label>
+      <div class="chips" id="pmChips" aria-label="Percent move steps"></div>
+
+      <div class="explain" data-explain="pmLadder"></div>
+    </section>
+
+    <!-- ladder -->
+    <div class="ci-rows" id="pmRows"></div>
+    <div class="ci-needhint" id="pmNeedHint">Enter an entry price to see your price-move ladder.</div>
+
+    <!-- Memo -->
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Memo · your notes</h2>
+      <textarea id="pmMemo" placeholder="Note your plan — e.g. 'Long entry $100, take profit at +7%, stop at −3%.'" maxlength="500"></textarea>
+      <div class="explain" data-explain="pmMemo"></div>
+    </section>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="pmShare">Share</button>
+      <button class="btn" id="pmImport">Import</button>
+      <button class="btn" id="pmReset">Reset</button>
     </div>
+
   </div>
 
   <!-- ===== WORKSPACE 3 · Gain / Loss (coming soon) ===== -->
@@ -553,28 +631,28 @@
         <div id="glTotalInputs">
           <div class="duo">
             <div>
-              <label class="fl" for="glCost">Original cost <span class="opt">book cost</span></label>
-              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glCost" type="text" inputmode="decimal" placeholder="5,000" autocomplete="off"></div>
+              <label class="fl" for="glCost">Original cost <span class="opt">book cost</span><br><span class="req-stack" id="glCostReq">Required</span></label>
+              <div class="inrow haspre" id="glCostRow"><span class="pre cur3">$</span><input id="glCost" type="text" inputmode="decimal" placeholder="5,000" autocomplete="off"></div>
             </div>
             <div>
-              <label class="fl" for="glSale">Sale value <span class="opt">settlement</span></label>
-              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glSale" type="text" inputmode="decimal" placeholder="6,500" autocomplete="off"></div>
+              <label class="fl" for="glSale">Sale value <span class="opt">settlement</span><br><span class="req-stack" id="glSaleReq">Required</span></label>
+              <div class="inrow haspre" id="glSaleRow"><span class="pre cur3">$</span><input id="glSale" type="text" inputmode="decimal" placeholder="6,500" autocomplete="off"></div>
             </div>
           </div>
         </div>
         <div id="glShareInputs" hidden>
           <div class="duo">
             <div>
-              <label class="fl" for="glBuyPx">Buy price</label>
-              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glBuyPx" type="text" inputmode="decimal" placeholder="50.00" autocomplete="off"></div>
+              <label class="fl" for="glBuyPx">Buy price<br><span class="req-stack" id="glBuyPxReq">Required</span></label>
+              <div class="inrow haspre" id="glBuyPxRow"><span class="pre cur3">$</span><input id="glBuyPx" type="text" inputmode="decimal" placeholder="50.00" autocomplete="off"></div>
             </div>
             <div>
-              <label class="fl" for="glSellPx">Sell price</label>
-              <div class="inrow haspre"><span class="pre cur3">$</span><input id="glSellPx" type="text" inputmode="decimal" placeholder="65.00" autocomplete="off"></div>
+              <label class="fl" for="glSellPx">Sell price<br><span class="req-stack" id="glSellPxReq">Required</span></label>
+              <div class="inrow haspre" id="glSellPxRow"><span class="pre cur3">$</span><input id="glSellPx" type="text" inputmode="decimal" placeholder="65.00" autocomplete="off"></div>
             </div>
           </div>
-          <label class="fl" for="glShares">Shares</label>
-          <div class="inrow"><input id="glShares" type="text" inputmode="numeric" placeholder="100" autocomplete="off"></div>
+          <label class="fl" for="glShares">Shares<br><span class="req-stack" id="glSharesReq">Required</span></label>
+          <div class="inrow" id="glSharesRow"><input id="glShares" type="text" inputmode="numeric" placeholder="100" autocomplete="off"></div>
         </div>
         <div class="explain" data-explain="glTracker"></div>
       </div>
@@ -594,7 +672,8 @@
     <!-- TRACKER results -->
     <section class="ticket" id="glTrackerResult" aria-live="polite">
       <div class="thead"><span class="t">Result</span><span class="dir" id="glDirBadge">—</span></div>
-      <div class="trows">
+      <div class="ci-needhint" id="glNeedHint" style="margin:4px 0 0">Enter an original cost and a sale value to see your gain/loss.</div>
+      <div class="trows" id="glResultRows">
         <div class="trow hl"><span class="k">Gain / Loss</span><span class="v big" id="glGain">—</span></div>
         <div class="trow"><span class="k">% Change</span><span class="v" id="glPct">—</span></div>
       </div>
@@ -656,11 +735,11 @@
 
       <div class="duo">
         <div>
-          <label class="fl" for="ciStart">Starting amount<span class="req-tag" id="ciStartReq">Required</span></label>
+          <label class="fl reqline" for="ciStart"><span class="reqtext">Starting amount</span><span class="req-tag" id="ciStartReq">Required</span></label>
           <div class="inrow haspre" id="ciStartRow"><span class="pre cur2">$</span><input id="ciStart" type="text" inputmode="decimal" placeholder="1,000" autocomplete="off"></div>
         </div>
         <div>
-          <label class="fl" for="ciRate">Growth rate<span class="req-tag" id="ciRateReq">Required</span></label>
+          <label class="fl reqline" for="ciRate"><span class="reqtext">Growth rate</span><span class="req-tag" id="ciRateReq">Required</span></label>
           <div class="inrow hassuf" id="ciRateRow"><input id="ciRate" type="text" inputmode="decimal" placeholder="10" autocomplete="off"><span class="suf">%</span></div>
         </div>
       </div>
@@ -806,6 +885,7 @@ const DEFAULTS={
   glMode:"tracker",glInMode:"total",glCost:"",glSale:"",glBuyPx:"",glSellPx:"",glShares:"",
   glAnnualOn:false,glDateBuy:"",glDateSell:"",
   glBase:"",glPctChips:[5,10,-10,25,-25],glDolChips:[500,1000,-500,-1000],glStack:[],glMemo:"",
+  pmDir:"long",pmPrice:"",pmChips:[1,2,3,4,5,7,10,15,20],pmMemo:"",
   ciMilestones:[18,21,55,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
@@ -815,7 +895,7 @@ const KEY="trade-risk-calc-v1";
 /* ---------- workspaces ---------- */
 const WORKSPACES=[
   {id:1,name:"Portfolio Sizer",tagline:"Position size · stop loss · risk, on one ticket.",ready:true},
-  {id:2,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:false},
+  {id:2,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:true},
   {id:3,name:"Gain / Loss",tagline:"Cost vs sale — dollars and % change.",ready:true},
   {id:4,name:"Compound Interest",tagline:"Watch money compound over time.",ready:true},
   {id:5,name:"Options Sizer",tagline:"Size options by price-move scenarios.",ready:false}
@@ -878,7 +958,9 @@ const GLOSSARY={
   glTracker:"<strong>Tracker</strong> — Log a real trade: enter what you paid (cost) and what you sold for (sale value), or switch to per-share to enter buy price, sell price, and share count. You'll get your dollar gain/loss and % change.",
   glSandbox:"<strong>Sandbox</strong> — Experiment freely. Enter a base amount, then tap % or $ chips to stack up what-if scenarios and compare them side by side — great for seeing what different gains or losses would mean in dollars. Tap ✎ to set your own chip values.",
   glAnnual:"<strong>Annualized return</strong> — Your return restated as a yearly rate, so trades held for different lengths can be compared fairly. A 10% gain in 6 months is roughly 21% annualized; the same 10% over 2 years is about 5%. Enter your buy and sell dates to calculate it.",
-  glMemo:"<strong>Memo</strong> — Journal this trade or jot notes to share — what you did, why, and how it turned out. Saved with your scenario and included when you share."
+  glMemo:"<strong>Memo</strong> — Journal this trade or jot notes to share — what you did, why, and how it turned out. Saved with your scenario and included when you share.",
+  pmLadder:"<strong>Price-move ladder</strong> — Enter your entry price and see exactly where each percentage move lands. Long shows up-moves as green profit targets and down-moves as red stops; Short flips it (you profit when price falls). Tap a % chip to jump to that rung; tap ✎ to set your own % steps.",
+  pmMemo:"<strong>Memo</strong> — Note your trade plan or share it — entry, targets, stops. Saved with your scenario and included when you share."
 };
 
 /* ---------- storage: artifact storage -> localStorage -> memory ---------- */
@@ -953,6 +1035,12 @@ function renderChips(holder,arr,onPick,onSave,activeVal,suffix,allowNeg){
     if(isTrailUnit)return sign+mag+suffix;
     return sign+suffix+mag;
   }
+  function chipRefresh(){
+    renderAll();
+    if(typeof ciRender==="function")ciRender();  // CI/milestone chips (WS4)
+    if(typeof glRender==="function")glRender();  // Gain/Loss sandbox chips (WS3)
+    if(typeof pmRender==="function")pmRender();  // ladder % step chips (WS2)
+  }
   function commit(){
     const vals=[...set.querySelectorAll("input")].map(i=>num(i.value)).map(v=>{
       if(!isFinite(v)||v===0)return null;
@@ -961,7 +1049,7 @@ function renderChips(holder,arr,onPick,onSave,activeVal,suffix,allowNeg){
     const ok=vals.filter(v=>v!=null);
     if(ok.length===arr.length)onSave(ok);
     holder.dataset.editing="0";
-    renderAll();
+    chipRefresh();
   }
   arr.forEach((p,i)=>{
     if(editing){
@@ -981,7 +1069,7 @@ function renderChips(holder,arr,onPick,onSave,activeVal,suffix,allowNeg){
   e.title=editing?"Save presets":"Edit presets";e.textContent=editing?"✓":"✎";
   e.addEventListener("click",()=>{
     if(editing)commit();
-    else{holder.dataset.editing="1";renderAll()}
+    else{holder.dataset.editing="1";chipRefresh();}
   });
   holder.appendChild(e);
 }
@@ -1246,6 +1334,10 @@ function importFromHash(){
       ["glMode","glInMode","glCost","glSale","glBuyPx","glSellPx","glShares","glAnnualOn","glDateBuy","glDateSell","glBase","glStack","glMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
       if(!Array.isArray(S.glStack))S.glStack=[];
       S._sharedType="gl";
+    }else if(p && p.t==="pm"){
+      ["pmDir","pmPrice","pmChips","pmMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      if(!Array.isArray(S.pmChips))S.pmChips=[1,2,3,4,5,7,10,15,20];
+      S._sharedType="pm";
     }else{
       applyImport(p);
     }
@@ -1591,7 +1683,7 @@ function ciApplyRowsCollapse(){
     if(icon)icon.textContent="+";
     t.setAttribute("aria-label","Show the projection rows");
   }else{
-    if(lbl)lbl.textContent="Hide rows";
+    if(lbl)lbl.textContent=ciShownCount?("Hide "+ciShownCount+" row"+(ciShownCount===1?"":"s")):"Hide rows";
     if(icon)icon.textContent="–";
     t.setAttribute("aria-label","Hide the projection rows");
   }
@@ -1695,13 +1787,39 @@ function glComputeTracker(){
 function glRenderTracker(){
   const r=glComputeTracker();
   const badge=$("glDirBadge"),gain=$("glGain"),pctEl=$("glPct");
+  // required-field cues per active input mode (clears each as it's filled)
+  const share=S.glInMode==="share";
+  const costOK=isFinite(num(S.glCost)), saleOK=isFinite(num(S.glSale));
+  const buyOK=isFinite(num(S.glBuyPx)), sellOK=isFinite(num(S.glSellPx)), shOK=isFinite(num(S.glShares))&&num(S.glShares)>0;
+  if($("glCostRow"))$("glCostRow").classList.toggle("needfill",!share&&!costOK);
+  if($("glSaleRow"))$("glSaleRow").classList.toggle("needfill",!share&&!saleOK);
+  if($("glBuyPxRow"))$("glBuyPxRow").classList.toggle("needfill",share&&!buyOK);
+  if($("glSellPxRow"))$("glSellPxRow").classList.toggle("needfill",share&&!sellOK);
+  if($("glSharesRow"))$("glSharesRow").classList.toggle("needfill",share&&!shOK);
+  // stacked Required pills: show only for the active mode, hide once filled
+  const pill=(id,show)=>{const e=$(id);if(e)e.style.display=show?"":"none";};
+  pill("glCostReq",!share&&!costOK); pill("glSaleReq",!share&&!saleOK);
+  pill("glBuyPxReq",share&&!buyOK); pill("glSellPxReq",share&&!sellOK); pill("glSharesReq",share&&!shOK);
+  // dynamic hint naming exactly what's missing
+  const hint=$("glNeedHint"),rows=$("glResultRows");
   if(!r.valid){
+    const need=[];
+    if(share){if(!buyOK)need.push("a buy price");if(!sellOK)need.push("a sell price");if(!shOK)need.push("share count");}
+    else{if(!costOK)need.push("an original cost");if(!saleOK)need.push("a sale value");}
+    let msg;
+    if(need.length===0)msg="Enter your trade details to see your gain/loss."; // e.g. cost 0
+    else if(need.length===1)msg="Enter "+need[0]+" to see your gain/loss.";
+    else msg="Enter "+need.slice(0,-1).join(", ")+" and "+need[need.length-1]+" to see your gain/loss.";
+    if(hint){hint.textContent=msg;hint.style.display="";}
+    if(rows)rows.style.display="none";
     badge.textContent="—";badge.className="dir";
     gain.textContent="—";gain.className="v big";
     pctEl.textContent="—";pctEl.className="v";
     $("glAnnual").textContent="—";$("glAnnual").className="v";
     return;
   }
+  if(hint)hint.style.display="none";
+  if(rows)rows.style.display="";
   const dir=r.gain>0?"GAIN":(r.gain<0?"LOSS":"FLAT");
   badge.textContent=dir;
   badge.className="dir "+(r.gain>0?"long":(r.gain<0?"short":""));
@@ -1855,14 +1973,161 @@ $("glImport").addEventListener("click",()=>{
   $("mText").readOnly=false;$("mText").value="";$("mText").focus();
 });
 
+/* ---------- % Price-Move Ladder workspace (#2) ---------- */
+function pmFmt(n){if(!isFinite(n))return "—";return S.curSym+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function pmFmtMove(n){if(!isFinite(n))return "—";const s=n>0?"+":(n<0?"−":"");return s+S.curSym+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+// move prefixed with currency CODE (e.g. "+CAD 44.91") for readability
+function pmFmtMoveCode(n){if(!isFinite(n))return "—";const s=n>0?"+":(n<0?"−":"");const code=(S.curCode&&S.curCode!=="CUSTOM")?S.curCode:S.curSym;return s+code+" "+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function pmApplyDir(){
+  const long=S.pmDir==="long";
+  $("pmLong").setAttribute("aria-pressed",String(long));
+  $("pmShort").setAttribute("aria-pressed",String(!long));
+}
+
+function pmRender(){
+  document.querySelectorAll(".cur2pm").forEach(e=>e.textContent=S.curSym);
+  pmApplyDir();
+  if($("pmPrice")&&document.activeElement!==$("pmPrice"))$("pmPrice").value=groupNum(S.pmPrice);
+  if($("pmMemo")&&document.activeElement!==$("pmMemo"))$("pmMemo").value=S.pmMemo||"";
+  // chips (positive % steps, editable, no negatives, % suffix)
+  renderChips($("pmChips"),S.pmChips,pct=>{pmJumpTo(pct);},a=>{S.pmChips=a.filter(v=>v>0).sort((x,y)=>x-y);persist();},null,"%",false);
+
+  const price=num(S.pmPrice);
+  const host=$("pmRows"),hint=$("pmNeedHint");
+  const priceOK=isFinite(price)&&price>0;
+  if($("pmPriceRow"))$("pmPriceRow").classList.toggle("needfill",!priceOK);
+  if($("pmPriceReq"))$("pmPriceReq").style.display=priceOK?"none":"";
+  host.innerHTML="";
+  if(!priceOK){ if(hint)hint.style.display=""; return; }
+  if(hint)hint.style.display="none";
+  const long=S.pmDir==="long";
+  const frag=document.createDocumentFragment();
+  // entry row at top
+  const entry=document.createElement("div");
+  entry.className="pm-row entry";
+  entry.innerHTML='<span class="pm-pct">Entry</span><div class="pm-right"><span class="pm-price">'+pmFmt(price)+'</span><span class="pm-move" style="color:var(--accent-deep)">your price</span></div>';
+  frag.appendChild(entry);
+  // steps ascending; for long show upside (green) then we also show the downside stop below mirrored
+  const steps=[...S.pmChips].sort((a,b)=>a-b);
+  // Profit side first (the direction you're betting), then the adverse side
+  const profitUp = long; // long profits when price goes up
+  function rowFor(pct, isUp){
+    const target = isUp ? price*(1+pct/100) : price*(1-pct/100);
+    const move = target - price;
+    const isProfit = (isUp===profitUp);
+    const cls = isProfit ? "up" : "down";
+    const moveCls = isProfit ? "up" : "down";
+    const r=document.createElement("div");
+    r.className="pm-row "+cls;
+    r.dataset.pct=pct;
+    r.innerHTML='<span class="pm-pct">'+(isUp?"+":"−")+pct+'%</span>'+
+      '<div class="pm-right"><span class="pm-price">'+pmFmt(target)+'</span>'+
+      '<span class="pm-move '+moveCls+'">'+pmFmtMoveCode(move)+'</span></div>';
+    return r;
+  }
+  function sectionHead(text,kind){
+    const h=document.createElement("div");
+    h.className="pm-sec "+kind;
+    h.textContent=text;
+    return h;
+  }
+  // Profit targets group
+  frag.appendChild(sectionHead("🎯 Profit targets — where you take gains","tgt"));
+  steps.forEach(pct=>frag.appendChild(rowFor(pct, profitUp)));
+  // Stop levels group
+  frag.appendChild(sectionHead("🛑 Stop levels — where the trade goes against you","stp"));
+  steps.forEach(pct=>frag.appendChild(rowFor(pct, !profitUp)));
+  host.appendChild(frag);
+}
+
+function pmJumpTo(pct){
+  const host=$("pmRows");if(!host)return;
+  const matches=[...host.querySelectorAll('.pm-row')].filter(r=>parseFloat(r.dataset.pct)===pct);
+  if(!matches.length)return;
+  // scroll the first match into view, then pulse all matches (target + stop for this %)
+  matches[0].scrollIntoView({behavior:"smooth",block:"center"});
+  matches.forEach(r=>{
+    r.classList.remove("pulse"); void r.offsetWidth; // restart animation
+    r.classList.add("pulse");
+    setTimeout(()=>r.classList.remove("pulse"),1400);
+  });
+}
+
+$("pmLong").addEventListener("click",()=>{S.pmDir="long";persist();pmRender();});
+$("pmShort").addEventListener("click",()=>{S.pmDir="short";persist();pmRender();});
+function pmBindPrice(){
+  const el=$("pmPrice");if(!el)return;
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();pmRender();}});
+  el.addEventListener("input",e=>{
+    const t=e.target,caret=t.selectionStart;
+    const digitsBefore=(t.value.slice(0,caret).match(/[0-9.]/g)||[]).length;
+    t.value=groupNum(clean(t.value));
+    let pos=0,c=0;while(pos<t.value.length&&c<digitsBefore){if(/[0-9.]/.test(t.value[pos]))c++;pos++;}
+    try{t.setSelectionRange(pos,pos)}catch(_){}
+    S.pmPrice=t.value;persist();pmRender();
+  });
+}
+pmBindPrice();
+$("pmMemo").addEventListener("input",e=>{S.pmMemo=e.target.value;persist();});
+$("pmReset").addEventListener("click",()=>{
+  S.pmPrice="";S.pmMemo="";S.pmDir="long";S.pmChips=[1,2,3,4,5,7,10,15,20];
+  persist();pmRender();
+});
+function pmEncode(){
+  const p={t:"pm",pmDir:S.pmDir,pmPrice:S.pmPrice,pmChips:S.pmChips,pmMemo:S.pmMemo,curSym:S.curSym,curCode:S.curCode};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function pmShareText(){
+  const L=[];const price=num(S.pmPrice);
+  L.push("📏 Price-Move Ladder — "+(S.pmDir==="long"?"Long":"Short"));
+  if(isFinite(price))L.push("Entry: "+pmFmt(price));
+  if(isFinite(price)){
+    const long=S.pmDir==="long";
+    const steps=[...S.pmChips].sort((a,b)=>a-b);
+    L.push(long?"🎯 Targets (up):":"🎯 Targets (down):");
+    steps.forEach(pct=>{const t=long?price*(1+pct/100):price*(1-pct/100);L.push("  "+(long?"+":"−")+pct+"% → "+pmFmt(t));});
+    L.push(long?"🛑 Stops (down):":"🛑 Stops (up):");
+    steps.forEach(pct=>{const t=long?price*(1-pct/100):price*(1+pct/100);L.push("  "+(long?"−":"+")+pct+"% → "+pmFmt(t));});
+  }
+  if(S.pmMemo&&S.pmMemo.trim())L.push("Memo: "+S.pmMemo.trim());
+  L.push("");L.push(location.origin+location.pathname+"#d="+pmEncode());
+  return L.join("\n");
+}
+$("pmShare").addEventListener("click",async()=>{
+  const text=pmShareText();
+  if(navigator.share){try{await navigator.share({title:"Price-Move Ladder",text});return}catch(e){if(e&&e.name==="AbortError")return}}
+  openSheet("Share this","Your share sheet isn't available here — use email or copy.",text,[
+    ["Email",async function(){const ok=await copyText(text);const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent("Price-Move Ladder")+"&body="+encodeURIComponent(text);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);this.textContent=ok?"✓ Copied too":"Email";},false],
+    ["Copy",async function(){if(await copyText(text))this.textContent="✓ Copied";},true],
+    ["Close",closeSheet,false]
+  ]);
+});
+$("pmImport").addEventListener("click",()=>{
+  openSheet("Import","Paste a Price-Move Ladder share code (or full message).","",[
+    ["Load",function(){
+      try{
+        const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
+        const p=decodeState(code);
+        if(p.t==="pm"){["pmDir","pmPrice","pmChips","pmMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+          if(!Array.isArray(S.pmChips))S.pmChips=[1,2,3,4,5,7,10,15,20];}
+        closeSheet();persist();pmRender();renderAll();
+      }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
+
 /* ---------- boot ---------- */
 (async function(){
   const saved=await load();
   if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
   // ensure monthly top-up reflects saved annual value (back-compat)
   if((!S.ciTopupMo||S.ciTopupMo==="")&&num(S.ciTopup)>0){S.ciTopupMo=String(Math.round(num(S.ciTopup)/12*100)/100);}
-  let sharedCI=false, sharedGL=false;
-  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true; if(S._sharedType==="gl")sharedGL=true;}
+  let sharedCI=false, sharedGL=false, sharedPM=false;
+  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true; if(S._sharedType==="gl")sharedGL=true; if(S._sharedType==="pm")sharedPM=true;}
   populateGlossary();
   applyExplain();
   buildNav();
@@ -1873,7 +2138,8 @@ $("glImport").addEventListener("click",()=>{
   glApplyInMode();
   glApplyAnnualToggle();
   glRender();
-  switchWs(sharedCI?4:(sharedGL?3:(S.activeWs||1)));
+  pmRender();
+  switchWs(sharedCI?4:(sharedGL?3:(sharedPM?2:(S.activeWs||1))));
   renderAll();
 })();
 })();
