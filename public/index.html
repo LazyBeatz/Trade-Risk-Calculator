@@ -17,6 +17,7 @@
     --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
     --sans:"Futura PT","Jost",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
+  [data-theme="light"]{color-scheme:light}
   [data-theme="dark"]{
     color-scheme:dark;
     --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1; --ph:#5E677B;
@@ -695,9 +696,13 @@
       </div>
 
       <div class="duo" style="margin-top:12px">
-        <div>
+        <div id="ciPeriodsWrap">
           <label class="fl" for="ciPeriods">Periods</label>
           <div class="inrow hassuf"><input id="ciPeriods" type="text" inputmode="numeric" placeholder="70" autocomplete="off"><span class="suf" id="ciPeriodUnit">yrs</span></div>
+        </div>
+        <div id="ciYearsLeftWrap" hidden>
+          <label class="fl">Working years left</label>
+          <div class="inrow hassuf"><input id="ciYearsLeft" type="text" inputmode="numeric" readonly aria-readonly="true"><span class="suf">yrs</span></div>
         </div>
         <div>
           <label class="fl">View</label>
@@ -706,6 +711,30 @@
           </div>
         </div>
       </div>
+
+      <div class="ci-optin" id="ciAgeOptin">
+        <button type="button" class="ci-switch" id="ciAgeToggle" role="switch" aria-checked="false">
+          <span class="ci-switch-track"><span class="ci-switch-thumb"></span></span>
+          <span class="ci-switch-lbl">Plan around my age?</span>
+        </button>
+      </div>
+      <div id="ciAgeField" hidden>
+        <div class="duo">
+          <div>
+            <label class="fl" for="ciCurAge">Current age</label>
+            <div class="inrow hassuf"><input id="ciCurAge" type="text" inputmode="numeric" placeholder="34" autocomplete="off"><span class="suf">yrs</span></div>
+          </div>
+          <div>
+            <label class="fl" for="ciRetAge">Retirement age</label>
+            <div class="inrow hassuf"><input id="ciRetAge" type="text" inputmode="numeric" placeholder="65" autocomplete="off"><span class="suf">yrs</span></div>
+          </div>
+        </div>
+        <div class="explain" data-explain="ciAge"></div>
+      </div>
+
+      <label class="fl" id="ciMileLbl" style="margin-top:12px">Milestone markers <span class="opt">tap ✎ to set your own</span></label>
+      <div class="chips" id="ciMileChips" aria-label="Milestone markers"></div>
+
       <div class="explain" data-explain="ciMode"></div>
       <div class="explain" data-explain="ciReinvestExp"></div>
     </section>
@@ -735,7 +764,7 @@
       <button class="btn" id="ciImport">Import</button>
       <button class="btn" id="ciReset">Reset</button>
     </div>
-    <p class="hint">Milestone years (18, 21, 33, 55, 60, 65, 70) are highlighted. Tap “Milestones” to filter.</p>
+    <p class="hint">Highlighted milestone ages are editable — tap ✎ on the markers to set your own. Tap “Milestones” to filter to just those rows.</p>
 
   </div>
 
@@ -773,10 +802,11 @@ const DEFAULTS={
   ticker:"",activeWs:1,
   ciMode:"annual",ciStart:"",ciRate:"",ciTopup:"",ciTopupMo:"",ciTopupSide:"yr",ciStopYr:"",ciStopEnabled:false,ciReinvest:"25",
   ciPeriods:"70",ciView:"all",ciMemo:"",ciRowsCollapsed:false,ciRateChips:[5,7,10,15,20],
+  ciAgeMode:false,ciCurAge:"",ciRetAge:"",
   glMode:"tracker",glInMode:"total",glCost:"",glSale:"",glBuyPx:"",glSellPx:"",glShares:"",
   glAnnualOn:false,glDateBuy:"",glDateSell:"",
   glBase:"",glPctChips:[5,10,-10,25,-25],glDolChips:[500,1000,-500,-1000],glStack:[],glMemo:"",
-  ciMilestones:[18,21,33,55,60,65,70]
+  ciMilestones:[18,21,55,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 let mem={}; // in-memory fallback
@@ -844,6 +874,7 @@ const GLOSSARY={
   ciReinvestExp:"<strong>Reinvest %</strong> — In Trade mode, the share of each gain you let ride with your principal. The rest is 'withdrawn' (your take-home). Example: 25% reinvested means 75% goes in your pocket — and the calculator tallies both your growing balance and your cumulative take-home.",
   ciStopYr:"<strong>Stop top-ups after</strong> — The year your yearly contributions end, while the money keeps compounding. Great for 'what if I add $1,000/yr until my kid turns 18, then stop?' Leave blank to contribute every year. The year you enter still gets its top-up; the next year onward gets none.",
   ciMemo:"<strong>Memo</strong> — A space to journal your plan or leave notes for others — your strategy, your milestones, why you chose these numbers. Saved with your scenario and included when you share.",
+  ciAge:"<strong>Plan around my age</strong> — Enter your current age and your target retirement age, and the projection automatically runs for exactly the working years you have left (retirement − current). Rows are then labeled by age, so you see what you'll have at 'Age 65' rather than an abstract year number. Milestone markers are read as ages in this mode.",
   glTracker:"<strong>Tracker</strong> — Log a real trade: enter what you paid (cost) and what you sold for (sale value), or switch to per-share to enter buy price, sell price, and share count. You'll get your dollar gain/loss and % change.",
   glSandbox:"<strong>Sandbox</strong> — Experiment freely. Enter a base amount, then tap % or $ chips to stack up what-if scenarios and compare them side by side — great for seeing what different gains or losses would mean in dollars. Tap ✎ to set your own chip values.",
   glAnnual:"<strong>Annualized return</strong> — Your return restated as a yearly rate, so trades held for different lengths can be compared fairly. A 10% gain in 6 months is roughly 21% annualized; the same 10% over 2 years is about 5%. Enter your buy and sell dates to calculate it.",
@@ -908,16 +939,19 @@ function cycleTheme(){
 
 /* ---------- presets ---------- */
 function renderChips(holder,arr,onPick,onSave,activeVal,suffix,allowNeg){
-  suffix=suffix||"%";
+  if(suffix==null)suffix="%";
   holder.innerHTML="";
   const set=document.createElement("div");set.className="set";
   const editing=holder.dataset.editing==="1";
   const isPctSuffix=(suffix==="%");
+  const isTrailUnit=/^\s/.test(suffix); // a suffix that starts with a space trails the number (e.g. " yrs")
   function fmtChip(v){
-    // sign-aware label; % suffix trails the number, currency symbol leads it
+    // %/word-units trail the number; a currency symbol leads it
     const sign=v<0?"−":"";
     const mag=Math.abs(v).toLocaleString("en-US");
-    return isPctSuffix?(sign+mag+"%"):(sign+suffix+mag);
+    if(isPctSuffix)return sign+mag+"%";
+    if(isTrailUnit)return sign+mag+suffix;
+    return sign+suffix+mag;
   }
   function commit(){
     const vals=[...set.querySelectorAll("input")].map(i=>num(i.value)).map(v=>{
@@ -1205,7 +1239,7 @@ function importFromHash(){
   try{
     const p=decodeState(m[1]);
     if(p && p.t==="ci"){
-      ["ciMode","ciStart","ciRate","ciTopup","ciStopYr","ciStopEnabled","ciReinvest","ciPeriods","ciMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      ["ciMode","ciStart","ciRate","ciTopup","ciStopYr","ciStopEnabled","ciReinvest","ciPeriods","ciAgeMode","ciCurAge","ciRetAge","ciMilestones","ciMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
       {const tv=num(S.ciTopup);S.ciTopupMo=isFinite(tv)?String(Math.round(tv/12*100)/100):"";S.ciTopupSide="yr";}
       S._sharedType="ci";
     }else if(p && p.t==="gl"){
@@ -1296,10 +1330,19 @@ $("btnExplain").addEventListener("click",()=>{S.explainMode=!S.explainMode;apply
 let ciShownCount=0;
 function ciCompute(){
   const start=num(S.ciStart), rate=num(S.ciRate);
-  let periods=Math.floor(num(S.ciPeriods));
-  if(!isFinite(periods)||periods<1)periods=0;
-  periods=Math.min(periods,200); // safety cap
   const annual=S.ciMode==="annual";
+  const ageMode=annual&&S.ciAgeMode;
+  let periods, ageValid=true;
+  if(ageMode){
+    const c=Math.floor(num(S.ciCurAge)), r=Math.floor(num(S.ciRetAge));
+    if(isFinite(c)&&isFinite(r)&&r>c){periods=r-c;}
+    else{periods=0;ageValid=false;}
+  }else{
+    periods=Math.floor(num(S.ciPeriods));
+    if(!isFinite(periods)||periods<1)periods=0;
+  }
+  periods=Math.min(periods,200); // safety cap
+  const curAge=ageMode?Math.floor(num(S.ciCurAge)):NaN;
   const topup=annual?(isFinite(num(S.ciTopup))?num(S.ciTopup):0):0;
   let stopYr=Math.floor(num(S.ciStopYr));
   if(!S.ciStopEnabled||!isFinite(stopYr)||stopYr<=0)stopYr=Infinity; // off OR blank = contribute every year
@@ -1307,8 +1350,8 @@ function ciCompute(){
   if(!isFinite(reinvest))reinvest=annual?100:25;
   reinvest=Math.max(0,Math.min(100,reinvest));
   const rows=[];
-  if(!isFinite(start)||start<=0||!isFinite(rate)){
-    return {rows,periods,annual,reinvest,final:NaN,totalGains:NaN,totalWithdrawn:NaN,valid:false};
+  if(!isFinite(start)||start<=0||!isFinite(rate)||(ageMode&&!ageValid)){
+    return {rows,periods,annual,ageMode,curAge,reinvest,final:NaN,totalGains:NaN,totalWithdrawn:NaN,valid:false};
   }
   let bal=start, totalWithdrawn=0, totalTopup=0;
   for(let p=1;p<=periods;p++){
@@ -1338,7 +1381,7 @@ function ciCompute(){
   }
   const last=rows[rows.length-1];
   return {
-    rows, periods, annual, reinvest,
+    rows, periods, annual, ageMode, curAge, reinvest,
     final: last?last.balance:start,
     totalGains: last?last.totalGains:0,
     totalWithdrawn: totalWithdrawn,
@@ -1372,6 +1415,13 @@ function ciRender(){
   $("ciPeriodUnit").textContent=annual?"yrs":"trades";
   $("ciSumWithdrawnWrap").style.display=annual?"none":"";
   $("ciSummary").style.gridTemplateColumns=annual?"1fr 1fr":"1fr 1fr 1fr";
+  // age-mode UI (annual only)
+  const ageActive=annual&&S.ciAgeMode;
+  if($("ciAgeOptin"))$("ciAgeOptin").style.display=annual?"":"none";
+  if($("ciAgeField"))$("ciAgeField").hidden=!ageActive;
+  if($("ciPeriodsWrap"))$("ciPeriodsWrap").hidden=ageActive;
+  if($("ciYearsLeftWrap"))$("ciYearsLeftWrap").hidden=!ageActive;
+  if($("ciAgeToggle"))$("ciAgeToggle").setAttribute("aria-checked",String(!!S.ciAgeMode));
   // reinvest echo
   let ri=num(S.ciReinvest); if(!isFinite(ri))ri=25; ri=Math.max(0,Math.min(100,ri));
   $("ciReinvestEcho").textContent=Math.round(ri)+"% in · "+Math.round(100-ri)+"% out";
@@ -1379,6 +1429,13 @@ function ciRender(){
   [["ciStart","ciStart",1],["ciRate","ciRate",0],["ciReinvest","ciReinvest",0],["ciPeriods","ciPeriods",0],["ciStopYr","ciStopYr",0]]
     .forEach(([id,k,money])=>{const el=$(id);if(el&&document.activeElement!==el)el.value=money?groupNum(S[k]):S[k];});
   if($("ciMemo")&&document.activeElement!==$("ciMemo"))$("ciMemo").value=S.ciMemo||"";
+  // age fields
+  if($("ciCurAge")&&document.activeElement!==$("ciCurAge"))$("ciCurAge").value=S.ciCurAge||"";
+  if($("ciRetAge")&&document.activeElement!==$("ciRetAge"))$("ciRetAge").value=S.ciRetAge||"";
+  // milestone chips (editable; integers, no suffix)
+  renderChips($("ciMileChips"),S.ciMilestones,()=>{},a=>{S.ciMilestones=a.map(v=>Math.round(v)).filter(v=>v>0);persist();},null," yrs",false);
+  // milestone label reflects age vs year context
+  {const ml=$("ciMileLbl");if(ml)ml.firstChild.textContent=(S.ciMode==="annual"&&S.ciAgeMode)?"Milestone ages ":"Milestone markers ";}
   // top-up pair: keep the side being edited exact, derive & display the other
   const yrEl=$("ciTopup"), moEl=$("ciTopupMo");
   if(yrEl&&document.activeElement!==yrEl)yrEl.value=groupNum(S.ciTopup);
@@ -1407,7 +1464,11 @@ function ciRender(){
     ciShownCount=0;ciApplyRowsCollapse();return;
   }
   const milesOnly=S.ciView==="miles";
-  const mset=new Set(S.ciMilestones);
+  const ageActive2=r.ageMode;
+  // In age-mode, milestone values are ages -> convert to row index p = age - curAge
+  const mset=new Set(ageActive2 ? S.ciMilestones.map(m=>m-r.curAge) : S.ciMilestones);
+  // years-left readonly display
+  if($("ciYearsLeft"))$("ciYearsLeft").value=r.valid&&ageActive2?String(r.periods):"";
   const frag=document.createDocumentFragment();
   let shown=0;
   r.rows.forEach(row=>{
@@ -1416,8 +1477,10 @@ function ciRender(){
     shown++;
     const card=document.createElement("div");
     card.className="ci-row"+(isMile?" mile":"");
-    const unit=annual?"Year":"Trade";
-    let html='<div class="ci-row-top"><span class="ci-row-lbl">After '+unit+' '+row.p+'</span><span class="ci-row-bal">'+ciFmtMoney(row.balance)+'</span></div>';
+    let lbl;
+    if(ageActive2) lbl="Age "+(r.curAge+row.p);
+    else lbl="After "+(annual?"Year":"Trade")+" "+row.p;
+    let html='<div class="ci-row-top"><span class="ci-row-lbl">'+lbl+'</span><span class="ci-row-bal">'+ciFmtMoney(row.balance)+'</span></div>';
     html+='<div class="ci-row-sub"><span class="g">+'+ciFmtMoneyCode(row.grossGain)+' this '+(annual?'year':'trade')+'</span><span>'+ciFmtMoneyCode(row.totalGains)+' total growth</span></div>';
     if(annual && row.topup>0){
       html+='<div class="ci-row-sub"><span>+'+ciFmtMoneyCode(row.topup)+' added</span></div>';
@@ -1499,6 +1562,13 @@ ciBindTopup();
 ciBindPlain("ciReinvest","ciReinvest");
 ciBindPlain("ciPeriods","ciPeriods",true);
 ciBindPlain("ciStopYr","ciStopYr",true);
+ciBindPlain("ciCurAge","ciCurAge",true);
+ciBindPlain("ciRetAge","ciRetAge",true);
+$("ciAgeToggle").addEventListener("click",()=>{
+  S.ciAgeMode=!S.ciAgeMode;
+  if(S.ciAgeMode&&!S.ciRetAge)S.ciRetAge="65"; // sensible default on first enable
+  persist();ciRender();
+});
 function ciApplyStopToggle(){
   const t=$("ciStopToggle"),f=$("ciStopField");
   if(!t||!f)return;
@@ -1534,15 +1604,18 @@ $("ciModeAnnual").addEventListener("click",()=>{S.ciMode="annual";persist();ciRe
 $("ciModeTrade").addEventListener("click",()=>{S.ciMode="trade";persist();ciRender();});
 document.querySelectorAll("[data-ciview]").forEach(b=>b.addEventListener("click",()=>{S.ciView=b.dataset.ciview;persist();ciRender();}));
 $("ciReset").addEventListener("click",()=>{
-  ["ciStart","ciRate","ciTopup","ciTopupMo","ciStopYr","ciMemo"].forEach(k=>S[k]="");
+  ["ciStart","ciRate","ciTopup","ciTopupMo","ciStopYr","ciMemo","ciCurAge","ciRetAge"].forEach(k=>S[k]="");
   S.ciReinvest="25";S.ciPeriods="70";S.ciMode="annual";S.ciView="all";
-  S.ciStopEnabled=false;S.ciStopYr="";S.ciRowsCollapsed=false;
+  S.ciStopEnabled=false;S.ciStopYr="";S.ciRowsCollapsed=false;S.ciAgeMode=false;
+  S.ciMilestones=[18,21,55,65,70];
   ciApplyStopToggle();ciApplyRowsCollapse();persist();ciRender();
 });
 // share / import for CI
 function ciEncode(){
   const p={t:"ci",ciMode:S.ciMode,ciStart:S.ciStart,ciRate:S.ciRate,ciTopup:S.ciTopup,
-    ciStopYr:S.ciStopYr,ciStopEnabled:S.ciStopEnabled,ciReinvest:S.ciReinvest,ciPeriods:S.ciPeriods,ciMemo:S.ciMemo,curSym:S.curSym,curCode:S.curCode};
+    ciStopYr:S.ciStopYr,ciStopEnabled:S.ciStopEnabled,ciReinvest:S.ciReinvest,ciPeriods:S.ciPeriods,
+    ciAgeMode:S.ciAgeMode,ciCurAge:S.ciCurAge,ciRetAge:S.ciRetAge,ciMilestones:S.ciMilestones,
+    ciMemo:S.ciMemo,curSym:S.curSym,curCode:S.curCode};
   return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 function ciShareText(){
@@ -1581,7 +1654,7 @@ $("ciImport").addEventListener("click",()=>{
       try{
         const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
         const p=decodeState(code);
-        if(p.t==="ci"){["ciMode","ciStart","ciRate","ciTopup","ciStopYr","ciStopEnabled","ciReinvest","ciPeriods","ciMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+        if(p.t==="ci"){["ciMode","ciStart","ciRate","ciTopup","ciStopYr","ciStopEnabled","ciReinvest","ciPeriods","ciAgeMode","ciCurAge","ciRetAge","ciMilestones","ciMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
           const tv=num(S.ciTopup);S.ciTopupMo=isFinite(tv)?String(Math.round(tv/12*100)/100):"";S.ciTopupSide="yr";}
         closeSheet();persist();ciApplyStopToggle();ciRender();renderAll();
       }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
