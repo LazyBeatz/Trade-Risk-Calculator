@@ -1,4 +1,4 @@
-name = "trade-risk-calculator-app"
+name = "portfolio-sizer"
 main = "worker.js"
 compatibility_date = "2026-06-22"
 
