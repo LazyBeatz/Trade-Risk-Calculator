@@ -485,6 +485,16 @@
   [data-theme="dark"] .hg-res-row{background:rgba(91,140,255,.10)}
   .hg-res-lbl{font-family:var(--sans);font-size:.9rem;font-weight:700;color:var(--ink)}
   .hg-res-lbl small{display:block;font-weight:500;font-size:.74rem;color:#5C6371;margin-top:1px}
+  .hg-budget-line{display:flex;align-items:center;gap:5px}
+  .hg-link{
+    border:1.5px solid var(--line);background:transparent;border-radius:7px;padding:1px 5px;font-size:.82rem;
+    line-height:1;cursor:pointer;opacity:.45;filter:grayscale(1);-webkit-tap-highlight-color:transparent;transition:opacity .12s}
+  .hg-link.on{opacity:1;filter:none;border-color:var(--accent);background:rgba(47,111,237,.10)}
+  [data-theme="dark"] .hg-link.on{background:rgba(91,140,255,.16)}
+  .hg-budget-in{
+    width:42px;text-align:right;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--accent-deep,#2456C8);
+    border:1px solid var(--line);border-radius:6px;padding:2px 5px;background:var(--card);font-variant-numeric:tabular-nums}
+  [data-theme="dark"] .hg-budget-in{color:#9DBBFF}
   [data-theme="dark"] .hg-res-lbl small{color:var(--muted)}
   .hg-res-val{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--accent-deep,#2456C8);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
   [data-theme="dark"] .hg-res-val{color:#9DBBFF}
@@ -1265,7 +1275,7 @@
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Your hedge</h2>
       <div class="hg-result" id="hgResult">
-        <div class="hg-res-row"><span class="hg-res-lbl">Hedge budget <small>5% of portfolio</small></span><span class="hg-res-val" id="hgBudget">—</span></div>
+        <div class="hg-res-row"><span class="hg-res-lbl">Hedge budget <small class="hg-budget-line"><button type="button" class="hg-link" id="hgLink" aria-pressed="true" aria-label="Link budget to trigger band">🔗</button><input id="hgBudgetPct" class="hg-budget-in" type="text" inputmode="decimal" value="5" aria-label="Hedge budget percent">% of portfolio</small></span><span class="hg-res-val" id="hgBudget">—</span></div>
         <div class="hg-res-row"><span class="hg-res-lbl">Puts you can afford</span><span class="hg-res-val big" id="hgContracts">—</span></div>
         <div class="hg-res-row"><span class="hg-res-lbl">Actual cost <small id="hgCostPct"></small></span><span class="hg-res-val" id="hgCost">—</span></div>
       </div>
@@ -1381,7 +1391,7 @@ const DEFAULTS={
   pmDir:"long",pmPrice:"",pmChips:[1,2,3,4,5,7,10,15,20],pmMemo:"",
   opType:"call",opScenarios:["","",""],opChips:[0.01,1,10,100,1000],opMemo:"",opUnder:"",opUnderSym:"",
   opStrike:"",opExpiry:"",opAsk:"",opIV:"",opOI:"",opDetailOpen:false,
-  hgPort:"",hgTickerSym:"SPY",hgSpy:"",hgPct:5,hgStrike:"",hgExpiry:"",hgAsk:"",hgIV:"",hgPutOpen:true,hgMemo:"",
+  hgPort:"",hgTickerSym:"SPY",hgSpy:"",hgPct:5,hgBudgetPct:5,hgLinked:true,hgStrike:"",hgExpiry:"",hgAsk:"",hgIV:"",hgPutOpen:true,hgMemo:"",
   wlItems:[],wlMemo:"",wlRecent:[],watchlists:null,wlActive:0,
   ciMilestones:[18,21,55,65,70]
 };
@@ -1885,7 +1895,7 @@ function importFromHash(){
       if(!Array.isArray(S.opChips))S.opChips=[0.01,1,10,100,1000];
       S._sharedType="op";
     }else if(p && p.t==="hg"){
-      ["hgPort","hgTickerSym","hgSpy","hgPct","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      ["hgPort","hgTickerSym","hgSpy","hgPct","hgBudgetPct","hgLinked","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
       S._sharedType="hg";
     }else if(p && p.t==="wl"){
       wlEnsure();
@@ -3212,7 +3222,7 @@ function hgRender(){
   if($("hgExpiry")&&document.activeElement!==$("hgExpiry"))$("hgExpiry").value=S.hgExpiry||"";
   if($("hgSpyLbl"))$("hgSpyLbl").textContent=S.hgTickerSym||"SPY";
   // % band chips
-  renderChips($("hgPctChips"),[S.hgPct],()=>{},a=>{const v=a.filter(x=>x>0);S.hgPct=v.length?v[0]:5;persist();hgRender();},S.hgPct,"%",false);
+  renderChips($("hgPctChips"),[S.hgPct],()=>{},a=>{const v=a.filter(x=>x>0);S.hgPct=v.length?v[0]:5;if(S.hgLinked)S.hgBudgetPct=S.hgPct;persist();hgRender();},S.hgPct,"%",false);
 
   const port=num(S.hgPort), spy=num(S.hgSpy), pct=num(S.hgPct)||5;
   const strike=num(S.hgStrike), ask=num(S.hgAsk);
@@ -3271,8 +3281,11 @@ function hgRender(){
     if(!haveSpy&&!(isFinite(typedIV)&&typedIV>0))miss.push("last price");
     if(miss.length){pn.hidden=false;pn.textContent="Add "+miss.join(", ")+" to compute breakeven, IV and delta.";}else pn.hidden=true;}
 
-  // hedge sizing
-  const budget=havePort?port*0.05:NaN; // 5% of portfolio is the hedge budget
+  // hedge sizing — budget uses its own editable % (optionally linked to the trigger band)
+  const budgetPct=num(S.hgBudgetPct)||5;
+  if($("hgBudgetPct")&&document.activeElement!==$("hgBudgetPct"))$("hgBudgetPct").value=S.hgBudgetPct;
+  if($("hgLink")){$("hgLink").setAttribute("aria-pressed",String(!!S.hgLinked));$("hgLink").classList.toggle("on",!!S.hgLinked);$("hgLink").title=S.hgLinked?"Linked — budget follows the trigger band. Tap to unlink.":"Unlinked — budget is independent. Tap to link.";}
+  const budget=havePort?port*(budgetPct/100):NaN;
   $("hgBudget").textContent=isFinite(budget)?hgFmt0(budget):"—";
   let contracts=NaN, cost=NaN;
   if(isFinite(budget)&&haveAsk){contracts=Math.floor(budget/(ask*100));cost=contracts*ask*100;}
@@ -3331,6 +3344,23 @@ if($("hgTicker")){
 if($("hgExpiry"))$("hgExpiry").addEventListener("change",e=>{S.hgExpiry=e.target.value;persist();hgRender();});
 if($("hgMemo"))$("hgMemo").addEventListener("input",e=>{S.hgMemo=e.target.value;persist();});
 if($("hgPutToggle"))$("hgPutToggle").addEventListener("click",()=>{S.hgPutOpen=!S.hgPutOpen;persist();hgApplyPutOpen();if(S.hgPutOpen)hgRender();});
+if($("hgBudgetPct")){
+  $("hgBudgetPct").setAttribute("enterkeyhint","done");
+  $("hgBudgetPct").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("hgBudgetPct").blur();}});
+  $("hgBudgetPct").addEventListener("input",e=>{
+    let v=String(e.target.value).replace(/[^0-9.]/g,"").replace(/(\..*)\./g,"$1");
+    e.target.value=v;S.hgBudgetPct=v;
+    const n=num(v);if(isFinite(n)&&n>0&&S.hgLinked)S.hgPct=n; // linked: budget drives band too
+    persist();hgRender();
+  });
+}
+if($("hgLink")){
+  $("hgLink").addEventListener("click",()=>{
+    S.hgLinked=!S.hgLinked;
+    if(S.hgLinked){const b=num(S.hgPct);if(isFinite(b)&&b>0)S.hgBudgetPct=S.hgPct;} // snap budget to band on link
+    persist();hgRender();
+  });
+}
 if($("hgAutofill")){
   $("hgAutofill").addEventListener("click",()=>{
     const sym=normTicker(S.hgTickerSym||"SPY");
@@ -3348,14 +3378,14 @@ if($("hgAutofill")){
 }
 $("hgReset").addEventListener("click",()=>{
   ["hgPort","hgSpy","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo"].forEach(k=>S[k]="");
-  S.hgTickerSym="SPY";S.hgPct=5;S.hgPutOpen=true;
+  S.hgTickerSym="SPY";S.hgPct=5;S.hgBudgetPct=5;S.hgLinked=true;S.hgPutOpen=true;
   if($("hgTicker"))$("hgTicker").value="SPY";
   ["hgPort","hgSpy","hgStrike","hgAsk","hgIV","hgExpiry"].forEach(id=>{if($(id))$(id).value="";});
   if($("hgTickStatus")){$("hgTickStatus").className="tickstatus";$("hgTickStatus").innerHTML="";}
   persist();hgRender();
 });
 function hgEncode(){
-  const p={t:"hg",hgPort:S.hgPort,hgTickerSym:S.hgTickerSym,hgSpy:S.hgSpy,hgPct:S.hgPct,hgStrike:S.hgStrike,hgExpiry:S.hgExpiry,hgAsk:S.hgAsk,hgIV:S.hgIV,hgMemo:S.hgMemo,curSym:S.curSym,curCode:S.curCode};
+  const p={t:"hg",hgPort:S.hgPort,hgTickerSym:S.hgTickerSym,hgSpy:S.hgSpy,hgPct:S.hgPct,hgBudgetPct:S.hgBudgetPct,hgLinked:S.hgLinked,hgStrike:S.hgStrike,hgExpiry:S.hgExpiry,hgAsk:S.hgAsk,hgIV:S.hgIV,hgMemo:S.hgMemo,curSym:S.curSym,curCode:S.curCode};
   return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 function hgShareText(){
@@ -3364,8 +3394,8 @@ function hgShareText(){
   if(isFinite(port))L.push("Portfolio: "+hgFmt0(port));
   if(isFinite(spy))L.push((S.hgTickerSym||"SPY")+" last: "+hgFmt(spy)+"  ·  −"+pct+"% level: "+hgFmt(spy*(1-pct/100)));
   if(isFinite(port)&&isFinite(ask)&&ask>0){
-    const budget=port*0.05, ct=Math.floor(budget/(ask*100));
-    L.push("Hedge budget (5%): "+hgFmt0(budget));
+    const bp=num(S.hgBudgetPct)||5;const budget=port*(bp/100), ct=Math.floor(budget/(ask*100));
+    L.push("Hedge budget ("+bp+"%): "+hgFmt0(budget));
     L.push("Puts affordable: "+ct+" at "+hgFmt(ask)+" premium");
   }
   if(S.hgMemo&&S.hgMemo.trim()){L.push("");L.push("Memo: "+S.hgMemo.trim());}
@@ -3387,7 +3417,7 @@ $("hgImport").addEventListener("click",()=>{
       try{
         const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
         const p=decodeState(code);
-        if(p.t==="hg"){["hgPort","hgTickerSym","hgSpy","hgPct","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});}
+        if(p.t==="hg"){["hgPort","hgTickerSym","hgSpy","hgPct","hgBudgetPct","hgLinked","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});}
         closeSheet();persist();hgRender();renderAll();
       }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
     },true],
