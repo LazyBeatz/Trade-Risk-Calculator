@@ -55,9 +55,9 @@
   .iconbtn:active{transform:scale(.93)}
   /* workspace nav */
   .wsnav{margin-top:12px}
-  .wscircles{display:flex;justify-content:space-between;gap:8px;max-width:340px;margin:0 auto;padding:6px 4px}
+  .wscircles{display:flex;justify-content:space-between;gap:6px;max-width:370px;margin:0 auto;padding:6px 4px}
   .wsdot{
-    flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);
+    flex:1 1 0;min-width:0;aspect-ratio:1;max-width:44px;border-radius:50%;border:1.5px solid var(--line);
     background:var(--card);color:var(--muted);font-size:1rem;font-weight:700;cursor:pointer;
     font-family:var(--sans);display:flex;align-items:center;justify-content:center;
     position:relative;transition:transform .12s,background .2s,color .2s,border-color .2s;
@@ -145,8 +145,9 @@
   .ci-row-sub .g{color:#147035}
   [data-theme="dark"] .ci-row-sub .g{color:var(--green)}
   .ci-row-split{
-    display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:5px;font-size:.74rem;font-family:var(--mono);
-    border-top:1px dashed var(--line);padding-top:5px;
+    display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font-size:.84rem;font-family:var(--sans);
+    letter-spacing:.01em;font-variant-numeric:tabular-nums;font-weight:600;
+    border-top:1px dashed var(--line);padding-top:6px;
   }
   .ci-row-split .ri{color:var(--accent-deep,#2456C8)}
   .ci-row-split .wd{color:var(--amber)}
@@ -250,6 +251,15 @@
   [data-theme="dark"] .op-row-ctx{color:var(--muted)}
   .op-ctxnote{margin-top:8px;font-size:.82rem;line-height:1.4;color:#5C6371;font-family:var(--sans)}
   [data-theme="dark"] .op-ctxnote{color:var(--muted)}
+  .op-hdprice-wrap{display:inline-flex;flex-direction:column;align-items:flex-end;gap:2px}
+  .op-hdprice-cap{font-family:var(--sans);font-size:.64rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C6371}
+  [data-theme="dark"] .op-hdprice-cap{color:var(--muted)}
+  .op-hdprice{
+    font-family:var(--mono);font-size:.92rem;font-weight:700;font-variant-numeric:tabular-nums;
+    color:var(--accent-deep,#2456C8);background:rgba(47,111,237,.10);
+    border:1px solid rgba(47,111,237,.30);border-radius:999px;padding:3px 11px;white-space:nowrap;
+  }
+  [data-theme="dark"] .op-hdprice{color:#9DBBFF;background:rgba(91,140,255,.14);border-color:rgba(91,140,255,.34)}
   .op-row.shares .op-row-lbl{color:var(--accent-deep,#2456C8)}
   .op-row-val{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;flex:0 0 auto;white-space:nowrap}
   /* options rise-step add/delete controls */
@@ -371,7 +381,7 @@
   }
   .lookbtn:disabled{opacity:.5;cursor:default}
   .lookbtn.spin{pointer-events:none}
-  .tickstatus{font-size:.76rem;margin:7px 2px 0;min-height:1.1em;line-height:1.4;display:none}
+  .tickstatus{font-size:.92rem;margin:8px 2px 0;min-height:1.1em;line-height:1.45;display:none;font-weight:500}
   .tickstatus.show{display:block}
   .tickstatus.ok{color:var(--green)}
   .tickstatus.err{color:var(--red)}
@@ -411,7 +421,171 @@
   #ws-2 .ls, #ws-3 .ls, #ws-5 .ls{padding:14px 10px;font-size:1.08rem;border-radius:13px}
   #ws-2 .ls small, #ws-3 .ls small, #ws-5 .ls small{font-size:.76rem;margin-top:4px;font-weight:600}
   #ws-5 label.fl{color:var(--ink);font-size:.96rem;margin:15px 0 6px}
-  #ws-5 #opC1, #ws-5 #opC2, #ws-5 #opC3{font-size:1.18rem;padding:13px 12px}
+  #ws-5 #opUnder{font-size:1.18rem;padding:13px 12px}
+  /* scenario add/delete controls */
+  .op-hd-left{display:flex;align-items:center;gap:9px;min-width:0}
+  .op-scndel{
+    border:1.5px solid var(--red);background:transparent;color:var(--red);
+    width:26px;height:26px;border-radius:50%;font-size:.82rem;line-height:1;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto;
+  }
+  [data-theme="dark"] .op-scndel{border-color:#F06A6A;color:#F06A6A}
+  .op-addscn{width:100%;border-style:dashed;border-color:var(--accent);color:var(--accent-deep,#2456C8);background:transparent;font-weight:700}
+  [data-theme="dark"] .op-addscn{color:var(--accent-deep,#7BA2FF)}
+  /* option detail panel */
+  .op-collapse-hd{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+    background:transparent;border:0;padding:8px 10px;margin:-8px -10px;cursor:pointer;text-align:left;font-family:inherit;
+    border-radius:12px;-webkit-tap-highlight-color:transparent;transition:background .12s;
+  }
+  .op-collapse-hd:active{background:rgba(47,111,237,.10)}
+  [data-theme="dark"] .op-collapse-hd:active{background:rgba(91,140,255,.14)}
+  .op-collapse-titlewrap{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .op-collapse-title{font-family:var(--sans);font-size:.96rem;font-weight:700;color:var(--ink);letter-spacing:.02em}
+  .op-collapse-hint{font-family:var(--sans);font-size:.72rem;font-weight:600;color:var(--accent-deep,#2456C8)}
+  [data-theme="dark"] .op-collapse-hint{color:var(--accent-deep,#7BA2FF)}
+  .op-collapse-chev{font-size:2.1rem;line-height:1;color:var(--accent);flex:0 0 auto;width:34px;height:34px;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+  .op-collapse-body{margin-top:12px}
+  .op-detail-intro{font-size:.86rem;line-height:1.5;color:#5C6371;margin:2px 0 12px;font-family:var(--sans)}
+  .op-autofill{width:100%;margin:0 0 10px;border-style:solid;border-color:var(--accent);color:var(--accent-deep,#2456C8);background:rgba(47,111,237,.06);font-weight:700}
+  [data-theme="dark"] .op-autofill{color:#9DBBFF;background:rgba(91,140,255,.12)}
+  [data-theme="dark"] .op-detail-intro{color:var(--muted)}
+  .op-greeks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  @media(min-width:560px){.op-greeks{grid-template-columns:1fr 1fr 1fr 1fr}}
+  .op-greek{
+    display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
+    border:1.5px solid var(--accent);border-radius:12px;padding:12px 8px;background:rgba(47,111,237,.05);
+  }
+  [data-theme="dark"] .op-greek{background:rgba(91,140,255,.10)}
+  .op-greek-lbl{font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#5C6371}
+  [data-theme="dark"] .op-greek-lbl{color:var(--muted)}
+  .op-greek-val{font-family:var(--mono);font-size:1.12rem;font-weight:800;color:var(--accent-deep,#2456C8);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;min-width:0}
+  [data-theme="dark"] .op-greek-val{color:#9DBBFF}
+  .op-greek-val.op-hint{font-family:var(--sans);font-size:.7rem;font-weight:600;color:#5C6371;letter-spacing:.01em}
+  [data-theme="dark"] .op-greek-val.op-hint{color:var(--muted)}
+  .op-detail-note{margin-top:10px;font-size:.82rem;line-height:1.4;color:#5C6371;font-family:var(--sans)}
+  [data-theme="dark"] .op-detail-note{color:var(--muted)}
+  .op-detail-badge{font-family:var(--mono);font-size:.74rem;font-weight:700;color:var(--accent-deep,#2456C8);background:rgba(47,111,237,.10);border:1px solid rgba(47,111,237,.3);border-radius:999px;padding:2px 9px;white-space:nowrap}
+  [data-theme="dark"] .op-detail-badge{color:#9DBBFF;background:rgba(91,140,255,.14);border-color:rgba(91,140,255,.34)}
+  /* portfolio hedge */
+  .hg-band{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .hg-band-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line)}
+  .hg-band-row.up{border-color:var(--green);background:rgba(21,128,61,.035)}
+  .hg-band-row.down{border-color:var(--red);background:rgba(200,30,30,.05)}
+  [data-theme="dark"] .hg-band-row.up{background:rgba(52,199,123,.07)}
+  [data-theme="dark"] .hg-band-row.down{background:rgba(240,106,106,.08)}
+  .hg-band-lbl{font-family:var(--sans);font-size:.9rem;font-weight:700;color:var(--ink)}
+  .hg-band-val{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .op-greek-val.hg-ok{color:#15803D}
+  [data-theme="dark"] .op-greek-val.hg-ok{color:#34C77B}
+  .op-greek-val.hg-warn{color:#C81E1E}
+  [data-theme="dark"] .op-greek-val.hg-warn{color:#F06A6A}
+  .hg-result{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .hg-res-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--accent);background:rgba(47,111,237,.05)}
+  [data-theme="dark"] .hg-res-row{background:rgba(91,140,255,.10)}
+  .hg-res-lbl{font-family:var(--sans);font-size:.9rem;font-weight:700;color:var(--ink)}
+  .hg-res-lbl small{display:block;font-weight:500;font-size:.74rem;color:#5C6371;margin-top:1px}
+  [data-theme="dark"] .hg-res-lbl small{color:var(--muted)}
+  .hg-res-val{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--accent-deep,#2456C8);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+  [data-theme="dark"] .hg-res-val{color:#9DBBFF}
+  .hg-res-val.big{font-size:1.5rem;font-weight:800}
+  .hg-eff{margin-top:16px}
+  .hg-eff-hd{font-family:var(--sans);font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .hg-eff-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .hg-eff-box{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:12px 8px;border-radius:12px;border:1.5px solid var(--line)}
+  .hg-eff-box.gain{border-color:var(--green);background:rgba(21,128,61,.035)}
+  .hg-eff-box.loss{border-color:var(--red);background:rgba(200,30,30,.05)}
+  [data-theme="dark"] .hg-eff-box.gain{background:rgba(52,199,123,.07)}
+  [data-theme="dark"] .hg-eff-box.loss{background:rgba(240,106,106,.08)}
+  .hg-eff-lbl{font-size:.7rem;font-weight:700;letter-spacing:.02em;color:#5C6371;text-transform:uppercase}
+  [data-theme="dark"] .hg-eff-lbl{color:var(--muted)}
+  .hg-eff-val{font-family:var(--mono);font-size:1.12rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .hg-eff-box.gain .hg-eff-val{color:#15803D} .hg-eff-box.loss .hg-eff-val{color:#C81E1E}
+  [data-theme="dark"] .hg-eff-box.gain .hg-eff-val{color:#34C77B} [data-theme="dark"] .hg-eff-box.loss .hg-eff-val{color:#F06A6A}
+  .hg-cover{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--accent);background:rgba(47,111,237,.07)}
+  [data-theme="dark"] .hg-cover{background:rgba(91,140,255,.12)}
+  .hg-cover-lbl{font-family:var(--sans);font-size:.9rem;font-weight:700;color:var(--ink)}
+  .hg-cover-val{font-family:var(--mono);font-size:1.32rem;font-weight:800;color:var(--accent-deep,#2456C8);font-variant-numeric:tabular-nums}
+  [data-theme="dark"] .hg-cover-val{color:#9DBBFF}
+  /* watchlist dashboard */
+  .wl-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .wl-lists{display:flex;flex-direction:column;gap:10px}
+  .wl-picker{
+    width:100%;font-family:var(--sans);font-size:1.02rem;font-weight:700;color:var(--ink);
+    padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);
+    -webkit-appearance:none;appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23697080' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;
+  }
+  [data-theme="dark"] .wl-picker{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239AA2B1' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>")}
+  .wl-list-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .wl-list-actions .wl-mini{flex:1 1 auto;min-width:80px;text-align:center}
+  .wl-count{font-family:var(--sans);font-size:.82rem;color:#5C6371;font-weight:600}
+  [data-theme="dark"] .wl-count{color:var(--muted)}
+  .wl-recent{margin-top:10px}
+  .wl-recent-lbl{display:block;font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .wl-recent-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .wl-recent-chip{
+    font-family:var(--sans);font-size:.86rem;font-weight:700;padding:6px 12px;border-radius:999px;
+    border:1.5px solid var(--accent);background:rgba(47,111,237,.06);color:var(--accent-deep,#2456C8);cursor:pointer;
+    -webkit-tap-highlight-color:transparent;transition:background .12s;
+  }
+  .wl-recent-chip:active{background:rgba(47,111,237,.16)}
+  [data-theme="dark"] .wl-recent-chip{color:#9DBBFF;background:rgba(91,140,255,.12)}
+  [data-theme="dark"] .wl-recent-chip:active{background:rgba(91,140,255,.22)}
+  .wl-card{padding:0;overflow:hidden}
+  .wl-hd{width:100%}
+  .wl-expand{display:flex;align-items:center;gap:10px;width:100%;background:transparent;border:0;padding:14px;cursor:pointer;text-align:left;font-family:inherit;-webkit-tap-highlight-color:transparent;border-radius:16px;transition:background .12s}
+  .wl-expand:active{background:rgba(47,111,237,.08)}
+  [data-theme="dark"] .wl-expand:active{background:rgba(91,140,255,.12)}
+  .wl-idwrap{flex:0 1 auto;display:flex;flex-direction:column;gap:1px;min-width:0}
+  .wl-sym{font-family:var(--sans);font-size:1.16rem;font-weight:800;color:var(--ink);letter-spacing:.02em;flex:0 0 auto}
+  .wl-name{font-family:var(--sans);font-size:.76rem;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+  .wl-tick{font-size:1rem;flex:0 0 auto}
+  .wl-tick.up{color:#15803D} .wl-tick.down{color:#C81E1E} .wl-tick.flat{color:var(--muted)}
+  [data-theme="dark"] .wl-tick.up{color:#34C77B} [data-theme="dark"] .wl-tick.down{color:#F06A6A}
+  .wl-hd-nums{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:0}
+  .wl-last{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .wl-chg{font-family:var(--mono);font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .wl-chg.up{color:#15803D} .wl-chg.down{color:#C81E1E} .wl-chg.flat{color:var(--muted)}
+  [data-theme="dark"] .wl-chg.up{color:#34C77B} [data-theme="dark"] .wl-chg.down{color:#F06A6A}
+  .wl-chgd{opacity:.8;font-weight:600}
+  .wl-chev{
+    flex:0 0 auto;width:34px;height:34px;border-radius:50%;
+    background:var(--accent);color:var(--accent-ink);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.2rem;font-weight:700;line-height:1;transition:transform .15s;
+  }
+  .wl-chevwrap{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .wl-chevhint{font-family:var(--sans);font-size:.6rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+  [data-theme="dark"] .wl-chevhint{color:var(--accent-deep,#7BA2FF)}
+  .wl-actions{display:flex;gap:8px;padding:0 14px 12px}
+  .wl-mini{font-family:var(--sans);font-size:.8rem;font-weight:700;padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--chip);color:var(--ink);cursor:pointer}
+  .wl-mini.wl-del{color:#C81E1E;border-color:rgba(200,30,30,.35)}
+  [data-theme="dark"] .wl-mini.wl-del{color:#F06A6A;border-color:rgba(240,106,106,.4)}
+  .wl-plus3{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 14px 12px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--accent);background:rgba(47,111,237,.05)}
+  [data-theme="dark"] .wl-plus3{background:rgba(91,140,255,.10)}
+  .wl-plus3-lbl{font-family:var(--sans);font-size:.82rem;font-weight:700;color:var(--accent-deep,#2456C8)}
+  [data-theme="dark"] .wl-plus3-lbl{color:#9DBBFF}
+  .wl-plus3-val{font-family:var(--mono);font-size:1.02rem;font-weight:700;color:var(--accent-deep,#2456C8);font-variant-numeric:tabular-nums}
+  .wl-plus3-val.na{font-family:var(--sans);font-weight:600;color:var(--muted)}
+  [data-theme="dark"] .wl-plus3-val{color:#9DBBFF}
+  .wl-asof{font-family:var(--sans);font-size:.72rem;color:#5C6371;padding:0 14px 10px}
+  [data-theme="dark"] .wl-asof{color:var(--muted)}
+  .wl-body{padding:0 14px 14px;border-top:1px solid var(--line);margin-top:2px;padding-top:12px}
+  .wl-section-lbl{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-deep,#2456C8);margin-bottom:6px}
+  [data-theme="dark"] .wl-section-lbl{color:#9DBBFF}
+  .wl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin-top:8px}
+  .wl-field .fl{margin:0 0 3px}
+  .wl-range{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--chip)}
+  .wl-range-lbl{font-family:var(--sans);font-size:.82rem;font-weight:700;color:var(--ink)}
+  .wl-range-val{font-family:var(--mono);font-size:.96rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .wl-memo{margin-top:6px;min-height:70px}
+  .wl-memo-count{text-align:right;font-family:var(--sans);font-size:.7rem;font-weight:600;color:var(--muted);margin-top:4px;letter-spacing:.02em}
+  .wl-memo-count.low{color:#B45309}
+  [data-theme="dark"] .wl-memo-count.low{color:#E0A458}
+  .wl-memowrap{padding:12px 14px 14px;border-top:1px solid var(--line)}
+  .wl-memowrap .fl{margin:0 0 4px}
   #ws-2 label.fl{font-size:.96rem;margin:16px 0 7px}
   #ws-2 label.fl .opt{font-size:.74rem}
   #ws-2 #pmPrice{font-size:1.18rem;padding:14px 12px}
@@ -512,9 +686,11 @@
           </select>
         </span>
         <button id="btnTheme" class="iconbtn" type="button" aria-label="Theme: Auto" title="Theme">🌓</button>
+        <button id="btnData" class="iconbtn" type="button" aria-label="Back up or restore your data" title="Back up / restore data">💾</button>
         <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
       </div>
     </div>
+    <input type="file" id="restoreFile" accept="application/json,.json" style="display:none">
     <nav class="wsnav" id="wsNav" aria-label="Workspaces">
       <div class="wscircles" role="tablist"></div>
       <div class="wsname" id="wsName"></div>
@@ -624,7 +800,8 @@
   <!-- Memo -->
   <section class="card">
     <h2 class="pop">Memo · trade catalyst</h2>
-    <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="500"></textarea>
+    <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="memoCount"></div>
     <div class="explain" data-explain="memo"></div>
   </section>
 
@@ -645,7 +822,7 @@
         <button class="ls short" id="pmShort" role="radio" aria-pressed="false">Short<small>betting lower</small></button>
       </div>
 
-      <label class="fl" for="pmPrice">Entry price<br><span class="req-stack" id="pmPriceReq">Required</span></label>
+      <label class="fl" for="pmPrice">Stock price (entry)<br><span class="req-stack" id="pmPriceReq">Required</span></label>
       <div class="inrow haspre" id="pmPriceRow"><span class="pre cur2pm">$</span><input id="pmPrice" type="text" inputmode="decimal" placeholder="100.00" autocomplete="off"></div>
 
       <label class="fl" for="pmTicker">Ticker lookup <span class="opt">optional</span></label>
@@ -670,7 +847,8 @@
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="pmMemo" placeholder="Note your plan — e.g. 'Long entry $100, take profit at +7%, stop at −3%.'" maxlength="500"></textarea>
+      <textarea id="pmMemo" placeholder="Note your plan — e.g. 'Long entry $100, take profit at +7%, stop at −3%.'" maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="pmMemoCount"></div>
       <div class="explain" data-explain="pmMemo"></div>
     </section>
 
@@ -780,7 +958,8 @@
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="glMemo" placeholder="Journal this trade or share your win/loss — e.g. 'Sold NVDA +30%, rotated into energy.'" maxlength="500"></textarea>
+      <textarea id="glMemo" placeholder="Journal this trade or share your win/loss — e.g. 'Sold NVDA +30%, rotated into energy.'" maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="glMemoCount"></div>
       <div class="explain" data-explain="glMemo"></div>
     </section>
 
@@ -902,7 +1081,8 @@
 
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="ciMemo" placeholder="Journal your plan or leave notes to share — e.g. 'Contribute $1k/yr until kids graduate at 18, then let it ride to retirement.'" maxlength="500"></textarea>
+      <textarea id="ciMemo" placeholder="Journal your plan or leave notes to share — e.g. 'Contribute $1k/yr until kids graduate at 18, then let it ride to retirement.'" maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="ciMemoCount"></div>
       <div class="explain" data-explain="ciMemo"></div>
     </section>
 
@@ -927,7 +1107,7 @@
       <label class="fl" style="margin-top:12px">$ rise outcomes <span class="opt">shared by all three · tap ✎ to add, edit or remove</span></label>
       <div class="chips" id="opChips" aria-label="Dollar rise steps"></div>
 
-      <label class="fl" for="opTicker" style="margin-top:14px">Current price <span class="opt">optional · adds context</span></label>
+      <label class="fl" for="opTicker" style="margin-top:14px">Ticker lookup <span class="opt">optional · adds context</span></label>
       <div class="tickrow">
         <div class="inrow hastick" id="opTickWrap">
           <input id="opTicker" type="text" inputmode="text" placeholder="AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
@@ -935,37 +1115,68 @@
         </div>
       </div>
       <div class="tickstatus" id="opTickStatus"></div>
+      <label class="fl" for="opUnder">Stock price (current)</label>
+      <div class="inrow haspre" id="opUnderRow"><span class="pre cur2op">$</span><input id="opUnder" type="text" inputmode="decimal" placeholder="ex. 180.00 — type, or enter ticker above" autocomplete="off"></div>
       <div class="op-ctxnote" id="opCtxNote" hidden></div>
 
       <div class="explain" data-explain="opSizer"></div>
     </section>
 
-    <!-- Three stacked scenario calculators -->
-    <section class="card opcalc" style="margin-top:12px">
-      <h2 class="pop">Scenario A</h2>
-      <label class="fl" for="opC1"># of Options<br><span class="req-stack" id="opC1Req">Required</span></label>
-      <div class="inrow" id="opC1Row"><input id="opC1" type="text" inputmode="numeric" placeholder="1" autocomplete="off"></div>
-      <div class="op-table" id="opTable1"></div>
+    <!-- First OTM ~6mo option detail panel -->
+    <section class="card" id="opDetailCard" style="margin-top:12px">
+      <button class="op-collapse-hd" id="opDetailToggle" type="button" aria-expanded="false" aria-controls="opDetailBody">
+        <span class="op-collapse-titlewrap">
+          <span class="op-collapse-title">First OTM option · ~6 months out</span>
+          <span class="op-collapse-hint" id="opDetailHint">Advanced · tap to show</span>
+        </span>
+        <span class="op-collapse-chev" id="opDetailChev" aria-hidden="true">▸</span>
+      </button>
+      <div class="op-collapse-body" id="opDetailBody" hidden>
+        <p class="op-detail-intro">The first out-of-the-money <span id="opDetailType">call</span> roughly six months out. Look it up (when the data API is live) or enter the numbers by hand to see breakeven, implied volatility and delta.</p>
+        <button class="btn op-autofill" id="opAutofill" type="button">⚡ Auto-fill first OTM (~6mo) from Yahoo</button>
+        <div class="tickstatus" id="opAutoStatus"></div>
+
+        <div class="duo">
+          <div>
+            <label class="fl" for="opStrike">Strike price</label>
+            <div class="inrow haspre"><span class="pre cur2op">$</span><input id="opStrike" type="text" inputmode="decimal" placeholder="ex. 190" autocomplete="off"></div>
+          </div>
+          <div>
+            <label class="fl" for="opExpiry">Expiry date</label>
+            <div class="inrow"><input id="opExpiry" type="date" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="duo">
+          <div>
+            <label class="fl" for="opAsk">Ask <span class="opt">or last price</span></label>
+            <div class="inrow haspre"><span class="pre cur2op">$</span><input id="opAsk" type="text" inputmode="decimal" placeholder="ex. 8.50" autocomplete="off"></div>
+          </div>
+          <div>
+            <label class="fl" for="opIV">Implied volatility <span class="opt">optional</span></label>
+            <div class="inrow hassuf"><input id="opIV" type="text" inputmode="decimal" placeholder="ex. 35" autocomplete="off"><span class="suf">%</span></div>
+          </div>
+        </div>
+
+        <div class="op-greeks" id="opGreeks">
+          <div class="op-greek"><span class="op-greek-lbl">Breakeven</span><span class="op-greek-val" id="opBreakeven">—</span></div>
+          <div class="op-greek"><span class="op-greek-lbl">Implied vol</span><span class="op-greek-val" id="opIVout">—</span></div>
+          <div class="op-greek"><span class="op-greek-lbl">Delta</span><span class="op-greek-val" id="opDelta">—</span></div>
+          <div class="op-greek"><span class="op-greek-lbl">Open interest</span><span class="op-greek-val" id="opOI">—</span></div>
+        </div>
+        <div class="op-detail-note" id="opDetailNote" hidden></div>
+        <div class="explain" data-explain="opDetail"></div>
+      </div>
     </section>
 
-    <section class="card opcalc" style="margin-top:12px">
-      <h2 class="pop">Scenario B</h2>
-      <label class="fl" for="opC2"># of Options<br><span class="req-stack" id="opC2Req">Required</span></label>
-      <div class="inrow" id="opC2Row"><input id="opC2" type="text" inputmode="numeric" placeholder="10" autocomplete="off"></div>
-      <div class="op-table" id="opTable2"></div>
-    </section>
-
-    <section class="card opcalc" style="margin-top:12px">
-      <h2 class="pop">Scenario C</h2>
-      <label class="fl" for="opC3"># of Options<br><span class="req-stack" id="opC3Req">Required</span></label>
-      <div class="inrow" id="opC3Row"><input id="opC3" type="text" inputmode="numeric" placeholder="100" autocomplete="off"></div>
-      <div class="op-table" id="opTable3"></div>
-    </section>
+    <!-- Stacked scenario calculators (rendered dynamically) -->
+    <div id="opScenList"></div>
+    <button class="btn op-addscn" id="opAddScn" type="button" style="margin-top:12px">+ Add scenario</button>
 
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="opMemo" placeholder="Note your options play — e.g. 'Comparing 1 / 10 / 100 calls into earnings.'" maxlength="500"></textarea>
+      <textarea id="opMemo" placeholder="Note your options play — e.g. 'Comparing 1 / 10 / 100 calls into earnings.'" maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="opMemoCount"></div>
       <div class="explain" data-explain="opMemo"></div>
     </section>
 
@@ -973,6 +1184,168 @@
       <button class="btn primary" id="opShare">Share</button>
       <button class="btn" id="opImport">Import</button>
       <button class="btn" id="opReset">Reset</button>
+    </div>
+
+  </div>
+
+  <!-- ===== WORKSPACE 6 (displayed as #2) · Portfolio Hedge ===== -->
+  <div class="workspace" id="ws-6" data-ws="6" hidden>
+
+    <!-- Portfolio + hedge vehicle -->
+    <section class="card">
+      <h2 class="pop">Your portfolio &amp; the hedge</h2>
+      <label class="fl" for="hgPort">Portfolio size<br><span class="req-stack" id="hgPortReq">Required</span></label>
+      <div class="inrow haspre" id="hgPortRow"><span class="pre cur6">$</span><input id="hgPort" type="text" inputmode="decimal" placeholder="ex. 100,000" autocomplete="off"></div>
+
+      <label class="fl" for="hgTicker" style="margin-top:14px">Hedge ETF <span class="opt">default SPY · change if you like</span></label>
+      <div class="tickrow">
+        <div class="inrow hastick" id="hgTickWrap">
+          <input id="hgTicker" type="text" inputmode="text" placeholder="SPY" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <button class="lookbtn" id="hgLookup" type="button">Get price</button>
+        </div>
+      </div>
+      <div class="tickstatus" id="hgTickStatus"></div>
+      <label class="fl" for="hgSpy">Last price <span class="opt" id="hgSpyLbl">SPY</span><br><span class="req-stack" id="hgSpyReq">Required</span></label>
+      <div class="inrow haspre" id="hgSpyRow"><span class="pre cur6">$</span><input id="hgSpy" type="text" inputmode="decimal" placeholder="ex. 600.00 — type, or look up above" autocomplete="off"></div>
+
+      <label class="fl" style="margin-top:14px">Hedge trigger band <span class="opt">± this % off the last price</span></label>
+      <div class="chips" id="hgPctChips" aria-label="Hedge band percent"></div>
+      <div class="hg-band" id="hgBand">
+        <div class="hg-band-row up"><span class="hg-band-lbl" id="hgUpLbl">+5% level</span><span class="hg-band-val" id="hgUpVal">—</span></div>
+        <div class="hg-band-row down"><span class="hg-band-lbl" id="hgDnLbl">−5% level</span><span class="hg-band-val" id="hgDnVal">—</span></div>
+      </div>
+      <div class="explain" data-explain="hgBand"></div>
+    </section>
+
+    <!-- SPY put option -->
+    <section class="card" style="margin-top:12px">
+      <button class="op-collapse-hd" id="hgPutToggle" type="button" aria-expanded="true" aria-controls="hgPutBody">
+        <span class="op-collapse-titlewrap">
+          <span class="op-collapse-title">The protective SPY put</span>
+          <span class="op-collapse-hint" id="hgPutHint">tap to hide</span>
+        </span>
+        <span class="op-collapse-chev" id="hgPutChev" aria-hidden="true">▾</span>
+      </button>
+      <div class="op-collapse-body" id="hgPutBody">
+        <p class="op-detail-intro">Look up (or enter) a SPY <strong>put</strong> at least 6 months out — ideally a year — with the <strong>lowest implied volatility</strong> whose breakeven sits just above your −<span id="hgPctEcho">5</span>% level. Enter its numbers to size the hedge.</p>
+        <button class="btn op-autofill" id="hgAutofill" type="button">⚡ Auto-pick protective put from Yahoo</button>
+        <div class="tickstatus" id="hgAutoStatus"></div>
+        <div class="duo">
+          <div>
+            <label class="fl" for="hgStrike">Strike price<br><span class="req-stack" id="hgStrikeReq">Required</span></label>
+            <div class="inrow haspre" id="hgStrikeRow"><span class="pre cur6">$</span><input id="hgStrike" type="text" inputmode="decimal" placeholder="ex. 570" autocomplete="off"></div>
+          </div>
+          <div>
+            <label class="fl" for="hgExpiry">Expiry date<br><span class="req-stack" id="hgExpiryReq">Required</span></label>
+            <div class="inrow" id="hgExpiryRow"><input id="hgExpiry" type="date" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="duo">
+          <div>
+            <label class="fl" for="hgAsk">Ask <span class="opt">premium</span><br><span class="req-stack" id="hgAskReq">Required</span></label>
+            <div class="inrow haspre" id="hgAskRow"><span class="pre cur6">$</span><input id="hgAsk" type="text" inputmode="decimal" placeholder="ex. 15.00" autocomplete="off"></div>
+          </div>
+          <div>
+            <label class="fl" for="hgIV">Implied volatility <span class="opt">optional</span></label>
+            <div class="inrow hassuf"><input id="hgIV" type="text" inputmode="decimal" placeholder="ex. 18" autocomplete="off"><span class="suf">%</span></div>
+          </div>
+        </div>
+        <div class="op-greeks">
+          <div class="op-greek"><span class="op-greek-lbl">Breakeven</span><span class="op-greek-val" id="hgBreakeven">—</span></div>
+          <div class="op-greek"><span class="op-greek-lbl">Implied vol</span><span class="op-greek-val" id="hgIVout">—</span></div>
+          <div class="op-greek"><span class="op-greek-lbl">Delta</span><span class="op-greek-val" id="hgDelta">—</span></div>
+          <div class="op-greek"><span class="op-greek-lbl">BE vs −%</span><span class="op-greek-val" id="hgBEcheck">—</span></div>
+        </div>
+        <div class="op-detail-note" id="hgPutNote" hidden></div>
+        <div class="explain" data-explain="hgPut"></div>
+      </div>
+    </section>
+
+    <!-- Hedge sizing + effectiveness -->
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Your hedge</h2>
+      <div class="hg-result" id="hgResult">
+        <div class="hg-res-row"><span class="hg-res-lbl">Hedge budget <small>5% of portfolio</small></span><span class="hg-res-val" id="hgBudget">—</span></div>
+        <div class="hg-res-row"><span class="hg-res-lbl">Puts you can afford</span><span class="hg-res-val big" id="hgContracts">—</span></div>
+        <div class="hg-res-row"><span class="hg-res-lbl">Actual cost <small id="hgCostPct"></small></span><span class="hg-res-val" id="hgCost">—</span></div>
+      </div>
+
+      <div class="hg-eff" id="hgEff">
+        <div class="hg-eff-hd">Hedge effectiveness <span class="opt">at today's delta</span></div>
+        <div class="hg-eff-grid">
+          <div class="hg-eff-box gain"><span class="hg-eff-lbl">Hedge gains / 1% SPY drop</span><span class="hg-eff-val" id="hgGainPer">—</span></div>
+          <div class="hg-eff-box loss"><span class="hg-eff-lbl">Portfolio loses / 1% drop</span><span class="hg-eff-val" id="hgLossPer">—</span></div>
+        </div>
+        <div class="hg-cover" id="hgCoverWrap"><span class="hg-cover-lbl">Downside covered right now</span><span class="hg-cover-val" id="hgCoverage">—</span></div>
+        <div class="op-detail-note" id="hgEffNote">Coverage grows as the drop deepens — puts gain delta (toward −1.00) as they go in-the-money, so they protect more in a big correction than a small dip.</div>
+      </div>
+      <div class="explain" data-explain="hgEff"></div>
+    </section>
+
+    <!-- Memo -->
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Memo · your notes</h2>
+      <textarea id="hgMemo" placeholder="Note your hedge plan — e.g. 'Hedging $100k with 6-month SPY puts when the market looks toppy.'" maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="hgMemoCount"></div>
+      <div class="explain" data-explain="hgMemo"></div>
+    </section>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="hgShare">Share</button>
+      <button class="btn" id="hgImport">Import</button>
+      <button class="btn" id="hgReset">Reset</button>
+    </div>
+
+  </div>
+
+  <!-- ===== WORKSPACE 7 · Watchlist Dashboard ===== -->
+  <div class="workspace" id="ws-7" data-ws="7" hidden>
+
+    <section class="card">
+      <h2 class="pop">Your watchlists</h2>
+      <div class="wl-lists">
+        <select id="wlPicker" class="wl-picker" aria-label="Choose watchlist"></select>
+        <div class="wl-list-actions">
+          <button class="wl-mini" id="wlNewList" type="button">+ New</button>
+          <button class="wl-mini" id="wlRenameList" type="button">Rename</button>
+          <button class="wl-mini wl-del" id="wlDeleteList" type="button">Delete list</button>
+        </div>
+      </div>
+      <div class="explain" data-explain="wlLists"></div>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Add a ticker</h2>
+      <div class="tickrow">
+        <div class="inrow hastick" id="wlAddWrap">
+          <input id="wlAddInput" type="text" inputmode="text" placeholder="AAPL, SHOP.TO, ASML…" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <button class="lookbtn" id="wlAddBtn" type="button">Add</button>
+        </div>
+      </div>
+      <div class="tickstatus" id="wlAddStatus"></div>
+      <div class="wl-recent" id="wlRecentRow" hidden></div>
+      <div class="wl-toolbar" id="wlToolbar" hidden>
+        <button class="btn" id="wlRefreshAll" type="button">↻ Refresh all quotes</button>
+        <span class="wl-count" id="wlCount"></span>
+      </div>
+      <div class="explain" data-explain="wlDash"></div>
+    </section>
+
+    <div id="wlList"></div>
+    <div class="ci-needhint" id="wlEmpty">Add a ticker above to start building your watchlist. Live quotes are delayed; fundamentals are entered by hand (or auto-fill later when the data API is connected).</div>
+
+    <!-- Memo (global watchlist notes) -->
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Watchlist notes</h2>
+      <textarea id="wlMemo" placeholder="Overall market notes — e.g. 'Watching for a pullback before adding. Fed meeting Wednesday.'" maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="wlMemoCount"></div>
+      <div class="explain" data-explain="wlMemo"></div>
+    </section>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="wlShare">Share</button>
+      <button class="btn" id="wlImport">Import</button>
+      <button class="btn" id="wlReset">Reset</button>
     </div>
 
   </div>
@@ -1006,7 +1379,10 @@ const DEFAULTS={
   glAnnualOn:false,glDateBuy:"",glDateSell:"",
   glBase:"",glPctChips:[5,10,-10,25,-25],glDolChips:[500,1000,-500,-1000],glStack:[],glMemo:"",
   pmDir:"long",pmPrice:"",pmChips:[1,2,3,4,5,7,10,15,20],pmMemo:"",
-  opType:"call",opC1:"",opC2:"",opC3:"",opChips:[0.01,1,10,100,1000],opMemo:"",opUnder:"",
+  opType:"call",opScenarios:["","",""],opChips:[0.01,1,10,100,1000],opMemo:"",opUnder:"",opUnderSym:"",
+  opStrike:"",opExpiry:"",opAsk:"",opIV:"",opOI:"",opDetailOpen:false,
+  hgPort:"",hgTickerSym:"SPY",hgSpy:"",hgPct:5,hgStrike:"",hgExpiry:"",hgAsk:"",hgIV:"",hgPutOpen:true,hgMemo:"",
+  wlItems:[],wlMemo:"",wlRecent:[],watchlists:null,wlActive:0,
   ciMilestones:[18,21,55,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
@@ -1015,22 +1391,25 @@ const KEY="trade-risk-calc-v1";
 
 /* ---------- workspaces ---------- */
 const WORKSPACES=[
-  {id:1,name:"Portfolio Sizer",tagline:"Position size · stop loss · risk size.",ready:true},
-  {id:2,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:true},
-  {id:3,name:"Gain / Loss",tagline:"Cost vs sale — dollars and % change.",ready:true},
-  {id:4,name:"Compound Interest",tagline:"Watch money compound over time.",ready:true},
-  {id:5,name:"Options Sizer",tagline:"Size options by price-move scenarios.",ready:true}
-];
+  {id:1,num:1,name:"Portfolio Sizer",tagline:"Position size · stop loss · risk size.",ready:true},
+  {id:6,num:2,name:"Portfolio Hedge",tagline:"Protect your portfolio with SPY puts.",ready:true},
+  {id:3,num:3,name:"Gain / Loss",tagline:"Cost vs sale — dollars and % change.",ready:true},
+  {id:4,num:4,name:"Compound Interest",tagline:"Watch money compound over time.",ready:true},
+  {id:5,num:5,name:"Options Sizer",tagline:"Size options by price-move scenarios.",ready:true},
+  {id:2,num:6,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:true},
+  {id:7,num:7,name:"Watchlist Dashboard",tagline:"Track your tickers, stories and levels.",ready:true}
+]
+.sort((a,b)=>a.num-b.num);
 function buildNav(){
   const host=document.querySelector(".wscircles");
   host.innerHTML="";
   WORKSPACES.forEach(ws=>{
     const b=document.createElement("button");
     b.className="wsdot"+(ws.ready?"":" soon");
-    b.type="button";b.textContent=ws.id;
+    b.type="button";b.textContent=ws.num;
     b.setAttribute("role","tab");
     b.setAttribute("aria-selected",String(ws.id===S.activeWs));
-    b.setAttribute("aria-label","Workspace "+ws.id+": "+ws.name+(ws.ready?"":" (coming soon)"));
+    b.setAttribute("aria-label","Workspace "+ws.num+": "+ws.name+(ws.ready?"":" (coming soon)"));
     b.addEventListener("click",()=>switchWs(ws.id));
     host.appendChild(b);
   });
@@ -1083,7 +1462,15 @@ const GLOSSARY={
   pmLadder:"<strong>Price-move ladder</strong> — Enter your entry price and see exactly where each percentage move lands. Long shows up-moves as green profit targets and down-moves as red stops; Short flips it (you profit when price falls). Tap a % chip to jump to that rung; tap ✎ to set your own % steps.",
   pmMemo:"<strong>Memo</strong> — Note your trade plan or share it — entry, targets, stops. Saved with your scenario and included when you share.",
   opSizer:"<strong>Options Sizer</strong> — One option contract controls 100 shares. Enter how many contracts you hold and the calculator shows your share-equivalent exposure, then a ladder of what your whole position gains for each dollar the stock moves. Calls profit when the stock rises; Puts profit when it falls. Optionally look up the current price — each row then shows how big a move it is in percentage terms, so you can judge how realistic each scenario is. Tap ✎ to set your own move steps.",
-  opMemo:"<strong>Memo</strong> — Note your options play or share it — contracts, your thesis, the move you're betting on. Saved with your scenario and included when you share."
+  opMemo:"<strong>Memo</strong> — Note your options play or share it — contracts, your thesis, the move you're betting on. Saved with your scenario and included when you share.",
+  hgBand:"<strong>Hedge trigger band</strong> — The ± percentage off the hedge ETF's last price that frames your hedge. The −% level is roughly where you want protection to kick in; the +% level is shown for symmetry. Both use the same editable percentage (default 5%).",
+  hgPut:"<strong>The protective put</strong> — A put gains value as the market falls, offsetting portfolio losses. You want one at least 6 months out (ideally ~1 year) so time-decay is slow, with the lowest implied volatility you can find, and a breakeven just above your −% level. <strong>Breakeven</strong> = strike − premium. <strong>Delta</strong> (negative for puts) drives how much it moves per $1 drop in the ETF. Greeks are Black-Scholes estimates.",
+  hgEff:"<strong>Hedge effectiveness</strong> — Honest math on your protection. Your puts gain roughly (contracts × 100 × |delta|) dollars per $1 the ETF moves; compared against what your portfolio loses per 1% drop, that's your coverage right now. Crucially, coverage <em>grows</em> as a selloff deepens, because a put's delta heads toward −1.00 as it goes in-the-money — so a cheap put hedge protects more in a real crash than in a small dip. It is normally partial protection, not a perfect 1-for-1 offset.",
+  hgMemo:"<strong>Memo</strong> — Note your hedge plan or share it. Saved with your scenario and included when you share.",
+  wlDash:"<strong>Watchlist Dashboard</strong> — Track multiple tickers as expandable cards. The collapsed card shows the essentials (price, change, tick) and your story; expand it for fundamentals, your Fibonacci levels, the +3% level, and where you heard about it. Live quotes are delayed and cost an API call, so refresh each row (or all) when you want a fresh reading rather than continuously. Fundamentals are entered by hand for now.",
+  wlLists:"<strong>Your watchlists</strong> — Keep up to 25 separate named watchlists (e.g. “Cramer picks”, “Earnings plays”), each holding up to 100 tickers. Switch between them with the dropdown; use New, Rename and Delete to manage them. Everything auto-saves in your browser, so your lists are here when you come back. Recent tickers are remembered across all lists.",
+  wlMemo:"<strong>Watchlist notes</strong> — Overall notes across your whole watchlist. Saved and included when you share.",
+  opDetail:"<strong>First OTM option (~6mo)</strong> — Details for the first out-of-the-money call (or put) roughly six months out. <strong>Breakeven</strong> is the stock price where the trade starts making money — for a call, strike + premium paid; for a put, strike − premium. <strong>Implied volatility</strong> is the market's expected price swing baked into the option price. <strong>Delta</strong> estimates how much the option's value moves per $1 move in the stock. <strong>Open interest</strong> is how many of these contracts are currently outstanding — a liquidity gauge (low open interest can mean wider spreads and harder exits); it comes only from live market data. Enter the numbers by hand, or auto-fill when the data API is connected. Greeks are computed with the Black-Scholes model and are estimates."
 };
 
 /* ---------- storage: artifact storage -> localStorage -> memory ---------- */
@@ -1164,6 +1551,7 @@ function renderChips(holder,arr,onPick,onSave,activeVal,suffix,allowNeg){
     if(typeof glRender==="function")glRender();  // Gain/Loss sandbox chips (WS3)
     if(typeof pmRender==="function")pmRender();  // ladder % step chips (WS2)
     if(typeof opRender==="function")opRender();  // options $ move chips (WS5)
+    if(typeof hgRender==="function")hgRender();  // hedge band % chip (WS6)
   }
   function commit(){
     const vals=[...set.querySelectorAll("input")].map(i=>num(i.value)).map(v=>{
@@ -1232,6 +1620,7 @@ function compute(){
 function renderAll(){
   const c=compute(); // run sync + math first so inputs/outputs render fresh values
   applyTheme();
+  if(typeof refreshMemoCounters==="function")refreshMemoCounters();
   document.querySelectorAll(".cur").forEach(e=>e.textContent=S.curSym);
   // wide symbols (C$, A$, CHF…) need more room — pad each input to its symbol's width
   document.querySelectorAll(".inrow.haspre").forEach(r=>{
@@ -1489,9 +1878,25 @@ function importFromHash(){
       if(!Array.isArray(S.pmChips))S.pmChips=[1,2,3,4,5,7,10,15,20];
       S._sharedType="pm";
     }else if(p && p.t==="op"){
-      ["opType","opC1","opC2","opC3","opChips","opMemo","opUnder","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      ["opType","opScenarios","opChips","opMemo","opUnder","opUnderSym","opStrike","opExpiry","opAsk","opIV","opOI","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      if(!Array.isArray(S.opScenarios))S.opScenarios=[p.opC1||"",p.opC2||"",p.opC3||""];
+      if(S.opScenarios.length===0)S.opScenarios=["","",""];
+      if(S.opStrike||S.opAsk||S.opIV||S.opExpiry)S.opDetailOpen=true;
       if(!Array.isArray(S.opChips))S.opChips=[0.01,1,10,100,1000];
       S._sharedType="op";
+    }else if(p && p.t==="hg"){
+      ["hgPort","hgTickerSym","hgSpy","hgPct","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+      S._sharedType="hg";
+    }else if(p && p.t==="wl"){
+      wlEnsure();
+      const items=Array.isArray(p.wlItems)?p.wlItems:[];
+      const name=(p.wlName||"Shared list").slice(0,40);
+      if(S.watchlists.length<WL_MAX_LISTS){
+        S.watchlists.push({id:wlUID(),name:name,items:items.slice(0,WL_MAX_SYMBOLS),memo:p.wlMemo||""});
+        S.wlActive=S.watchlists.length-1;
+      }
+      if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;
+      S._sharedType="wl";
     }else{
       applyImport(p);
     }
@@ -1512,6 +1917,60 @@ function openSheet(title,body,text,actions){
 }
 function closeSheet(){modal.classList.remove("show")}
 modal.addEventListener("click",e=>{if(e.target===modal)closeSheet()});
+
+/* ---------- full data backup / restore (download a file, restore anytime) ---------- */
+function collectBackup(){
+  const clone=JSON.parse(JSON.stringify(S));
+  delete clone._sharedType;
+  if(Array.isArray(clone.watchlists))clone.watchlists.forEach(L=>{if(L&&Array.isArray(L.items))L.items.forEach(it=>{delete it._open;});});
+  return {app:"trade-risk-calculator",kind:"full-backup",version:1,exportedAt:new Date().toISOString(),state:clone};
+}
+function downloadBackup(){
+  try{
+    const data=JSON.stringify(collectBackup(),null,2);
+    const blob=new Blob([data],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const d=new Date(),p=n=>String(n).padStart(2,"0");
+    const stamp=d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+    const a=document.createElement("a");a.href=url;a.download="trade-risk-calc-backup-"+stamp+".json";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    return true;
+  }catch(e){return false;}
+}
+function restoreBackup(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const parsed=JSON.parse(reader.result);
+      const st=(parsed&&parsed.state&&typeof parsed.state==="object")?parsed.state:parsed;
+      if(!st||typeof st!=="object"||Array.isArray(st))throw new Error("bad");
+      const known=["watchlists","opScenarios","hgPort","curSym","memo","wlItems"];
+      if(!known.some(k=>k in st))throw new Error("unrecognized");
+      Object.keys(st).forEach(k=>{S[k]=st[k];});
+      if(typeof wlEnsure==="function")wlEnsure();
+      persist();
+      [renderAll,glRender,pmRender,opRender,hgRender,wlRender].forEach(fn=>{if(typeof fn==="function"){try{fn();}catch(_){}}});
+      openSheet("Restored ✓","Your data is back — all workspaces and watchlists have been restored from the file.",null,[["Great",closeSheet,true]]);
+    }catch(e){
+      openSheet("Couldn't read that file","That doesn't look like a Trade Risk Calculator backup. Make sure you're picking the .json file this app downloaded.",null,[["OK",closeSheet,true]]);
+    }
+  };
+  reader.onerror=()=>{openSheet("Couldn't open the file","Something went wrong reading that file — try again.",null,[["OK",closeSheet,true]]);};
+  reader.readAsText(file);
+}
+if($("btnData")){
+  $("btnData").addEventListener("click",()=>{
+    openSheet("Back up your data","Download a single file containing everything — every workspace and all your watchlists. Keep it somewhere safe (email it to yourself, or save it to Google Drive / iCloud). You can restore it anytime, on any device.",null,[
+      ["⬇ Download backup",function(){const ok=downloadBackup();this.textContent=ok?"✓ Downloaded":"Try again";},true],
+      ["⬆ Restore from file",function(){const f=$("restoreFile");if(f)f.click();},false],
+      ["Close",closeSheet,false]
+    ]);
+  });
+}
+if($("restoreFile")){
+  $("restoreFile").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(f)restoreBackup(f);e.target.value="";});
+}
 
 $("btnShare").addEventListener("click",async()=>{
   const text=shareText();
@@ -2303,38 +2762,116 @@ function opApplyType(){
   $("opPut").setAttribute("aria-pressed",String(!call));
 }
 
-// render one scenario's 7-row table (Shares + 5 rise rows) into its host
-function opRenderCalc(key,tableId){
-  const contracts=num(S[key]);
-  const valid=isFinite(contracts)&&contracts>0;
-  const rowId=key+"Row", reqId=key+"Req";
-  if($(rowId))$(rowId).classList.toggle("needfill",!valid);
-  if($(reqId))$(reqId).style.visibility=valid?"hidden":"visible";
-  const host=$(tableId);if(!host)return;
-  host.innerHTML="";
-  const shares=valid?Math.round(contracts*100):null;
-  const dir=S.opType==="call"?"rises":"falls";
-  const frag=document.createDocumentFragment();
-  // Shares row (blue, the exposure)
-  const sh=document.createElement("div");
-  sh.className="op-row shares";
-  sh.innerHTML='<span class="op-row-lbl"># of Shares</span><span class="op-row-val">'+(valid?shares.toLocaleString("en-US"):"—")+'</span>';
-  frag.appendChild(sh);
-  // 5 (editable) rise rows — green money-paid rows
-  const under=num(S.opUnder);
-  const haveUnder=isFinite(under)&&under>0;
-  [...S.opChips].sort((a,b)=>a-b).forEach(mv=>{
-    const gain=valid?shares*mv:null;
-    const pctOfPrice=haveUnder?(mv/under*100):null;
-    const r=document.createElement("div");
-    r.className="op-row money";
-    const ctx=haveUnder?' <span class="op-row-ctx">('+(pctOfPrice>=0.1?pctOfPrice.toFixed(pctOfPrice<10?2:1):pctOfPrice.toFixed(2))+'% move)</span>':'';
-    r.innerHTML='<span class="op-row-lbl">$ paid if '+dir+' '+opFmtMove(mv)+ctx+'</span>'+
-      '<span class="op-row-val">'+(valid?opFmt(gain):"—")+'</span>';
-    frag.appendChild(r);
-  });
-  host.appendChild(frag);
+/* ----- Black-Scholes engine (for breakeven, delta, and implied vol) ----- */
+function bsNormCdf(x){
+  const t=1/(1+0.2316419*Math.abs(x));
+  const d=0.3989422804014327*Math.exp(-x*x/2);
+  let p=d*t*(0.31938153+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+  return x>=0?1-p:p;
 }
+function bsNormPdf(x){return 0.3989422804014327*Math.exp(-x*x/2);}
+function bsCalc(type,S0,K,T,r,sigma){
+  if(T<=0||sigma<=0||S0<=0||K<=0)return {price:Math.max(0,type==="call"?S0-K:K-S0),delta:type==="call"?(S0>K?1:0):(S0<K?-1:0),d1:0};
+  const d1=(Math.log(S0/K)+(r+sigma*sigma/2)*T)/(sigma*Math.sqrt(T));
+  const d2=d1-sigma*Math.sqrt(T);
+  if(type==="call")return {price:S0*bsNormCdf(d1)-K*Math.exp(-r*T)*bsNormCdf(d2),delta:bsNormCdf(d1),d1,d2};
+  return {price:K*Math.exp(-r*T)*bsNormCdf(-d2)-S0*bsNormCdf(-d1),delta:bsNormCdf(d1)-1,d1,d2};
+}
+function bsImpliedVol(type,S0,K,T,r,mkt){
+  if(T<=0||S0<=0||K<=0||mkt<=0)return NaN;
+  let sigma=0.3;
+  for(let i=0;i<100;i++){
+    const o=bsCalc(type,S0,K,T,r,sigma);
+    const vega=S0*bsNormPdf(o.d1)*Math.sqrt(T);
+    if(vega<1e-8)break;
+    const diff=o.price-mkt;
+    if(Math.abs(diff)<1e-6)return sigma;
+    sigma-=diff/vega;
+    if(sigma<=0)sigma=1e-4;if(sigma>5)sigma=5;
+  }
+  return (sigma>0&&sigma<5)?sigma:NaN;
+}
+function opYearsToExpiry(){
+  if(!S.opExpiry)return NaN;
+  const exp=new Date(S.opExpiry+"T00:00:00");
+  if(isNaN(exp.getTime()))return NaN;
+  const now=new Date();
+  const days=(exp-now)/(1000*60*60*24);
+  return days>0?days/365:NaN;
+}
+
+function opRenderDetail(){
+  // sync field values
+  ["opStrike","opAsk","opIV","opExpiry"].forEach(k=>{if($(k)&&document.activeElement!==$(k)){
+    if(k==="opExpiry")$(k).value=S.opExpiry||"";
+    else $(k).value=S[k]||"";
+  }});
+  if($("opDetailType"))$("opDetailType").textContent=S.opType==="call"?"call":"put";
+  document.querySelectorAll(".cur2op").forEach(e=>e.textContent=S.curSym);
+
+  const under=num(S.opUnder), strike=num(S.opStrike), ask=num(S.opAsk);
+  const T=opYearsToExpiry();
+  const r=0.04; // assumed risk-free rate (~current short-term treasury)
+  const haveUnder=isFinite(under)&&under>0, haveStrike=isFinite(strike)&&strike>0, haveAsk=isFinite(ask)&&ask>0;
+
+  // Breakeven: call = strike + premium; put = strike − premium
+  let be=NaN;
+  if(haveStrike&&haveAsk)be=S.opType==="call"?(strike+ask):(strike-ask);
+  $("opBreakeven").textContent=isFinite(be)?(S.curSym+groupNum(be.toFixed(2))):"—";
+
+  // Implied vol: use the user's typed IV if given, else derive from ask via Black-Scholes
+  let ivFrac=NaN;
+  const typedIV=num(S.opIV);
+  if(isFinite(typedIV)&&typedIV>0){ivFrac=typedIV/100;}
+  else if(haveUnder&&haveStrike&&haveAsk&&isFinite(T)){ivFrac=bsImpliedVol(S.opType,under,strike,T,r,ask);}
+  $("opIVout").textContent=isFinite(ivFrac)?( (ivFrac*100).toFixed(1)+"%"):"—";
+
+  // Delta: from Black-Scholes using the IV we have
+  let delta=NaN;
+  if(haveUnder&&haveStrike&&isFinite(T)&&isFinite(ivFrac)&&ivFrac>0){
+    delta=bsCalc(S.opType,under,strike,T,r,ivFrac).delta;
+  }
+  $("opDelta").textContent=isFinite(delta)?delta.toFixed(3):"—";
+
+  // Open interest — comes only from the live data API; show a hint in manual mode
+  const oiEl=$("opOI");
+  if(oiEl){
+    const oi=num(S.opOI);
+    if(isFinite(oi)&&oi>=0){oiEl.textContent=groupNum(String(Math.round(oi)));oiEl.className="op-greek-val";}
+    else{oiEl.textContent="live data only";oiEl.className="op-greek-val op-hint";}
+  }
+
+  // helpful note about what's missing
+  const note=$("opDetailNote");
+  if(note){
+    const miss=[];
+    if(!haveStrike)miss.push("strike");
+    if(!haveAsk)miss.push("ask/last price");
+    if(!isFinite(T)&&!(isFinite(typedIV)&&typedIV>0))miss.push("expiry date");
+    if(!haveUnder&&!(isFinite(typedIV)&&typedIV>0))miss.push("current stock price (above)");
+    if(miss.length){note.hidden=false;note.textContent="Add "+miss.join(", ")+" to compute the missing values. Delta and (derived) implied volatility also need the current stock price and expiry.";}
+    else note.hidden=true;
+  }
+}
+
+// shared: fetch an auto-picked option contract from /api/options
+async function fetchOptionPick(params,btn,statusEl,onPick){
+  const set=(k,h)=>{if(statusEl){statusEl.className="tickstatus show "+k;statusEl.innerHTML=h;}};
+  if(!params.symbol){set("err","Enter or look up a ticker first.");return;}
+  const qs=new URLSearchParams({symbol:params.symbol,type:params.type,mode:params.mode||"firstotm",minDays:"180"});
+  if(params.floor)qs.set("floor",String(params.floor));
+  if(btn){btn.disabled=true;btn.dataset.l=btn.textContent;btn.textContent="Finding…";}
+  set("busy","Finding "+params.symbol+" "+params.type+"…");
+  try{
+    const r=await fetch("/api/options?"+qs.toString(),{headers:{accept:"application/json"}});
+    const d=await r.json();
+    if(!r.ok||!d||d.error){set("err",(d&&d.error)||"No option found — enter it manually.");return;}
+    onPick(d);
+    set("ok",params.symbol+" "+d.type+" · strike "+d.strike+" · exp "+d.expiry+" ("+d.daysOut+"d)");
+  }catch(e){set("err","Couldn't reach the options service — enter manually. (Works on the live site.)");}
+  finally{if(btn){btn.disabled=false;btn.textContent=btn.dataset.l||"Auto-fill";}}
+}
+
 
 // dedicated rise-step chips for WS5: view mode shows chips; edit mode shows inputs with ✕ delete + "+ Add outcome"
 function opRenderChips(){
@@ -2401,35 +2938,159 @@ function opCommitChips(){
   persist();opRender();
 }
 
+function opScnLetter(i){ // 0->A, 1->B ... 25->Z, then AA, AB...
+  let s="";i=i|0;do{s=String.fromCharCode(65+(i%26))+s;i=Math.floor(i/26)-1;}while(i>=0);return s;
+}
+
+// build one scenario card element for index i
+function opBuildCard(i){
+  const card=document.createElement("section");
+  card.className="card opcalc";card.style.marginTop="12px";
+  // header: title + (optional delete) + price pill
+  const hd=document.createElement("div");hd.className="card-hd";
+  const h=document.createElement("h2");h.className="pop";h.textContent="Scenario "+opScnLetter(i);
+  const left=document.createElement("div");left.className="op-hd-left";
+  left.appendChild(h);
+  if(S.opScenarios.length>1){
+    const del=document.createElement("button");del.type="button";del.className="op-scndel";
+    del.innerHTML="✕";del.title="Remove Scenario "+opScnLetter(i);del.setAttribute("aria-label","Remove Scenario "+opScnLetter(i));
+    del.addEventListener("click",()=>{
+      S.opScenarios.splice(i,1);
+      persist();opRender();
+    });
+    left.appendChild(del);
+  }
+  hd.appendChild(left);
+  // price pill (shown when a price is set)
+  const under=num(S.opUnder);const show=isFinite(under)&&under>0;
+  const wrap=document.createElement("span");wrap.className="op-hdprice-wrap";wrap.hidden=!show;
+  const cap=document.createElement("span");cap.className="op-hdprice-cap";cap.textContent="Stock price";
+  const pr=document.createElement("span");pr.className="op-hdprice";pr.textContent=show?(S.curSym+groupNum(S.opUnder)):"";
+  wrap.appendChild(cap);wrap.appendChild(pr);hd.appendChild(wrap);
+  card.appendChild(hd);
+  // options input
+  const lbl=document.createElement("label");lbl.className="fl";lbl.setAttribute("for","opScn"+i);
+  lbl.innerHTML='# of Options<br><span class="req-stack">Required</span>';
+  const reqPill=lbl.querySelector(".req-stack");
+  const row=document.createElement("div");row.className="inrow";
+  const inp=document.createElement("input");inp.id="opScn"+i;inp.type="text";inp.inputMode="numeric";
+  inp.placeholder="ex. "+(i===0?"1":i===1?"10":i===2?"100":"50");inp.autocomplete="off";
+  inp.value=S.opScenarios[i]||"";
+  inp.style.fontSize="1.18rem";inp.style.padding="13px 12px";
+  inp.setAttribute("enterkeyhint", i<S.opScenarios.length-1?"next":"done");
+  inp.addEventListener("input",e=>{
+    e.target.value=e.target.value.replace(/[^0-9]/g,"");
+    S.opScenarios[i]=e.target.value;persist();
+    // update just this card's table + req pill live (no full re-render, keeps focus)
+    opFillTable(tbl,S.opScenarios[i]);
+    const v=num(S.opScenarios[i]);reqPill.style.visibility=(isFinite(v)&&v>0)?"hidden":"visible";
+    row.classList.toggle("needfill",!(isFinite(v)&&v>0));
+  });
+  inp.addEventListener("keydown",ev=>{
+    if(ev.key==="Enter"){ev.preventDefault();const nx=$("opScn"+(i+1));if(nx)nx.focus();else inp.blur();}
+  });
+  row.appendChild(inp);
+  // initial req/highlight state
+  const v0=num(S.opScenarios[i]);reqPill.style.visibility=(isFinite(v0)&&v0>0)?"hidden":"visible";
+  row.classList.toggle("needfill",!(isFinite(v0)&&v0>0));
+  // table
+  const tbl=document.createElement("div");tbl.className="op-table";
+  card.appendChild(lbl);card.appendChild(row);card.appendChild(tbl);
+  opFillTable(tbl,S.opScenarios[i]);
+  return card;
+}
+
+// fill a scenario's 7-row table given its contract count
+function opFillTable(host,contractStr){
+  const contracts=num(contractStr);
+  const valid=isFinite(contracts)&&contracts>0;
+  host.innerHTML="";
+  const shares=valid?Math.round(contracts*100):null;
+  const dir=S.opType==="call"?"rises":"falls";
+  const under=num(S.opUnder);const haveUnder=isFinite(under)&&under>0;
+  const frag=document.createDocumentFragment();
+  const sh=document.createElement("div");sh.className="op-row shares";
+  sh.innerHTML='<span class="op-row-lbl"># of Shares</span><span class="op-row-val">'+(valid?shares.toLocaleString("en-US"):"—")+'</span>';
+  frag.appendChild(sh);
+  [...S.opChips].sort((a,b)=>a-b).forEach(mv=>{
+    const gain=valid?shares*mv:null;
+    const pctOfPrice=haveUnder?(mv/under*100):null;
+    const ctx=haveUnder?' <span class="op-row-ctx">('+(pctOfPrice>=0.1?pctOfPrice.toFixed(pctOfPrice<10?2:1):pctOfPrice.toFixed(2))+'% move)</span>':'';
+    const r=document.createElement("div");r.className="op-row money";
+    r.innerHTML='<span class="op-row-lbl">$ paid if '+dir+' '+opFmtMove(mv)+ctx+'</span>'+
+      '<span class="op-row-val">'+(valid?opFmt(gain):"—")+'</span>';
+    frag.appendChild(r);
+  });
+  host.appendChild(frag);
+}
+
 function opRender(){
   opApplyType();
-  ["opC1","opC2","opC3"].forEach(k=>{if($(k)&&document.activeElement!==$(k))$(k).value=S[k]||"";});
+  document.querySelectorAll(".cur2op").forEach(e=>e.textContent=S.curSym);
+  if($("opUnder")&&document.activeElement!==$("opUnder"))$("opUnder").value=S.opUnder?groupNum(S.opUnder):"";
   if($("opMemo")&&document.activeElement!==$("opMemo"))$("opMemo").value=S.opMemo||"";
-  // editable shared $ rise chips with add/delete (dedicated WS5 renderer)
   opRenderChips();
-  opRenderCalc("opC1","opTable1");
-  opRenderCalc("opC2","opTable2");
-  opRenderCalc("opC3","opTable3");
+  // build all scenario cards
+  const list=$("opScenList");
+  if(list){
+    if(!Array.isArray(S.opScenarios)||S.opScenarios.length===0)S.opScenarios=[""];
+    list.innerHTML="";
+    S.opScenarios.forEach((_,i)=>list.appendChild(opBuildCard(i)));
+  }
   if(typeof opRenderCtx==="function")opRenderCtx();
+  if(typeof opRenderDetail==="function")opRenderDetail();
+  if(typeof opApplyDetailOpen==="function")opApplyDetailOpen();
 }
 
 $("opCall").addEventListener("click",()=>{S.opType="call";persist();opRender();});
 $("opPut").addEventListener("click",()=>{S.opType="put";persist();opRender();});
-const opKeys=["opC1","opC2","opC3"];
-opKeys.forEach((k,i)=>{
-  const el=$(k);
-  el.setAttribute("enterkeyhint", i<opKeys.length-1 ? "next" : "done");
-  el.addEventListener("input",e=>{e.target.value=e.target.value.replace(/[^0-9]/g,"");S[k]=e.target.value;persist();opRender();});
-  el.addEventListener("keydown",ev=>{
-    if(ev.key==="Enter"){
-      ev.preventDefault();
-      const nextEl=$(opKeys[i+1]);
-      if(nextEl){nextEl.focus();} // "Next" jumps to the following scenario
-      else{el.blur();}           // last field: "Done" dismisses the keyboard
-    }
-  });
+$("opAddScn").addEventListener("click",()=>{
+  if(!Array.isArray(S.opScenarios))S.opScenarios=[];
+  S.opScenarios.push("");
+  persist();opRender();
+  // focus the new scenario's input
+  const ni=S.opScenarios.length-1;const el=$("opScn"+ni);if(el)el.focus();
 });
 $("opMemo").addEventListener("input",e=>{S.opMemo=e.target.value;persist();});
+// option detail panel field handlers
+["opStrike","opAsk","opIV"].forEach(k=>{
+  const el=$(k);if(!el)return;
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();}});
+  el.addEventListener("input",e=>{e.target.value=clean(e.target.value);S[k]=e.target.value;persist();opRenderDetail();});
+});
+if($("opExpiry")){
+  $("opExpiry").addEventListener("change",e=>{S.opExpiry=e.target.value;persist();opRenderDetail();});
+}
+// collapsible First-OTM panel
+function opApplyDetailOpen(){
+  const open=!!S.opDetailOpen;
+  const body=$("opDetailBody"),tog=$("opDetailToggle"),chev=$("opDetailChev"),hint=$("opDetailHint");
+  if(body)body.hidden=!open;
+  if(tog)tog.setAttribute("aria-expanded",String(open));
+  if(chev)chev.textContent=open?"▾":"▸";
+  if(hint)hint.textContent=open?"Advanced · tap to hide":"Advanced · tap to show";
+}
+if($("opDetailToggle")){
+  $("opDetailToggle").addEventListener("click",()=>{
+    S.opDetailOpen=!S.opDetailOpen;persist();opApplyDetailOpen();
+    if(S.opDetailOpen)opRenderDetail(); // refresh values when opened
+  });
+}
+if($("opAutofill")){
+  $("opAutofill").addEventListener("click",()=>{
+    const sym=normTicker(S.opUnderSym||($("opTicker")&&$("opTicker").value)||"");
+    fetchOptionPick({symbol:sym,type:S.opType,mode:"firstotm"},$("opAutofill"),$("opAutoStatus"),d=>{
+      S.opStrike=String(d.strike);
+      if(d.price!=null)S.opAsk=String(d.price);
+      if(typeof d.impliedVolatility==="number")S.opIV=(d.impliedVolatility*100).toFixed(1);
+      if(d.expiry)S.opExpiry=d.expiry;
+      if(typeof d.openInterest==="number")S.opOI=String(d.openInterest);
+      if(d.underlying&&!(num(S.opUnder)>0))S.opUnder=String(d.underlying);
+      persist();opRenderDetail();
+    });
+  });
+}
 // WS5 context ticker → stores current price, annotates rows with the % move each step represents
 function opRenderCtx(){
   const note=$("opCtxNote");if(!note)return;
@@ -2440,34 +3101,53 @@ function opRenderCtx(){
   }else{note.hidden=true;note.innerHTML="";}
 }
 if($("opTicker")){
-  $("opTicker").addEventListener("input",e=>{e.target.value=normTicker(e.target.value);});
+  $("opTicker").addEventListener("input",e=>{e.target.value=normTicker(e.target.value);S.opUnderSym=e.target.value;persist();});
   $("opTicker").setAttribute("enterkeyhint","go");
   $("opTicker").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("opTicker").blur();opLookup();}});
   $("opLookup").addEventListener("click",()=>opLookup());
 }
 function opLookup(){
   return runLookup({inputId:"opTicker",btnId:"opLookup",statusId:"opTickStatus",
-    onPrice:(price)=>{S.opUnder=String(price);persist();opRenderCtx();opRender();}});
+    onPrice:(price,sym)=>{S.opUnder=String(price);if(sym)S.opUnderSym=sym;if($("opUnder"))$("opUnder").value=groupNum(String(price));persist();opRenderCtx();opRender();}});
+}
+// manual current-price entry (the ticker fallback) — drives the % context directly
+if($("opUnder")){
+  $("opUnder").setAttribute("enterkeyhint","done");
+  $("opUnder").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("opUnder").blur();}});
+  $("opUnder").addEventListener("input",e=>{
+    const t=e.target,caret=t.selectionStart;
+    const digitsBefore=(t.value.slice(0,caret).match(/[0-9.]/g)||[]).length;
+    t.value=groupNum(clean(t.value));
+    let pos=0,c=0;while(pos<t.value.length&&c<digitsBefore){if(/[0-9.]/.test(t.value[pos]))c++;pos++;}
+    try{t.setSelectionRange(pos,pos)}catch(_){}
+    S.opUnder=t.value;persist();opRenderCtx();opRender();
+    // typing a price by hand clears a stale looked-up ticker symbol/status
+    const ts=$("opTickStatus");if(ts&&ts.className.indexOf("show")>-1){ts.className="tickstatus";ts.innerHTML="";if($("opTicker"))$("opTicker").value="";}
+  });
 }
 $("opReset").addEventListener("click",()=>{
-  S.opC1="";S.opC2="";S.opC3="";S.opMemo="";S.opType="call";S.opChips=[0.01,1,10,100,1000];S.opUnder="";
+  S.opScenarios=["","",""];S.opMemo="";S.opType="call";S.opChips=[0.01,1,10,100,1000];S.opUnder="";
+  S.opStrike="";S.opExpiry="";S.opAsk="";S.opIV="";S.opOI="";
+  if($("opStrike"))$("opStrike").value="";if($("opAsk"))$("opAsk").value="";
+  if($("opIV"))$("opIV").value="";if($("opExpiry"))$("opExpiry").value="";
   if($("opTicker"))$("opTicker").value="";
+  if($("opUnder"))$("opUnder").value="";
   if($("opTickStatus")){$("opTickStatus").className="tickstatus";$("opTickStatus").innerHTML="";}
   persist();opRender();
 });
 function opEncode(){
-  const p={t:"op",opType:S.opType,opC1:S.opC1,opC2:S.opC2,opC3:S.opC3,opChips:S.opChips,opMemo:S.opMemo,opUnder:S.opUnder,curSym:S.curSym,curCode:S.curCode};
+  const p={t:"op",opType:S.opType,opScenarios:S.opScenarios,opChips:S.opChips,opMemo:S.opMemo,opUnder:S.opUnder,opUnderSym:S.opUnderSym,opStrike:S.opStrike,opExpiry:S.opExpiry,opAsk:S.opAsk,opIV:S.opIV,opOI:S.opOI,opDetailOpen:S.opDetailOpen,curSym:S.curSym,curCode:S.curCode};
   return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 function opShareText(){
   const L=[];
   L.push("⚙️ Options Sizer — "+(S.opType==="call"?"Calls":"Puts"));
   const dir=S.opType==="call"?"rises":"falls";
-  [["A","opC1"],["B","opC2"],["C","opC3"]].forEach(([name,key])=>{
-    const c=num(S[key]);
+  (S.opScenarios||[]).forEach((val,i)=>{
+    const c=num(val);
     if(isFinite(c)&&c>0){
       L.push("");
-      L.push("Scenario "+name+": "+c+" option"+(c===1?"":"s")+" = "+(c*100).toLocaleString("en-US")+" shares");
+      L.push("Scenario "+opScnLetter(i)+": "+c+" option"+(c===1?"":"s")+" = "+(c*100).toLocaleString("en-US")+" shares");
       [...S.opChips].sort((a,b)=>a-b).forEach(mv=>{L.push("  if "+dir+" "+opFmtMove(mv)+" → "+opFmt(c*100*mv));});
     }
   });
@@ -2490,9 +3170,628 @@ $("opImport").addEventListener("click",()=>{
       try{
         const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
         const p=decodeState(code);
-        if(p.t==="op"){["opType","opC1","opC2","opC3","opChips","opMemo","opUnder","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
-          if(!Array.isArray(S.opChips))S.opChips=[0.01,1,10,100,1000];}
+        if(p.t==="op"){["opType","opScenarios","opChips","opMemo","opUnder","opUnderSym","opStrike","opExpiry","opAsk","opIV","opOI","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});
+          // backward-compat: older share codes had opC1/opC2/opC3
+          if(!Array.isArray(S.opScenarios)){S.opScenarios=[p.opC1||"",p.opC2||"",p.opC3||""];}
+          if(S.opScenarios.length===0)S.opScenarios=["","",""];
+          if(!Array.isArray(S.opChips))S.opChips=[0.01,1,10,100,1000];
+          // if the shared analysis includes option details, expand the panel so it's visible
+          if(S.opStrike||S.opAsk||S.opIV||S.opExpiry)S.opDetailOpen=true;}
         closeSheet();persist();opRender();renderAll();
+      }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
+
+/* ---------- Portfolio Hedge workspace (#6, shown as 2) ---------- */
+function hgFmt(n){if(!isFinite(n))return "—";return S.curSym+groupNum(n.toFixed(2));}
+function hgFmt0(n){if(!isFinite(n))return "—";return S.curSym+groupNum(Math.round(n).toString());}
+
+function hgYearsToExpiry(){
+  if(!S.hgExpiry)return NaN;
+  const exp=new Date(S.hgExpiry+"T00:00:00");if(isNaN(exp.getTime()))return NaN;
+  const days=(exp-new Date())/(1000*60*60*24);return days>0?days/365:NaN;
+}
+function hgApplyPutOpen(){
+  const open=!!S.hgPutOpen;
+  const body=$("hgPutBody"),tog=$("hgPutToggle"),chev=$("hgPutChev"),hint=$("hgPutHint");
+  if(body)body.hidden=!open;
+  if(tog)tog.setAttribute("aria-expanded",String(open));
+  if(chev)chev.textContent=open?"▾":"▸";
+  if(hint)hint.textContent=open?"tap to hide":"tap to show";
+}
+
+function hgRender(){
+  document.querySelectorAll(".cur6").forEach(e=>e.textContent=S.curSym);
+  // sync inputs
+  const syncs=[["hgPort","hgPort"],["hgSpy","hgSpy"],["hgStrike","hgStrike"],["hgAsk","hgAsk"],["hgIV","hgIV"],["hgMemo","hgMemo"]];
+  syncs.forEach(([id,key])=>{if($(id)&&document.activeElement!==$(id))$(id).value=(key==="hgPort"||key==="hgSpy")?(S[key]?groupNum(S[key]):""):(S[key]||"");});
+  if($("hgTicker")&&document.activeElement!==$("hgTicker"))$("hgTicker").value=S.hgTickerSym||"";
+  if($("hgExpiry")&&document.activeElement!==$("hgExpiry"))$("hgExpiry").value=S.hgExpiry||"";
+  if($("hgSpyLbl"))$("hgSpyLbl").textContent=S.hgTickerSym||"SPY";
+  // % band chips
+  renderChips($("hgPctChips"),[S.hgPct],()=>{},a=>{const v=a.filter(x=>x>0);S.hgPct=v.length?v[0]:5;persist();hgRender();},S.hgPct,"%",false);
+
+  const port=num(S.hgPort), spy=num(S.hgSpy), pct=num(S.hgPct)||5;
+  const strike=num(S.hgStrike), ask=num(S.hgAsk);
+  const T=hgYearsToExpiry(), r=0.04;
+  const havePort=isFinite(port)&&port>0, haveSpy=isFinite(spy)&&spy>0;
+  const haveStrike=isFinite(strike)&&strike>0, haveAsk=isFinite(ask)&&ask>0;
+
+  // required cue on portfolio
+  if($("hgPortRow"))$("hgPortRow").classList.toggle("needfill",!havePort);
+  if($("hgPortReq"))$("hgPortReq").style.visibility=havePort?"hidden":"visible";
+  // required cues: last price, and (in the put section) strike / expiry / ask
+  const typedIVok=isFinite(num(S.hgIV))&&num(S.hgIV)>0;
+  if($("hgSpyRow"))$("hgSpyRow").classList.toggle("needfill",!haveSpy);
+  if($("hgSpyReq"))$("hgSpyReq").style.visibility=haveSpy?"hidden":"visible";
+  if($("hgStrikeRow"))$("hgStrikeRow").classList.toggle("needfill",!haveStrike);
+  if($("hgStrikeReq"))$("hgStrikeReq").style.visibility=haveStrike?"hidden":"visible";
+  if($("hgAskRow"))$("hgAskRow").classList.toggle("needfill",!haveAsk);
+  if($("hgAskReq"))$("hgAskReq").style.visibility=haveAsk?"hidden":"visible";
+  // expiry needed for delta/IV — unless the user typed IV directly
+  const needExpiry=!isFinite(T)&&!typedIVok;
+  if($("hgExpiryRow"))$("hgExpiryRow").classList.toggle("needfill",needExpiry);
+  if($("hgExpiryReq"))$("hgExpiryReq").style.visibility=needExpiry?"visible":"hidden";
+
+  // band levels
+  if($("hgUpLbl"))$("hgUpLbl").textContent="+"+pct+"% level";
+  if($("hgDnLbl"))$("hgDnLbl").textContent="−"+pct+"% level";
+  if($("hgPctEcho"))$("hgPctEcho").textContent=pct;
+  $("hgUpVal").textContent=haveSpy?hgFmt(spy*(1+pct/100)):"—";
+  $("hgDnVal").textContent=haveSpy?hgFmt(spy*(1-pct/100)):"—";
+  const dnLevel=haveSpy?spy*(1-pct/100):NaN;
+
+  // put breakeven / IV / delta (Black-Scholes, reuse WS5 engine)
+  let be=NaN; if(haveStrike&&haveAsk)be=strike-ask; // put breakeven = strike − premium
+  $("hgBreakeven").textContent=isFinite(be)?hgFmt(be):"—";
+  let ivFrac=NaN; const typedIV=num(S.hgIV);
+  if(isFinite(typedIV)&&typedIV>0)ivFrac=typedIV/100;
+  else if(haveSpy&&haveStrike&&haveAsk&&isFinite(T))ivFrac=bsImpliedVol("put",spy,strike,T,r,ask);
+  $("hgIVout").textContent=isFinite(ivFrac)?((ivFrac*100).toFixed(1)+"%"):"—";
+  let delta=NaN;
+  if(haveSpy&&haveStrike&&isFinite(T)&&isFinite(ivFrac)&&ivFrac>0)delta=bsCalc("put",spy,strike,T,r,ivFrac).delta;
+  $("hgDelta").textContent=isFinite(delta)?delta.toFixed(3):"—";
+  // breakeven vs -% level check
+  const beChk=$("hgBEcheck");
+  if(beChk){
+    if(isFinite(be)&&isFinite(dnLevel)){
+      const ok=be>dnLevel;
+      beChk.textContent=ok?"✓ above":"below";
+      beChk.className="op-greek-val "+(ok?"hg-ok":"hg-warn");
+    }else{beChk.textContent="—";beChk.className="op-greek-val";}
+  }
+
+  // put note
+  const pn=$("hgPutNote");
+  if(pn){const miss=[];if(!haveStrike)miss.push("strike");if(!haveAsk)miss.push("ask/premium");
+    if(!isFinite(T)&&!(isFinite(typedIV)&&typedIV>0))miss.push("expiry");
+    if(!haveSpy&&!(isFinite(typedIV)&&typedIV>0))miss.push("last price");
+    if(miss.length){pn.hidden=false;pn.textContent="Add "+miss.join(", ")+" to compute breakeven, IV and delta.";}else pn.hidden=true;}
+
+  // hedge sizing
+  const budget=havePort?port*0.05:NaN; // 5% of portfolio is the hedge budget
+  $("hgBudget").textContent=isFinite(budget)?hgFmt0(budget):"—";
+  let contracts=NaN, cost=NaN;
+  if(isFinite(budget)&&haveAsk){contracts=Math.floor(budget/(ask*100));cost=contracts*ask*100;}
+  $("hgContracts").textContent=isFinite(contracts)?groupNum(contracts.toString()):"—";
+  $("hgCost").textContent=isFinite(cost)?hgFmt0(cost):"—";
+  if($("hgCostPct"))$("hgCostPct").textContent=(isFinite(cost)&&havePort&&port>0)?("= "+(cost/port*100).toFixed(1)+"% of portfolio"):"";
+
+  // effectiveness (delta-based)
+  // hedge $ gained per 1% SPY drop = contracts*100*|delta|*(spy*0.01)
+  let gainPer=NaN, lossPer=NaN, coverage=NaN;
+  if(isFinite(contracts)&&contracts>0&&isFinite(delta)&&haveSpy){
+    gainPer=contracts*100*Math.abs(delta)*(spy*0.01);
+  }
+  if(havePort)lossPer=port*0.01; // portfolio loses 1% per 1% drop (assumes it tracks the market)
+  if(isFinite(gainPer)&&isFinite(lossPer)&&lossPer>0)coverage=gainPer/lossPer*100;
+  $("hgGainPer").textContent=isFinite(gainPer)?hgFmt0(gainPer):"—";
+  $("hgLossPer").textContent=isFinite(lossPer)?hgFmt0(lossPer):"—";
+  $("hgCoverage").textContent=isFinite(coverage)?(coverage.toFixed(0)+"%"):"—";
+
+  hgApplyPutOpen();
+}
+
+// ticker lookup → fills SPY last price
+function hgLookup(){
+  return runLookup({inputId:"hgTicker",btnId:"hgLookup",statusId:"hgTickStatus",
+    onPrice:(price,sym)=>{S.hgSpy=String(price);S.hgTickerSym=sym||"SPY";persist();hgRender();}});
+}
+if($("hgTicker")){
+  $("hgTicker").addEventListener("input",e=>{e.target.value=normTicker(e.target.value);S.hgTickerSym=e.target.value||"SPY";persist();});
+  $("hgTicker").setAttribute("enterkeyhint","go");
+  $("hgTicker").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("hgTicker").blur();hgLookup();}});
+  $("hgLookup").addEventListener("click",()=>hgLookup());
+}
+// numeric money fields with grouping
+[["hgPort","hgPort"],["hgSpy","hgSpy"]].forEach(([id,key])=>{
+  const el=$(id);if(!el)return;
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();}});
+  el.addEventListener("input",e=>{
+    const t=e.target,caret=t.selectionStart;
+    const digitsBefore=(t.value.slice(0,caret).match(/[0-9.]/g)||[]).length;
+    t.value=groupNum(clean(t.value));
+    let pos=0,c=0;while(pos<t.value.length&&c<digitsBefore){if(/[0-9.]/.test(t.value[pos]))c++;pos++;}
+    try{t.setSelectionRange(pos,pos)}catch(_){}
+    S[key]=t.value;persist();hgRender();
+    if(id==="hgSpy"){const ts=$("hgTickStatus");if(ts&&ts.className.indexOf("show")>-1){ts.className="tickstatus";ts.innerHTML="";}}
+  });
+});
+// plain numeric fields
+[["hgStrike","hgStrike"],["hgAsk","hgAsk"],["hgIV","hgIV"]].forEach(([id,key])=>{
+  const el=$(id);if(!el)return;
+  el.setAttribute("enterkeyhint","done");
+  el.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();el.blur();}});
+  el.addEventListener("input",e=>{e.target.value=clean(e.target.value);S[key]=e.target.value;persist();hgRender();});
+});
+if($("hgExpiry"))$("hgExpiry").addEventListener("change",e=>{S.hgExpiry=e.target.value;persist();hgRender();});
+if($("hgMemo"))$("hgMemo").addEventListener("input",e=>{S.hgMemo=e.target.value;persist();});
+if($("hgPutToggle"))$("hgPutToggle").addEventListener("click",()=>{S.hgPutOpen=!S.hgPutOpen;persist();hgApplyPutOpen();if(S.hgPutOpen)hgRender();});
+if($("hgAutofill")){
+  $("hgAutofill").addEventListener("click",()=>{
+    const sym=normTicker(S.hgTickerSym||"SPY");
+    const spy=num(S.hgSpy), pct=num(S.hgPct)||5;
+    const floor=(isFinite(spy)&&spy>0)?spy*(1-pct/100):0;
+    fetchOptionPick({symbol:sym,type:"put",mode:"hedge",floor:floor},$("hgAutofill"),$("hgAutoStatus"),d=>{
+      S.hgStrike=String(d.strike);
+      if(d.price!=null)S.hgAsk=String(d.price);
+      if(typeof d.impliedVolatility==="number")S.hgIV=(d.impliedVolatility*100).toFixed(1);
+      if(d.expiry)S.hgExpiry=d.expiry;
+      if(d.underlying&&!(num(S.hgSpy)>0))S.hgSpy=String(d.underlying);
+      persist();hgRender();
+    });
+  });
+}
+$("hgReset").addEventListener("click",()=>{
+  ["hgPort","hgSpy","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo"].forEach(k=>S[k]="");
+  S.hgTickerSym="SPY";S.hgPct=5;S.hgPutOpen=true;
+  if($("hgTicker"))$("hgTicker").value="SPY";
+  ["hgPort","hgSpy","hgStrike","hgAsk","hgIV","hgExpiry"].forEach(id=>{if($(id))$(id).value="";});
+  if($("hgTickStatus")){$("hgTickStatus").className="tickstatus";$("hgTickStatus").innerHTML="";}
+  persist();hgRender();
+});
+function hgEncode(){
+  const p={t:"hg",hgPort:S.hgPort,hgTickerSym:S.hgTickerSym,hgSpy:S.hgSpy,hgPct:S.hgPct,hgStrike:S.hgStrike,hgExpiry:S.hgExpiry,hgAsk:S.hgAsk,hgIV:S.hgIV,hgMemo:S.hgMemo,curSym:S.curSym,curCode:S.curCode};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function hgShareText(){
+  const L=[];const port=num(S.hgPort),spy=num(S.hgSpy),pct=num(S.hgPct)||5,ask=num(S.hgAsk);
+  L.push("🛡️ Portfolio Hedge");
+  if(isFinite(port))L.push("Portfolio: "+hgFmt0(port));
+  if(isFinite(spy))L.push((S.hgTickerSym||"SPY")+" last: "+hgFmt(spy)+"  ·  −"+pct+"% level: "+hgFmt(spy*(1-pct/100)));
+  if(isFinite(port)&&isFinite(ask)&&ask>0){
+    const budget=port*0.05, ct=Math.floor(budget/(ask*100));
+    L.push("Hedge budget (5%): "+hgFmt0(budget));
+    L.push("Puts affordable: "+ct+" at "+hgFmt(ask)+" premium");
+  }
+  if(S.hgMemo&&S.hgMemo.trim()){L.push("");L.push("Memo: "+S.hgMemo.trim());}
+  L.push("");L.push(location.origin+location.pathname+"#d="+hgEncode());
+  return L.join("\n");
+}
+$("hgShare").addEventListener("click",async()=>{
+  const text=hgShareText();
+  if(navigator.share){try{await navigator.share({title:"Portfolio Hedge",text});return}catch(e){if(e&&e.name==="AbortError")return}}
+  openSheet("Share this","Your share sheet isn't available here — use email or copy.",text,[
+    ["Email",async function(){const ok=await copyText(text);const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent("Portfolio Hedge")+"&body="+encodeURIComponent(text);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);this.textContent=ok?"✓ Copied too":"Email";},false],
+    ["Copy",async function(){if(await copyText(text))this.textContent="✓ Copied";},true],
+    ["Close",closeSheet,false]
+  ]);
+});
+$("hgImport").addEventListener("click",()=>{
+  openSheet("Import","Paste a Portfolio Hedge share code (or full message).","",[
+    ["Load",function(){
+      try{
+        const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
+        const p=decodeState(code);
+        if(p.t==="hg"){["hgPort","hgTickerSym","hgSpy","hgPct","hgStrike","hgExpiry","hgAsk","hgIV","hgMemo","curSym","curCode"].forEach(k=>{if(k in p)S[k]=p[k];});}
+        closeSheet();persist();hgRender();renderAll();
+      }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
+
+/* ---------- Watchlist Dashboard workspace (#7) ---------- */
+const WL_MAX_LISTS=25, WL_MAX_SYMBOLS=100;
+function wlFmt(n,dec){if(!isFinite(n))return "—";return S.curSym+groupNum(Number(n).toFixed(dec==null?2:dec));}
+
+// ensure the multi-watchlist structure exists (migrates an old single list on first run)
+function wlEnsure(){
+  if(!Array.isArray(S.watchlists)||!S.watchlists.length){
+    const items=Array.isArray(S.wlItems)?S.wlItems:[];
+    const memo=S.wlMemo||"";
+    S.watchlists=[{id:wlUID(),name:"My Watchlist",items:items,memo:memo}];
+    S.wlActive=0;
+    S.wlItems=undefined;S.wlMemo=undefined; // fold into the new structure
+  }
+  if(typeof S.wlActive!=="number"||S.wlActive<0||S.wlActive>=S.watchlists.length)S.wlActive=0;
+  const L=S.watchlists[S.wlActive];
+  if(!Array.isArray(L.items))L.items=[];
+  if(typeof L.memo!=="string")L.memo="";
+  return L;
+}
+function wlL(){return wlEnsure();}          // active list object
+function wlItemsRef(){return wlEnsure().items;}
+
+// render the list picker dropdown
+function wlRenderPicker(){
+  const sel=$("wlPicker");if(!sel)return;
+  wlEnsure();
+  sel.innerHTML="";
+  S.watchlists.forEach((L,i)=>{
+    const o=document.createElement("option");o.value=String(i);
+    o.textContent=L.name+"  ("+(L.items?L.items.length:0)+")";
+    if(i===S.wlActive)o.selected=true;
+    sel.appendChild(o);
+  });
+  // disable delete when only one list remains
+  if($("wlDeleteList"))$("wlDeleteList").disabled=S.watchlists.length<=1;
+  if($("wlNewList"))$("wlNewList").disabled=S.watchlists.length>=WL_MAX_LISTS;
+}
+function wlSwitch(i){S.wlActive=i;persist();wlRender();}
+function wlNewList(){
+  wlEnsure();
+  if(S.watchlists.length>=WL_MAX_LISTS){openSheet("Limit reached","You can keep up to "+WL_MAX_LISTS+" watchlists. Delete one to make room.",null,[["OK",closeSheet,true]]);return;}
+  openSheet("New watchlist","Name your new watchlist:","",[
+    ["Create",function(){
+      const name=($("mText").value||"").trim().slice(0,40)||("List "+(S.watchlists.length+1));
+      S.watchlists.push({id:wlUID(),name:name,items:[],memo:""});
+      S.wlActive=S.watchlists.length-1;persist();closeSheet();wlRender();
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+}
+function wlRenameList(){
+  const L=wlEnsure();
+  openSheet("Rename watchlist","Give this watchlist a new name:","",[
+    ["Save",function(){const name=($("mText").value||"").trim().slice(0,40);if(name){L.name=name;persist();}closeSheet();wlRender();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value=L.name||"";$("mText").focus();$("mText").select&&$("mText").select();
+}
+function wlDeleteList(){
+  wlEnsure();
+  if(S.watchlists.length<=1){openSheet("Can't delete","This is your only watchlist. Create another first, or use Reset to clear it.",null,[["OK",closeSheet,true]]);return;}
+  const L=S.watchlists[S.wlActive];
+  openSheet("Delete this watchlist?","“"+L.name+"” and its "+(L.items?L.items.length:0)+" ticker(s) will be removed. This can't be undone.",null,[
+    ["Delete",function(){S.watchlists.splice(S.wlActive,1);if(S.wlActive>=S.watchlists.length)S.wlActive=S.watchlists.length-1;persist();closeSheet();wlRender();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+}
+
+function wlNum(v){return num(v);}
+function wlUID(){return "w"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+// fields the user can edit by hand on each item
+const WL_MANUAL=[
+  {k:"fibSup",label:"Fib support",pre:true},
+  {k:"fibRes",label:"Fib resistance",pre:true},
+  {k:"marketCap",label:"Market cap"},
+  {k:"volume",label:"Volume"},
+  {k:"dayLow",label:"Day low",pre:true},
+  {k:"dayHigh",label:"Day high",pre:true},
+  {k:"wkHigh",label:"52-wk high",pre:true},
+  {k:"wkLow",label:"52-wk low",pre:true},
+  {k:"beta",label:"Beta"},
+  {k:"pe",label:"P/E ratio"},
+  {k:"eps",label:"EPS",pre:true},
+  {k:"divYield",label:"Dividend yield %"},
+];
+
+function wlRender(){
+  const list=$("wlList"),empty=$("wlEmpty"),tb=$("wlToolbar");
+  if(!list)return;
+  const L=wlEnsure();
+  wlRenderPicker();
+  const items=L.items;
+  if($("wlMemo")&&document.activeElement!==$("wlMemo"))$("wlMemo").value=L.memo||"";
+  if(typeof wlNotesCount==="function")wlNotesCount();
+  if(empty)empty.style.display=items.length?"none":"";
+  if(tb)tb.hidden=!items.length;
+  if($("wlCount"))$("wlCount").textContent=items.length?(items.length+" of "+WL_MAX_SYMBOLS):"";
+  list.innerHTML="";
+  const frag=document.createDocumentFragment();
+  items.forEach((it,idx)=>frag.appendChild(wlBuildCard(it,idx)));
+  list.appendChild(frag);
+  wlRenderRecent();
+}
+
+function wlBuildCard(it,idx){
+  const card=document.createElement("section");card.className="card wl-card";card.style.marginTop="12px";
+  const last=wlNum(it.last), chg=wlNum(it.chg), pct=wlNum(it.pct);
+  const dir=isFinite(chg)?(chg>0?"up":(chg<0?"down":"flat")):"flat";
+  const arrow=dir==="up"?"▲":(dir==="down"?"▼":"■");
+
+  // ---- collapsed header (always visible): symbol, tick, last, %chg, $chg ----
+  const hasQuote=isFinite(last);
+  const hd=document.createElement("div");hd.className="wl-hd";
+  hd.innerHTML=
+    '<button class="wl-expand" type="button" aria-expanded="'+(it._open?"true":"false")+'">'+
+      '<span class="wl-idwrap">'+
+        '<span class="wl-sym">'+(it.sym||"")+'</span>'+
+        (it.name?'<span class="wl-name">'+it.name+'</span>':'')+
+      '</span>'+
+      (hasQuote&&dir!=="flat"?'<span class="wl-tick '+dir+'">'+arrow+'</span>':'')+
+      '<span class="wl-hd-nums">'+
+        (hasQuote?'<span class="wl-last">'+wlFmt(last)+'</span>':'')+
+        (hasQuote&&isFinite(pct)?'<span class="wl-chg '+dir+'">'+((pct>0?"+":"")+pct.toFixed(2)+"%")+
+          (isFinite(chg)?(' <span class="wl-chgd">('+(chg>0?"+":"")+wlFmt(chg)+')</span>'):"")+'</span>':"")+
+      '</span>'+
+      '<span class="wl-chevwrap">'+
+        '<span class="wl-chev">'+(it._open?"▾":"▸")+'</span>'+
+        '<span class="wl-chevhint">'+(it._open?"Less":"Details")+'</span>'+
+      '</span>'+
+    '</button>';
+  card.appendChild(hd);
+  hd.querySelector(".wl-expand").addEventListener("click",()=>{it._open=!it._open;persist();wlRender();});
+
+  // ---- action row: refresh + delete ----
+  const act=document.createElement("div");act.className="wl-actions";
+  const refresh=document.createElement("button");refresh.type="button";refresh.className="wl-mini";
+  refresh.textContent="↻ Refresh quote";
+  refresh.addEventListener("click",()=>wlRefreshOne(idx,refresh));
+  const del=document.createElement("button");del.type="button";del.className="wl-mini wl-del";
+  del.textContent="✕ Remove";
+  del.addEventListener("click",()=>{wlItemsRef().splice(idx,1);persist();wlRender();});
+  act.appendChild(refresh);act.appendChild(del);
+  card.appendChild(act);
+
+  // +3% level (calculated) always shows when we have a price
+  const plus3=document.createElement("div");plus3.className="wl-plus3";
+  plus3.innerHTML='<span class="wl-plus3-lbl">+3% above last</span>'+(isFinite(last)?'<span class="wl-plus3-val">'+wlFmt(last*1.03)+'</span>':'<span class="wl-plus3-val na">N/A</span>');
+  card.appendChild(plus3);
+
+  if(it.asOf){const ao=document.createElement("div");ao.className="wl-asof";ao.textContent="Quote: "+it.asOf+(it.delayed?" · delayed":"");card.appendChild(ao);}
+
+  // ---- expanded body ----
+  if(it._open){
+    const body=document.createElement("div");body.className="wl-body";
+    // Company name (manual — also auto-fills from a quote when available)
+    body.appendChild(wlField(it,idx,"name","Company name",false,"e.g. Apple Inc."));
+    // Last price + $ change today (manual entry — anchors the whole card)
+    const priceHd=document.createElement("div");priceHd.className="wl-section-lbl";priceHd.textContent="Price · enter or refresh a quote";
+    body.appendChild(priceHd);
+    const priceDuo=document.createElement("div");priceDuo.className="wl-grid";
+    priceDuo.appendChild(wlField(it,idx,"last","Last / current price",true,"ex. 150.00"));
+    priceDuo.appendChild(wlField(it,idx,"chg","$ change today",true,"ex. 1.25"));
+    body.appendChild(priceDuo);
+    // universe / source
+    body.appendChild(wlField(it,idx,"universe","Where you heard about it",false,"e.g. CNBC Fast Money"));
+    // 52-week range display (from wkLow/wkHigh)
+    const lo=wlNum(it.wkLow),hi=wlNum(it.wkHigh);
+    const rng=document.createElement("div");rng.className="wl-range";
+    rng.innerHTML='<span class="wl-range-lbl">52-week range</span><span class="wl-range-val">'+
+      ((isFinite(lo)&&isFinite(hi))?(wlFmt(lo)+" – "+wlFmt(hi)):"—")+'</span>';
+    // manual data grid
+    const grid=document.createElement("div");grid.className="wl-grid";
+    WL_MANUAL.forEach(f=>grid.appendChild(wlField(it,idx,f.k,f.label,f.pre,"")));
+    body.appendChild(grid);
+    body.appendChild(rng);
+    card.appendChild(body);
+  }
+
+  // ---- memo (ALWAYS visible — the story matters even when details are collapsed) ----
+  const memoWrap=document.createElement("div");memoWrap.className="wl-memowrap";
+  const ml=document.createElement("label");ml.className="fl";ml.textContent="Story · catalyst · what to watch";
+  const ta=document.createElement("textarea");ta.className="wl-memo";ta.value=it.memo||"";
+  const WL_MEMO_MAX=2000;ta.maxLength=WL_MEMO_MAX;
+  ta.placeholder="Why you're watching it — the story, the catalyst, levels to watch…";
+  const counter=document.createElement("div");counter.className="wl-memo-count";
+  const updCount=()=>{
+    const len=ta.value.length;
+    if(len===0){counter.style.display="none";return;}
+    counter.style.display="";
+    const left=WL_MEMO_MAX-len;
+    counter.textContent=left+" character"+(left===1?"":"s")+" left";
+    counter.classList.toggle("low",left<=75);
+  };
+  ta.addEventListener("input",e=>{it.memo=e.target.value;updCount();persist();});
+  updCount();
+  memoWrap.appendChild(ml);memoWrap.appendChild(ta);memoWrap.appendChild(counter);
+  card.appendChild(memoWrap);
+  return card;
+}
+
+// a labeled manual-entry field bound to item[key]
+function wlField(it,idx,key,label,isPre,ph){
+  const wrap=document.createElement("div");wrap.className="wl-field";
+  const lab=document.createElement("label");lab.className="fl";lab.textContent=label;
+  const row=document.createElement("div");row.className="inrow"+(isPre?" haspre":"");
+  if(isPre){const pre=document.createElement("span");pre.className="pre";pre.textContent=S.curSym;row.appendChild(pre);}
+  const inp=document.createElement("input");inp.type="text";
+  const isText=(key==="universe"||key==="name");
+  inp.inputMode=isText?"text":"decimal";
+  inp.value=it[key]||"";inp.placeholder=ph||"";inp.autocomplete="off";
+  inp.addEventListener("input",e=>{
+    if(key==="universe"||key==="name")it[key]=e.target.value;
+    else if(key==="chg"){ // change can be negative — keep a leading minus
+      let v=String(e.target.value).replace(/[^0-9.\-]/g,"");
+      v=v.replace(/(?!^)-/g,""); // only a leading minus
+      e.target.value=v;it[key]=v;
+    }else it[key]=clean(e.target.value);
+    // manual price/change → derive % change so the tick + colored %change work without the API
+    if(key==="last"||key==="chg"){
+      const l=wlNum(it.last), c=wlNum(it.chg);
+      if(isFinite(l)&&isFinite(c)&&(l-c)!==0)it.pct=String(c/(l-c)*100);
+      else if(isFinite(l)&&!isFinite(c))it.pct="";
+      it._manual=true;
+    }
+    persist();
+  });
+  inp.addEventListener("blur",()=>wlRender());
+  row.appendChild(inp);
+  wrap.appendChild(lab);wrap.appendChild(row);
+  return wrap;
+}
+
+// add a ticker (looks up an initial quote)
+function wlAdd(sym){
+  const raw=normTicker(sym!=null?sym:(($("wlAddInput")&&$("wlAddInput").value)||""));
+  const setStat=(kind,html)=>{const e=$("wlAddStatus");if(!e)return;e.className="tickstatus show "+kind;e.innerHTML=html;if(!kind)e.className="tickstatus";};
+  if(!raw){setStat("err","Type a ticker to add (e.g. AAPL).");return;}
+  const items=wlItemsRef();
+  if(items.length>=WL_MAX_SYMBOLS){setStat("err","This list is full ("+WL_MAX_SYMBOLS+" max). Start a new watchlist for more.");return;}
+  if(items.some(x=>x.sym===raw)){setStat("err",raw+" is already on this watchlist.");return;}
+  const item={id:wlUID(),sym:raw,_open:false};
+  items.unshift(item);
+  // remember it in the recent list (survives a watchlist reset — it's a separate memory)
+  if(!Array.isArray(S.wlRecent))S.wlRecent=[];
+  S.wlRecent=[raw,...S.wlRecent.filter(x=>x!==raw)].slice(0,10);
+  persist();
+  if($("wlAddInput"))$("wlAddInput").value="";
+  wlRender();
+  // fetch an initial quote for the new item (now at the top, index 0)
+  wlFetchQuote(0,null,setStat);
+}
+// render the "recently added" chips (tickers you've added before but aren't currently listed)
+function wlRenderRecent(){
+  const row=$("wlRecentRow");if(!row)return;
+  const recent=Array.isArray(S.wlRecent)?S.wlRecent:[];
+  const current=new Set(wlItemsRef().map(x=>x.sym));
+  const show=recent.filter(s=>!current.has(s));
+  if(!show.length){row.hidden=true;row.innerHTML="";return;}
+  row.hidden=false;
+  row.innerHTML='<span class="wl-recent-lbl">Recently added · tap to re-add</span>';
+  const wrap=document.createElement("div");wrap.className="wl-recent-chips";
+  show.forEach(s=>{
+    const c=document.createElement("button");c.type="button";c.className="wl-recent-chip";c.textContent=s;
+    c.addEventListener("click",()=>wlAdd(s));
+    wrap.appendChild(c);
+  });
+  row.appendChild(wrap);
+}
+
+// fetch/refresh a single quote into item[idx]
+async function wlFetchQuote(idx,btn,statusFn){
+  const it=wlItemsRef()[idx];if(!it)return;
+  const seq=++lookupSeq;
+  if(btn){btn.disabled=true;btn.dataset.lbl=btn.textContent;btn.textContent="…";}
+  const setStat=statusFn||((k,h)=>{});
+  setStat("busy","Fetching "+it.sym+"…");
+  try{
+    const r=await fetch(QUOTE_ENDPOINT+"?symbol="+encodeURIComponent(it.sym),{headers:{"accept":"application/json"}});
+    if(!r.ok){
+      if(r.status===429)setStat("err","Quote limit reached — try again shortly.");
+      else if(r.status===404)setStat("err","No quote found for "+it.sym+".");
+      else setStat("err","Quote unavailable right now.");
+      return;
+    }
+    const d=await r.json();
+    if(d&&typeof d.price==="number"&&isFinite(d.price)){
+      it.last=String(d.price);
+      if(!it.name&&(d.name||d.companyName))it.name=d.name||d.companyName;
+      if(typeof d.change==="number")it.chg=String(d.change);
+      if(typeof d.changePct==="number")it.pct=String(d.changePct);
+      else if(typeof d.change==="number"&&typeof d.prevClose==="number"&&d.prevClose)it.pct=String((d.change/d.prevClose)*100);
+      if(typeof d.high==="number")it.dayHigh=it.dayHigh||String(d.high);
+      if(typeof d.low==="number")it.dayLow=it.dayLow||String(d.low);
+      if(typeof d.wkHigh==="number")it.wkHigh=it.wkHigh||String(d.wkHigh);
+      if(typeof d.wkLow==="number")it.wkLow=it.wkLow||String(d.wkLow);
+      if(typeof d.volume==="number")it.volume=it.volume||String(d.volume);
+      it.delayed=d.delayed!==false; it.asOf=d.asOf||new Date().toLocaleTimeString();
+      persist();wlRender();
+      setStat("ok",it.sym+" "+S.curSym+groupNum(String(d.price)));
+    }else setStat("err","No usable price for "+it.sym+".");
+  }catch(e){setStat("err","Couldn't reach the quote service. (Live quotes work on the deployed site.)");}
+  finally{if(btn){btn.disabled=false;btn.textContent=btn.dataset.lbl||"↻ Refresh quote";}}
+}
+function wlRefreshOne(idx,btn){
+  wlFetchQuote(idx,btn,(k,h)=>{const e=$("wlAddStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}});
+}
+// refresh all — sequential with a small gap to respect rate limits
+async function wlRefreshAll(){
+  const btn=$("wlRefreshAll");if(btn){btn.disabled=true;btn.textContent="↻ Refreshing…";}
+  const setStat=(k,h)=>{const e=$("wlAddStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
+  const items=wlItemsRef();
+  for(let i=0;i<items.length;i++){
+    setStat("busy","Refreshing "+(i+1)+" of "+items.length+"…");
+    await wlFetchQuote(i,null,setStat);
+    await new Promise(res=>setTimeout(res,1200)); // ~1.2s gap → stays under ~5/min free tiers
+  }
+  if(btn){btn.disabled=false;btn.textContent="↻ Refresh all quotes";}
+  setStat("ok","All quotes refreshed.");
+}
+
+if($("wlAddBtn")){
+  $("wlAddInput").addEventListener("input",e=>{e.target.value=normTicker(e.target.value);});
+  $("wlAddInput").setAttribute("enterkeyhint","done");
+  $("wlAddInput").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("wlAddInput").blur();wlAdd();}});
+  $("wlAddBtn").addEventListener("click",()=>wlAdd());
+}
+if($("wlRefreshAll"))$("wlRefreshAll").addEventListener("click",()=>wlRefreshAll());
+if($("wlMemo"))$("wlMemo").addEventListener("input",e=>{wlL().memo=e.target.value;wlNotesCount();persist();});
+function wlNotesCount(){const el=$("wlMemoCount"),ta=$("wlMemo");if(!el||!ta)return;const len=ta.value.length;if(len===0){el.style.display="none";return;}el.style.display="";const left=2000-len;el.textContent=left+" character"+(left===1?"":"s")+" left";el.classList.toggle("low",left<=75);}
+// generic memo character counter — hidden when empty, "N characters left" when typing
+function memoCount(taId,countId){const ta=$(taId),el=$(countId);if(!ta||!el)return;const len=ta.value.length;if(len===0){el.style.display="none";return;}el.style.display="";const left=(parseInt(ta.getAttribute("maxlength"),10)||2000)-len;el.textContent=left+" character"+(left===1?"":"s")+" left";el.classList.toggle("low",left<=75);}
+const MEMO_PAIRS=[["memo","memoCount"],["pmMemo","pmMemoCount"],["glMemo","glMemoCount"],["ciMemo","ciMemoCount"],["opMemo","opMemoCount"],["hgMemo","hgMemoCount"]];
+function refreshMemoCounters(){MEMO_PAIRS.forEach(([t,c])=>memoCount(t,c));}
+(function wireMemoCounters(){
+  MEMO_PAIRS.forEach(([t,c])=>{const ta=$(t);if(!ta)return;ta.addEventListener("input",()=>memoCount(t,c));memoCount(t,c);});
+})();
+if($("wlPicker"))$("wlPicker").addEventListener("change",e=>wlSwitch(parseInt(e.target.value,10)||0));
+if($("wlNewList"))$("wlNewList").addEventListener("click",wlNewList);
+if($("wlRenameList"))$("wlRenameList").addEventListener("click",wlRenameList);
+if($("wlDeleteList"))$("wlDeleteList").addEventListener("click",wlDeleteList);
+$("wlReset").addEventListener("click",()=>{
+  const L=wlEnsure();
+  openSheet("Clear this watchlist?","This removes all tickers and notes from “"+L.name+"”. Your other watchlists and recent tickers stay.","",[
+    ["Clear all",function(){L.items=[];L.memo="";persist();wlRender();if($("wlMemo"))$("wlMemo").value="";closeSheet();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+});
+function wlEncode(){
+  const L=wlEnsure();
+  // strip transient _open flag from the shared copy
+  const items=(L.items||[]).map(it=>{const c=Object.assign({},it);delete c._open;return c;});
+  const p={t:"wl",wlName:L.name,wlItems:items,wlMemo:L.memo,curSym:S.curSym,curCode:S.curCode};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function wlShareText(){
+  const L0=wlEnsure();
+  const L=[];L.push("📋 "+(L0.name||"Watchlist")+" ("+(L0.items||[]).length+")");
+  (L0.items||[]).forEach(it=>{
+    const last=wlNum(it.last),pct=wlNum(it.pct);
+    L.push("");
+    L.push(it.sym+(isFinite(last)?("  "+wlFmt(last)):"")+(isFinite(pct)?("  "+(pct>0?"+":"")+pct.toFixed(2)+"%"):""));
+    if(it.universe)L.push("  via "+it.universe);
+    if(it.fibSup||it.fibRes)L.push("  Fib: "+(it.fibSup?("sup "+wlFmt(wlNum(it.fibSup))):"")+(it.fibRes?("  res "+wlFmt(wlNum(it.fibRes))):""));
+    if(it.memo&&it.memo.trim())L.push("  "+it.memo.trim());
+  });
+  if(L0.memo&&L0.memo.trim()){L.push("");L.push("Notes: "+L0.memo.trim());}
+  L.push("");L.push(location.origin+location.pathname+"#d="+wlEncode());
+  return L.join("\n");
+}
+$("wlShare").addEventListener("click",async()=>{
+  const text=wlShareText();
+  if(navigator.share){try{await navigator.share({title:"Watchlist",text});return}catch(e){if(e&&e.name==="AbortError")return}}
+  openSheet("Share this","Your share sheet isn't available here — use email or copy.",text,[
+    ["Email",async function(){const ok=await copyText(text);const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent("Watchlist")+"&body="+encodeURIComponent(text);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);this.textContent=ok?"✓ Copied too":"Email";},false],
+    ["Copy",async function(){if(await copyText(text))this.textContent="✓ Copied";},true],
+    ["Close",closeSheet,false]
+  ]);
+});
+$("wlImport").addEventListener("click",()=>{
+  openSheet("Import","Paste a Watchlist share code (or full message).","",[
+    ["Load",function(){
+      try{
+        const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
+        const p=decodeState(code);
+        if(p.t==="wl"){
+          wlEnsure();
+          const items=Array.isArray(p.wlItems)?p.wlItems:[];
+          const name=(p.wlName||"Imported list").slice(0,40);
+          if(S.watchlists.length>=WL_MAX_LISTS){$("mBody").textContent="You're at the "+WL_MAX_LISTS+"-watchlist limit — delete one first.";return;}
+          S.watchlists.push({id:wlUID(),name:name,items:items.slice(0,WL_MAX_SYMBOLS),memo:p.wlMemo||""});
+          S.wlActive=S.watchlists.length-1;
+          if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;
+        }
+        closeSheet();persist();wlRender();renderAll();
       }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
     },true],
     ["Cancel",closeSheet,false]
@@ -2506,8 +3805,8 @@ $("opImport").addEventListener("click",()=>{
   if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
   // ensure monthly top-up reflects saved annual value (back-compat)
   if((!S.ciTopupMo||S.ciTopupMo==="")&&num(S.ciTopup)>0){S.ciTopupMo=String(Math.round(num(S.ciTopup)/12*100)/100);}
-  let sharedCI=false, sharedGL=false, sharedPM=false, sharedOP=false;
-  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true; if(S._sharedType==="gl")sharedGL=true; if(S._sharedType==="pm")sharedPM=true; if(S._sharedType==="op")sharedOP=true;}
+  let sharedCI=false, sharedGL=false, sharedPM=false, sharedOP=false, sharedHG=false, sharedWL=false;
+  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true; if(S._sharedType==="gl")sharedGL=true; if(S._sharedType==="pm")sharedPM=true; if(S._sharedType==="op")sharedOP=true; if(S._sharedType==="hg")sharedHG=true; if(S._sharedType==="wl")sharedWL=true;}
   populateGlossary();
   applyExplain();
   buildNav();
@@ -2520,7 +3819,10 @@ $("opImport").addEventListener("click",()=>{
   glRender();
   pmRender();
   opRender();
-  switchWs(sharedCI?4:(sharedGL?3:(sharedPM?2:(sharedOP?5:(S.activeWs||1)))));
+  hgRender();
+  wlEnsure();
+  wlRender();
+  switchWs(sharedCI?4:(sharedGL?3:(sharedPM?2:(sharedOP?5:(sharedHG?6:(sharedWL?7:(S.activeWs||1)))))));
   renderAll();
 })();
 })();
