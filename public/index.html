@@ -392,7 +392,7 @@
   }
 
   /* preset chips */
-  .chips{display:flex;gap:6px;margin-top:8px;align-items:center}
+  .chips{display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap}
   .chips .set{display:flex;gap:6px;flex:1}
   .chip{
     flex:1;border:1px solid var(--line);background:var(--chip);color:var(--ink);
@@ -469,6 +469,12 @@
   [data-theme="dark"] .op-detail-badge{color:#9DBBFF;background:rgba(91,140,255,.14);border-color:rgba(91,140,255,.34)}
   /* portfolio hedge */
   .hg-band{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .hg-bandrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+  .hg-bandchip{font-family:var(--sans);font-size:.84rem;font-weight:700;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,border-color .12s}
+  .hg-bandchip.on{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+  .hg-bandcustom{display:inline-flex;align-items:center;gap:2px}
+  .hg-bandcustom-in{width:52px;font-family:var(--mono);font-size:.82rem;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);text-align:right}
+  .hg-bandcustom-suf{font-size:.82rem;color:var(--muted);font-weight:600}
   .hg-band-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line)}
   .hg-band-row.up{border-color:var(--green);background:rgba(21,128,61,.035)}
   .hg-band-row.down{border-color:var(--red);background:rgba(200,30,30,.05)}
@@ -492,8 +498,8 @@
   .hg-link.on{opacity:1;filter:none;border-color:var(--accent);background:rgba(47,111,237,.10)}
   [data-theme="dark"] .hg-link.on{background:rgba(91,140,255,.16)}
   .hg-budget-in{
-    width:42px;text-align:right;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--accent-deep,#2456C8);
-    border:1px solid var(--line);border-radius:6px;padding:2px 5px;background:var(--card);font-variant-numeric:tabular-nums}
+    width:32px;text-align:right;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--accent-deep,#2456C8);
+    border:1px solid var(--line);border-radius:6px;padding:2px 4px;background:var(--card);font-variant-numeric:tabular-nums}
   [data-theme="dark"] .hg-budget-in{color:#9DBBFF}
   [data-theme="dark"] .hg-res-lbl small{color:var(--muted)}
   .hg-res-val{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--accent-deep,#2456C8);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
@@ -1219,7 +1225,10 @@
       <div class="inrow haspre" id="hgSpyRow"><span class="pre cur6">$</span><input id="hgSpy" type="text" inputmode="decimal" placeholder="ex. 600.00 — type, or look up above" autocomplete="off"></div>
 
       <label class="fl" style="margin-top:14px">Hedge trigger band <span class="opt">± this % off the last price</span></label>
-      <div class="chips" id="hgPctChips" aria-label="Hedge band percent"></div>
+      <div class="hg-bandrow">
+        <div class="chips" id="hgPctChips" aria-label="Hedge band presets"></div>
+        <span class="hg-bandcustom"><input id="hgPctCustom" type="text" inputmode="decimal" maxlength="5" class="hg-bandcustom-in" placeholder="custom" aria-label="Custom band percent"><span class="hg-bandcustom-suf">%</span></span>
+      </div>
       <div class="hg-band" id="hgBand">
         <div class="hg-band-row up"><span class="hg-band-lbl" id="hgUpLbl">+5% level</span><span class="hg-band-val" id="hgUpVal">—</span></div>
         <div class="hg-band-row down"><span class="hg-band-lbl" id="hgDnLbl">−5% level</span><span class="hg-band-val" id="hgDnVal">—</span></div>
@@ -1275,7 +1284,7 @@
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Your hedge</h2>
       <div class="hg-result" id="hgResult">
-        <div class="hg-res-row"><span class="hg-res-lbl">Hedge budget <small class="hg-budget-line"><button type="button" class="hg-link" id="hgLink" aria-pressed="true" aria-label="Link budget to trigger band">🔗</button><input id="hgBudgetPct" class="hg-budget-in" type="text" inputmode="decimal" value="5" aria-label="Hedge budget percent">% of portfolio</small></span><span class="hg-res-val" id="hgBudget">—</span></div>
+        <div class="hg-res-row"><span class="hg-res-lbl">Hedge budget <small class="hg-budget-line"><button type="button" class="hg-link" id="hgLink" aria-pressed="true" aria-label="Link budget to trigger band">🔗</button><input id="hgBudgetPct" class="hg-budget-in" type="text" inputmode="decimal" maxlength="4" value="5" aria-label="Hedge budget percent">% of portfolio</small></span><span class="hg-res-val" id="hgBudget">—</span></div>
         <div class="hg-res-row"><span class="hg-res-lbl">Puts you can afford</span><span class="hg-res-val big" id="hgContracts">—</span></div>
         <div class="hg-res-row"><span class="hg-res-lbl">Actual cost <small id="hgCostPct"></small></span><span class="hg-res-val" id="hgCost">—</span></div>
       </div>
@@ -3213,6 +3222,25 @@ function hgApplyPutOpen(){
   if(hint)hint.textContent=open?"tap to hide":"tap to show";
 }
 
+// trigger-band preset chips (0.5% steps around 5%) + a custom entry
+const HG_BAND_PRESETS=[3.5,4,4.5,5,5.5,6,6.5];
+function hgRenderBandChips(){
+  const host=$("hgPctChips");if(!host)return;
+  const cur=num(S.hgPct);
+  host.innerHTML="";
+  HG_BAND_PRESETS.forEach(p=>{
+    const b=document.createElement("button");b.type="button";
+    b.className="hg-bandchip"+(Math.abs(cur-p)<1e-9?" on":"");
+    b.textContent=(p%1===0?String(p):p.toFixed(1))+"%";
+    b.addEventListener("click",()=>{S.hgPct=p;if(S.hgLinked)S.hgBudgetPct=p;persist();hgRender();});
+    host.appendChild(b);
+  });
+  const ci=$("hgPctCustom");
+  if(ci&&document.activeElement!==ci){
+    ci.value=HG_BAND_PRESETS.some(p=>Math.abs(cur-p)<1e-9)?"":(isFinite(cur)?S.hgPct:"");
+  }
+}
+
 function hgRender(){
   document.querySelectorAll(".cur6").forEach(e=>e.textContent=S.curSym);
   // sync inputs
@@ -3222,7 +3250,7 @@ function hgRender(){
   if($("hgExpiry")&&document.activeElement!==$("hgExpiry"))$("hgExpiry").value=S.hgExpiry||"";
   if($("hgSpyLbl"))$("hgSpyLbl").textContent=S.hgTickerSym||"SPY";
   // % band chips
-  renderChips($("hgPctChips"),[S.hgPct],()=>{},a=>{const v=a.filter(x=>x>0);S.hgPct=v.length?v[0]:5;if(S.hgLinked)S.hgBudgetPct=S.hgPct;persist();hgRender();},S.hgPct,"%",false);
+  hgRenderBandChips();
 
   const port=num(S.hgPort), spy=num(S.hgSpy), pct=num(S.hgPct)||5;
   const strike=num(S.hgStrike), ask=num(S.hgAsk);
@@ -3344,6 +3372,16 @@ if($("hgTicker")){
 if($("hgExpiry"))$("hgExpiry").addEventListener("change",e=>{S.hgExpiry=e.target.value;persist();hgRender();});
 if($("hgMemo"))$("hgMemo").addEventListener("input",e=>{S.hgMemo=e.target.value;persist();});
 if($("hgPutToggle"))$("hgPutToggle").addEventListener("click",()=>{S.hgPutOpen=!S.hgPutOpen;persist();hgApplyPutOpen();if(S.hgPutOpen)hgRender();});
+if($("hgPctCustom")){
+  $("hgPctCustom").setAttribute("enterkeyhint","done");
+  $("hgPctCustom").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("hgPctCustom").blur();}});
+  $("hgPctCustom").addEventListener("input",e=>{
+    let v=String(e.target.value).replace(/[^0-9.]/g,"").replace(/(\..*)\./g,"$1");
+    e.target.value=v;S.hgPct=v;
+    const n=num(v);if(isFinite(n)&&n>0&&S.hgLinked)S.hgBudgetPct=n;
+    persist();hgRender();
+  });
+}
 if($("hgBudgetPct")){
   $("hgBudgetPct").setAttribute("enterkeyhint","done");
   $("hgBudgetPct").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("hgBudgetPct").blur();}});
