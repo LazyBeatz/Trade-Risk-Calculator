@@ -472,8 +472,9 @@
   .hg-bandrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
   .hg-bandchip{font-family:var(--sans);font-size:.84rem;font-weight:700;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,border-color .12s}
   .hg-bandchip.on{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
-  .hg-bandcustom{display:inline-flex;align-items:center;gap:2px}
-  .hg-bandcustom-in{width:52px;font-family:var(--mono);font-size:.82rem;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);text-align:right}
+  .hg-bandcustom{display:inline-flex;align-items:center;gap:4px}
+  .hg-bandcustom-lbl{font-size:.78rem;color:var(--muted);font-weight:600}
+  input[type="text"].hg-bandcustom-in{width:36px;font-family:var(--mono);font-size:.82rem;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);text-align:right}
   .hg-bandcustom-suf{font-size:.82rem;color:var(--muted);font-weight:600}
   .hg-band-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line)}
   .hg-band-row.up{border-color:var(--green);background:rgba(21,128,61,.035)}
@@ -491,15 +492,16 @@
   [data-theme="dark"] .hg-res-row{background:rgba(91,140,255,.10)}
   .hg-res-lbl{font-family:var(--sans);font-size:.9rem;font-weight:700;color:var(--ink)}
   .hg-res-lbl small{display:block;font-weight:500;font-size:.74rem;color:#5C6371;margin-top:1px}
+  .hg-res-lbl small.hg-budget-line{font-size:.95rem;font-weight:700;color:var(--ink);margin-top:4px}
   .hg-budget-line{display:flex;align-items:center;gap:5px}
   .hg-link{
-    border:1.5px solid var(--line);background:transparent;border-radius:7px;padding:1px 5px;font-size:.82rem;
+    border:1.5px solid var(--line);background:transparent;border-radius:7px;padding:2px 6px;font-size:.98rem;
     line-height:1;cursor:pointer;opacity:.45;filter:grayscale(1);-webkit-tap-highlight-color:transparent;transition:opacity .12s}
   .hg-link.on{opacity:1;filter:none;border-color:var(--accent);background:rgba(47,111,237,.10)}
   [data-theme="dark"] .hg-link.on{background:rgba(91,140,255,.16)}
-  .hg-budget-in{
-    width:32px;text-align:right;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--accent-deep,#2456C8);
-    border:1px solid var(--line);border-radius:6px;padding:2px 4px;background:var(--card);font-variant-numeric:tabular-nums}
+  input[type="text"].hg-budget-in{
+    width:44px;text-align:right;font-family:var(--mono);font-size:1.08rem;font-weight:800;color:var(--accent-deep,#2456C8);
+    border:1px solid var(--line);border-radius:6px;padding:3px 6px;background:var(--card);font-variant-numeric:tabular-nums}
   [data-theme="dark"] .hg-budget-in{color:#9DBBFF}
   [data-theme="dark"] .hg-res-lbl small{color:var(--muted)}
   .hg-res-val{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--accent-deep,#2456C8);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
@@ -706,7 +708,7 @@
         <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
       </div>
     </div>
-    <input type="file" id="restoreFile" accept="application/json,.json" style="display:none">
+    <input type="file" id="restoreFile" accept=".json,application/json,text/json,text/plain" style="display:none">
     <nav class="wsnav" id="wsNav" aria-label="Workspaces">
       <div class="wscircles" role="tablist"></div>
       <div class="wsname" id="wsName"></div>
@@ -1227,7 +1229,7 @@
       <label class="fl" style="margin-top:14px">Hedge trigger band <span class="opt">± this % off the last price</span></label>
       <div class="hg-bandrow">
         <div class="chips" id="hgPctChips" aria-label="Hedge band presets"></div>
-        <span class="hg-bandcustom"><input id="hgPctCustom" type="text" inputmode="decimal" maxlength="5" class="hg-bandcustom-in" placeholder="custom" aria-label="Custom band percent"><span class="hg-bandcustom-suf">%</span></span>
+        <span class="hg-bandcustom"><span class="hg-bandcustom-lbl">custom</span><input id="hgPctCustom" type="text" inputmode="decimal" maxlength="4" class="hg-bandcustom-in" aria-label="Custom band percent"><span class="hg-bandcustom-suf">%</span></span>
       </div>
       <div class="hg-band" id="hgBand">
         <div class="hg-band-row up"><span class="hg-band-lbl" id="hgUpLbl">+5% level</span><span class="hg-band-val" id="hgUpVal">—</span></div>
