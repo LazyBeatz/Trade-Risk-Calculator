@@ -357,7 +357,7 @@
   input[type="date"]{font-family:var(--sans);color-scheme:light} /* dates read better in the sans face */
   [data-theme="dark"] input[type="date"]{color-scheme:dark} /* makes the popup calendar render dark too */
   [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.85)} /* keep the calendar glyph visible on dark */
-  .inrow.haspre input{padding-left:30px}
+  .inrow.haspre input{padding-left:34px}
   .inrow.hassuf input{padding-right:32px}
   .inrow.haslock input{padding-right:42px}
   .lockbtn{
@@ -767,7 +767,7 @@
     </div>
     <label class="fl" for="portfolio">Portfolio size<br><span class="req-stack" id="portfolioReq">Required</span></label>
     <div class="inrow haspre haslock" id="portRow"><span class="pre cur">$</span>
-      <input id="portfolio" type="text" inputmode="decimal" placeholder="100,000" autocomplete="off">
+      <input id="portfolio" type="text" inputmode="decimal" placeholder="ex. 100,000" autocomplete="off">
       <button class="lockbtn" id="portLock" type="button" aria-pressed="false" title="Lock portfolio size"></button>
     </div>
     <div class="explain" data-explain="portfolio"></div>
@@ -775,11 +775,11 @@
     <div class="duo">
       <div>
         <label class="fl" for="riskPct">% of portfolio</label>
-        <div class="inrow hassuf"><input id="riskPct" type="text" inputmode="decimal" placeholder="1" autocomplete="off"><span class="suf">%</span></div>
+        <div class="inrow hassuf"><input id="riskPct" type="text" inputmode="decimal" placeholder="ex. 1" autocomplete="off"><span class="suf">%</span></div>
       </div>
       <div>
         <label class="fl" for="riskAmt">Trade amount</label>
-        <div class="inrow haspre"><span class="pre cur">$</span><input id="riskAmt" type="text" inputmode="decimal" placeholder="1,000" autocomplete="off"></div>
+        <div class="inrow haspre"><span class="pre cur">$</span><input id="riskAmt" type="text" inputmode="decimal" placeholder="ex. 1,000" autocomplete="off"></div>
       </div>
     </div>
     <div class="explain" data-explain="riskPct"></div>
@@ -799,7 +799,7 @@
     <label class="fl" for="ticker">Ticker lookup <span class="opt">optional</span></label>
     <div class="tickrow">
       <div class="inrow hastick" id="tickWrap">
-        <input id="ticker" type="text" inputmode="text" placeholder="AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <input id="ticker" type="text" inputmode="text" placeholder="ex. AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
         <button class="lookbtn" id="btnLookup" type="button">Get price</button>
       </div>
     </div>
@@ -808,11 +808,11 @@
     <div class="duo">
       <div>
         <label class="fl" for="entry">Stock price (entry)<br><span class="req-stack" id="entryReq">Required</span></label>
-        <div class="inrow haspre" id="entryRow"><span class="pre cur">$</span><input id="entry" type="text" inputmode="decimal" placeholder="100.00" autocomplete="off"></div>
+        <div class="inrow haspre" id="entryRow"><span class="pre cur">$</span><input id="entry" type="text" inputmode="decimal" placeholder="ex. 100.00" autocomplete="off"></div>
       </div>
       <div>
         <label class="fl" for="stopPct">Stop loss buffer<br><span class="req-stack" id="stopPctReq">Required</span></label>
-        <div class="inrow hassuf" id="stopPctRow"><input id="stopPct" type="text" inputmode="decimal" placeholder="5" autocomplete="off"><span class="suf">%</span></div>
+        <div class="inrow hassuf" id="stopPctRow"><input id="stopPct" type="text" inputmode="decimal" placeholder="ex. 5" autocomplete="off"><span class="suf">%</span></div>
       </div>
     </div>
     <div class="explain" data-explain="entry"></div>
@@ -880,12 +880,12 @@
       </div>
 
       <label class="fl" for="pmPrice">Stock price (entry)<br><span class="req-stack" id="pmPriceReq">Required</span></label>
-      <div class="inrow haspre" id="pmPriceRow"><span class="pre cur2pm">$</span><input id="pmPrice" type="text" inputmode="decimal" placeholder="100.00" autocomplete="off"></div>
+      <div class="inrow haspre" id="pmPriceRow"><span class="pre cur2pm">$</span><input id="pmPrice" type="text" inputmode="decimal" placeholder="ex. 100.00" autocomplete="off"></div>
 
       <label class="fl" for="pmTicker">Ticker lookup <span class="opt">optional</span></label>
       <div class="tickrow">
         <div class="inrow hastick" id="pmTickWrap">
-          <input id="pmTicker" type="text" inputmode="text" placeholder="AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="pmTicker" type="text" inputmode="text" placeholder="ex. AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="pmLookup" type="button">Get price</button>
         </div>
       </div>
@@ -935,11 +935,11 @@
           <div class="duo">
             <div>
               <label class="fl" for="glCost">Original cost <span class="opt">book cost</span><br><span class="req-stack" id="glCostReq">Required</span></label>
-              <div class="inrow haspre" id="glCostRow"><span class="pre cur3">$</span><input id="glCost" type="text" inputmode="decimal" placeholder="5,000" autocomplete="off"></div>
+              <div class="inrow haspre" id="glCostRow"><span class="pre cur3">$</span><input id="glCost" type="text" inputmode="decimal" placeholder="ex. 5,000" autocomplete="off"></div>
             </div>
             <div>
               <label class="fl" for="glSale">Sale value <span class="opt">settlement</span><br><span class="req-stack" id="glSaleReq">Required</span></label>
-              <div class="inrow haspre" id="glSaleRow"><span class="pre cur3">$</span><input id="glSale" type="text" inputmode="decimal" placeholder="6,500" autocomplete="off"></div>
+              <div class="inrow haspre" id="glSaleRow"><span class="pre cur3">$</span><input id="glSale" type="text" inputmode="decimal" placeholder="ex. 6,500" autocomplete="off"></div>
             </div>
           </div>
         </div>
@@ -947,15 +947,15 @@
           <div class="duo">
             <div>
               <label class="fl" for="glBuyPx">Buy price<br><span class="req-stack" id="glBuyPxReq">Required</span></label>
-              <div class="inrow haspre" id="glBuyPxRow"><span class="pre cur3">$</span><input id="glBuyPx" type="text" inputmode="decimal" placeholder="50.00" autocomplete="off"></div>
+              <div class="inrow haspre" id="glBuyPxRow"><span class="pre cur3">$</span><input id="glBuyPx" type="text" inputmode="decimal" placeholder="ex. 50.00" autocomplete="off"></div>
             </div>
             <div>
               <label class="fl" for="glSellPx">Sell price<br><span class="req-stack" id="glSellPxReq">Required</span></label>
-              <div class="inrow haspre" id="glSellPxRow"><span class="pre cur3">$</span><input id="glSellPx" type="text" inputmode="decimal" placeholder="65.00" autocomplete="off"></div>
+              <div class="inrow haspre" id="glSellPxRow"><span class="pre cur3">$</span><input id="glSellPx" type="text" inputmode="decimal" placeholder="ex. 65.00" autocomplete="off"></div>
             </div>
           </div>
           <label class="fl" for="glShares">Shares<br><span class="req-stack" id="glSharesReq">Required</span></label>
-          <div class="inrow" id="glSharesRow"><input id="glShares" type="text" inputmode="numeric" placeholder="100" autocomplete="off"></div>
+          <div class="inrow" id="glSharesRow"><input id="glShares" type="text" inputmode="numeric" placeholder="ex. 100" autocomplete="off"></div>
         </div>
         <div class="explain" data-explain="glTracker"></div>
       </div>
@@ -963,7 +963,7 @@
       <!-- SANDBOX -->
       <div id="glSandboxBox" hidden>
         <label class="fl" for="glBase">Base amount <span class="opt">your starting value</span></label>
-        <div class="inrow haspre"><span class="pre cur3">$</span><input id="glBase" type="text" inputmode="decimal" placeholder="10,000" autocomplete="off"></div>
+        <div class="inrow haspre"><span class="pre cur3">$</span><input id="glBase" type="text" inputmode="decimal" placeholder="ex. 10,000" autocomplete="off"></div>
         <label class="fl">Test a % move</label>
         <div class="chips" id="glPctChips" aria-label="Percent move presets"></div>
         <label class="fl">Test a $ move</label>
@@ -1040,11 +1040,11 @@
       <div class="duo">
         <div>
           <label class="fl" for="ciStart">Starting amount<br><span class="req-stack" id="ciStartReq">Required</span></label>
-          <div class="inrow haspre" id="ciStartRow"><span class="pre cur2">$</span><input id="ciStart" type="text" inputmode="decimal" placeholder="1,000" autocomplete="off"></div>
+          <div class="inrow haspre" id="ciStartRow"><span class="pre cur2">$</span><input id="ciStart" type="text" inputmode="decimal" placeholder="ex. 1,000" autocomplete="off"></div>
         </div>
         <div>
           <label class="fl" for="ciRate">Growth % rate<br><span class="req-stack" id="ciRateReq">Required</span></label>
-          <div class="inrow hassuf" id="ciRateRow"><input id="ciRate" type="text" inputmode="decimal" placeholder="10" autocomplete="off"><span class="suf">%</span></div>
+          <div class="inrow hassuf" id="ciRateRow"><input id="ciRate" type="text" inputmode="decimal" placeholder="ex. 10" autocomplete="off"><span class="suf">%</span></div>
         </div>
       </div>
       <div class="chips" id="ciRateChips" aria-label="Growth rate presets"></div>
@@ -1068,20 +1068,20 @@
         </div>
         <div id="ciStopField" hidden>
           <label class="fl" for="ciStopYr">Stop top-ups after</label>
-          <div class="inrow hassuf"><input id="ciStopYr" type="text" inputmode="numeric" placeholder="18" autocomplete="off"><span class="suf">yrs</span></div>
+          <div class="inrow hassuf"><input id="ciStopYr" type="text" inputmode="numeric" placeholder="ex. 18" autocomplete="off"><span class="suf">yrs</span></div>
           <div class="explain" data-explain="ciStopYr"></div>
         </div>
       </div>
 
       <div id="ciTradeBox" hidden>
         <label class="fl" for="ciReinvest">Reinvest each trade <span class="opt" id="ciReinvestEcho">25% in · 75% out</span></label>
-        <div class="inrow hassuf"><input id="ciReinvest" type="text" inputmode="decimal" placeholder="25" autocomplete="off"><span class="suf">%</span></div>
+        <div class="inrow hassuf"><input id="ciReinvest" type="text" inputmode="decimal" placeholder="ex. 25" autocomplete="off"><span class="suf">%</span></div>
       </div>
 
       <div class="duo" style="margin-top:12px">
         <div id="ciPeriodsWrap">
           <label class="fl" for="ciPeriods">Periods</label>
-          <div class="inrow hassuf"><input id="ciPeriods" type="text" inputmode="numeric" placeholder="70" autocomplete="off"><span class="suf" id="ciPeriodUnit">yrs</span></div>
+          <div class="inrow hassuf"><input id="ciPeriods" type="text" inputmode="numeric" placeholder="ex. 70" autocomplete="off"><span class="suf" id="ciPeriodUnit">yrs</span></div>
         </div>
         <div id="ciYearsLeftWrap" hidden>
           <label class="fl">Working years left</label>
@@ -1105,11 +1105,11 @@
         <div class="duo">
           <div>
             <label class="fl" for="ciCurAge">Current age</label>
-            <div class="inrow hassuf"><input id="ciCurAge" type="text" inputmode="numeric" placeholder="34" autocomplete="off"><span class="suf">yrs</span></div>
+            <div class="inrow hassuf"><input id="ciCurAge" type="text" inputmode="numeric" placeholder="ex. 34" autocomplete="off"><span class="suf">yrs</span></div>
           </div>
           <div>
             <label class="fl" for="ciRetAge">Retirement age</label>
-            <div class="inrow hassuf"><input id="ciRetAge" type="text" inputmode="numeric" placeholder="65" autocomplete="off"><span class="suf">yrs</span></div>
+            <div class="inrow hassuf"><input id="ciRetAge" type="text" inputmode="numeric" placeholder="ex. 65" autocomplete="off"><span class="suf">yrs</span></div>
           </div>
         </div>
         <div class="explain" data-explain="ciAge"></div>
@@ -1167,7 +1167,7 @@
       <label class="fl" for="opTicker" style="margin-top:14px">Ticker lookup <span class="opt">optional · adds context</span></label>
       <div class="tickrow">
         <div class="inrow hastick" id="opTickWrap">
-          <input id="opTicker" type="text" inputmode="text" placeholder="AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="opTicker" type="text" inputmode="text" placeholder="ex. AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="opLookup" type="button">Get price</button>
         </div>
       </div>
@@ -1257,7 +1257,7 @@
       <label class="fl" for="hgTicker" style="margin-top:14px">Hedge ETF <span class="opt">default SPY · change if you like</span></label>
       <div class="tickrow">
         <div class="inrow hastick" id="hgTickWrap">
-          <input id="hgTicker" type="text" inputmode="text" placeholder="SPY" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="hgTicker" type="text" inputmode="text" placeholder="ex. SPY" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="hgLookup" type="button">Get price</button>
         </div>
       </div>
@@ -1378,7 +1378,7 @@
       <h2 class="pop">Add a ticker</h2>
       <div class="tickrow">
         <div class="inrow hastick" id="wlAddWrap">
-          <input id="wlAddInput" type="text" inputmode="text" placeholder="AAPL, SHOP.TO, ASML…" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="wlAddInput" type="text" inputmode="text" placeholder="ex. AAPL, SHOP.TO, ASML…" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="wlAddBtn" type="button">Add</button>
         </div>
       </div>
@@ -1741,7 +1741,7 @@ function renderAll(){
   // wide symbols (C$, A$, CHF…) need more room — pad each input to its symbol's width
   document.querySelectorAll(".inrow.haspre").forEach(r=>{
     const pre=r.querySelector(".pre"),inp=r.querySelector("input");
-    if(pre&&inp)inp.style.paddingLeft=Math.max(30,pre.offsetWidth+19)+"px";
+    if(pre&&inp)inp.style.paddingLeft=Math.max(34,pre.offsetWidth+25)+"px";
   });
   const co=$("currency");co.value=[...co.options].some(o=>o.value===S.curSym+"|"+S.curCode)?S.curSym+"|"+S.curCode:"custom";
   if(co.value==="custom"&&S.curCode!=="CUSTOM"&&[...co.options].every(o=>o.value!==S.curSym+"|"+S.curCode)){
@@ -4044,7 +4044,7 @@ function pmBuildHolding(h,idx){
   const card=document.createElement("div");card.className="pmir-hold";
   // top row: symbol input + expand + delete
   const top=document.createElement("div");top.className="pmir-hold-top";
-  const inp=document.createElement("input");inp.type="text";inp.className="pmir-sym";inp.placeholder="Ticker";
+  const inp=document.createElement("input");inp.type="text";inp.className="pmir-sym";inp.placeholder="ex. NVDA";
   inp.value=h.sym||"";inp.autocapitalize="characters";inp.spellcheck=false;inp.setAttribute("aria-label","Ticker symbol");
   inp.addEventListener("input",e=>{e.target.value=normTicker(e.target.value);h.sym=e.target.value;persist();});
   const exp=document.createElement("button");exp.type="button";exp.className="pmir-exp"+(h._open?" on":"");exp.textContent=h._open?"−":"+";
