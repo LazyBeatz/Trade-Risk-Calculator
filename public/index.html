@@ -609,6 +609,16 @@
   input[type="text"].pmir-add-in{flex:1 1 auto;min-width:0;font-family:var(--sans);font-size:1.05rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
   .pmir-addrow .btn{flex:0 0 auto;white-space:nowrap}
   .pmir-empty{font-family:var(--sans);font-size:.86rem;color:var(--muted);padding:14px 4px;text-align:center}
+  .pmir-hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .pmir-hd h2{margin:0}
+  .btn.pmir-pop{flex:0 0 auto;width:auto;padding:8px 12px;font-size:.82rem;border:1.5px solid var(--accent);color:var(--accent-deep,#2456C8);background:rgba(47,111,237,.06)}
+  [data-theme="dark"] .btn.pmir-pop{color:#9DBBFF;background:rgba(91,140,255,.12)}
+  .pmir-quote{flex:0 0 auto;text-align:right;line-height:1.2;min-width:0}
+  .pmir-quote-last{font-family:var(--mono);font-weight:700;font-size:.95rem;color:var(--ink);font-variant-numeric:tabular-nums}
+  .pmir-quote-chg{font-family:var(--mono);font-size:.72rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .pmir-quote-chg.up{color:var(--green)}
+  .pmir-quote-chg.down{color:var(--red)}
+  .pmir-substats{font-family:var(--sans);font-size:.73rem;font-weight:600;color:var(--muted);margin-top:6px;padding-left:2px}
   .pmir-hold{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-top:8px;background:var(--card)}
   .pmir-hold-top{display:flex;align-items:center;gap:8px}
   input[type="text"].pmir-sym{flex:1 1 auto;font-family:var(--sans);font-size:1.05rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
@@ -1428,7 +1438,8 @@
     </section>
 
     <section class="card" style="margin-top:12px">
-      <h2 class="pop">Your holdings</h2>
+      <div class="pmir-hd"><h2 class="pop">Your holdings</h2><button class="btn pmir-pop" id="pmirPop" type="button">Populate Values</button></div>
+      <div class="tickstatus" id="pmirPopStatus"></div>
       <p class="op-detail-intro">Newest on top. Tap <strong>+</strong> on any row to add quantity, cost, purchase date and your original thesis. Then run the mirror for an emotionless momentum read on each one.</p>
       <div id="pmirList"></div>
     </section>
@@ -4070,8 +4081,21 @@ function pmBuildHolding(h,idx){
   exp.addEventListener("click",()=>{h._open=!h._open;persist();pmRenderHoldings();});
   const del=document.createElement("button");del.type="button";del.className="pmir-del";del.innerHTML="✕";del.title="Remove holding";
   del.addEventListener("click",()=>{S.pmirHoldings.splice(idx,1);persist();pmRenderHoldings();});
-  top.appendChild(inp);top.appendChild(exp);top.appendChild(del);
+  top.appendChild(inp);
+  if(h.last!=null){
+    const qd=document.createElement("div");qd.className="pmir-quote";
+    const chg=num(h.chg),pct=num(h.chgPct);const up=isFinite(chg)?chg>=0:true;
+    qd.innerHTML='<div class="pmir-quote-last">'+S.curSym+groupNum(Number(h.last).toFixed(2))+'</div>'+
+      (isFinite(chg)?'<div class="pmir-quote-chg '+(up?"up":"down")+'">'+(up?"+":"")+chg.toFixed(2)+' ('+(up?"+":"")+(isFinite(pct)?pct.toFixed(2):"0.00")+'%)</div>':'');
+    top.appendChild(qd);
+  }
+  top.appendChild(exp);top.appendChild(del);
   card.appendChild(top);
+  if(h.vol!=null||h.mcap){
+    const ss=document.createElement("div");ss.className="pmir-substats";
+    const bits=[];if(h.vol!=null)bits.push("Vol "+pmCompact(h.vol));if(h.mcap)bits.push("MCap "+h.mcap);
+    ss.textContent=bits.join(" · ");card.appendChild(ss);
+  }
   // expanded detail
   if(h._open){
     const body=document.createElement("div");body.className="pmir-hold-body";
@@ -4136,6 +4160,41 @@ function pmApplyAlertsOpen(){
   if(body)body.hidden=!open;if(tog)tog.setAttribute("aria-expanded",String(open));if(chev)chev.textContent=open?"▾":"▸";
 }
 
+// ----- populate values (quotes on command, like the mirror) -----
+function pmCompact(n){n=Number(n);if(!isFinite(n))return "—";const a=Math.abs(n);
+  if(a>=1e12)return (n/1e12).toFixed(2)+"T";if(a>=1e9)return (n/1e9).toFixed(2)+"B";
+  if(a>=1e6)return (n/1e6).toFixed(1)+"M";if(a>=1e3)return (n/1e3).toFixed(1)+"K";return String(Math.round(n));}
+function pmSyncPopBtn(){const btn=$("pmirPop");if(!btn)return;const has=(S.pmirHoldings||[]).some(h=>h.last!=null);btn.textContent=has?"Update Values":"Populate Values";}
+async function pmPopulate(){
+  const holds=(S.pmirHoldings||[]).filter(h=>normTicker(h.sym||"").length);
+  const setStat=(k,h)=>{const e=$("pmirPopStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
+  if(!holds.length){setStat("err","Add a ticker first.");return;}
+  const btn=$("pmirPop");if(btn)btn.disabled=true;
+  let got=0;
+  for(let i=0;i<holds.length;i++){
+    const h=holds[i];const sym=normTicker(h.sym);
+    if(btn)btn.textContent="Fetching "+(i+1)+"/"+holds.length+"…";
+    try{
+      const r=await fetch("/api/quote?symbol="+encodeURIComponent(sym)+"&extra=1",{headers:{accept:"application/json"}});
+      let d=null;try{d=await r.json();}catch(_){d=null;}
+      if(r.ok&&d&&!d.error&&typeof d.price==="number"){
+        h.last=d.price;
+        h.chg=(typeof d.change==="number")?d.change:null;
+        h.chgPct=(typeof d.changePct==="number")?d.changePct:null;
+        h.vol=(typeof d.volume==="number")?d.volume:null;
+        h.mcap=(d.marketCap&&d.marketCap.fmt)?d.marketCap.fmt:null;
+        if(d.name)h.name=d.name;
+        got++;
+      }
+    }catch(e){}
+    if(i<holds.length-1)await new Promise(r=>setTimeout(r,700));
+  }
+  persist();pmRenderHoldings();pmSyncPopBtn();
+  if(btn)btn.disabled=false;
+  setStat(got?"ok":"err",got?("Values updated — "+got+" of "+holds.length+".") :"Couldn't fetch values — works on the live site.");
+}
+if($("pmirPop"))$("pmirPop").addEventListener("click",()=>pmPopulate());
+
 // ----- the mirror run -----
 async function pmRunMirror(){
   const holds=(S.pmirHoldings||[]).filter(h=>normTicker(h.sym||"").length);
@@ -4157,6 +4216,13 @@ async function pmRunMirror(){
     await new Promise(r=>setTimeout(r,700));
   }
   if(btn){btn.disabled=false;btn.textContent="🪞 Mirror, mirror on the wall";}
+  // best -> worst: Tier 1 on top, higher score first within a tier, errors at the bottom
+  results.sort((a,b)=>{
+    const ea=a.error?1:0, eb=b.error?1:0;
+    if(ea!==eb)return ea-eb;
+    if(a.res&&b.res){if(a.res.tier!==b.res.tier)return a.res.tier-b.res.tier;return b.res.score-a.res.score;}
+    return 0;
+  });
   setStat("ok","Done — "+results.filter(x=>x.res).length+" of "+holds.length+" read.");
   pmRenderResults(results);
 }
@@ -4281,7 +4347,7 @@ if($("pmirImport"))$("pmirImport").addEventListener("click",()=>{
   ]);
   $("mText").readOnly=false;$("mText").value="";$("mText").focus();
 });
-function pmRenderAll(){pmRenderHoldings();pmRenderAlerts();pmApplyAlertsOpen();if($("pmirMemo")&&document.activeElement!==$("pmirMemo"))$("pmirMemo").value=S.pmirMemo||"";memoCount("pmirMemo","pmirMemoCount");}
+function pmRenderAll(){pmRenderHoldings();pmRenderAlerts();pmApplyAlertsOpen();pmSyncPopBtn();if($("pmirMemo")&&document.activeElement!==$("pmirMemo"))$("pmirMemo").value=S.pmirMemo||"";memoCount("pmirMemo","pmirMemoCount");}
 
 /* ---------- boot ---------- */
 (async function(){
