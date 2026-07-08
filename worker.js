@@ -21,6 +21,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === "/api/quote") return handleQuote(url, env);
     if (url.pathname === "/api/options") return handleOptions(url);
+    if (url.pathname === "/api/history") return handleHistory(url);
     return env.ASSETS.fetch(request);
   },
 };
@@ -313,4 +314,49 @@ async function yahooOptions(symbol, sess, date) {
     puts: norm(opt.puts),
     calls: norm(opt.calls),
   };
+}
+
+// ============================================================================
+// /api/history — daily OHLC series for the Portfolio Mirror's indicators
+//   GET /api/history?symbol=AAPL&range=6mo
+//   -> { symbol, name, price, closes[], highs[], lows[] }  (Yahoo, no key)
+// ============================================================================
+async function handleHistory(url) {
+  const raw = (url.searchParams.get("symbol") || "").trim().toUpperCase();
+  const range = (url.searchParams.get("range") || "6mo").trim();
+  if (!raw || !/^[A-Z0-9.\-]{1,12}$/.test(raw)) return json({ error: "Invalid or missing symbol." }, 400);
+  if (!/^(3mo|6mo|1y|2y)$/.test(range)) return json({ error: "Bad range." }, 400);
+
+  try {
+    const u = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(raw)}?interval=1d&range=${range}`;
+    const r = await fetch(u, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept": "application/json" }, cf: { cacheTtl: 300 } });
+    if (r.status === 429) return json({ error: "Rate limit." }, 429);
+    if (!r.ok) return json({ error: "History unavailable." }, 502);
+    const d = await r.json();
+    const res = d && d.chart && d.chart.result && d.chart.result[0];
+    const q = res && res.indicators && res.indicators.quote && res.indicators.quote[0];
+    const m = res && res.meta;
+    if (!res || !q || !m) return json({ error: "No history for " + raw + "." }, 404);
+
+    // strip nulls, keeping the three series index-aligned
+    const closes = [], highs = [], lows = [];
+    const C = q.close || [], H = q.high || [], L = q.low || [];
+    for (let i = 0; i < C.length; i++) {
+      if (C[i] == null || H[i] == null || L[i] == null) continue;
+      closes.push(round2(C[i])); highs.push(round2(H[i])); lows.push(round2(L[i]));
+    }
+    if (closes.length < 60) return json({ error: "Not enough history for " + raw + "." }, 404);
+
+    return json({
+      symbol: raw,
+      name: m.longName || m.shortName || null,
+      price: round2(m.regularMarketPrice),
+      currency: m.currency || null,
+      closes, highs, lows,
+      delayed: true,
+      source: "Yahoo",
+    }, 200, 120);
+  } catch (e) {
+    return json({ error: "History upstream error." }, 502);
+  }
 }
