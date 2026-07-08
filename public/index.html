@@ -605,13 +605,17 @@
   .wl-memowrap{padding:12px 14px 14px;border-top:1px solid var(--line)}
   .wl-memowrap .fl{margin:0 0 4px}
   /* portfolio mirror */
+  .pmir-addrow{display:flex;gap:8px;align-items:stretch;margin:2px 0 4px}
+  input[type="text"].pmir-add-in{flex:1 1 auto;min-width:0;font-family:var(--sans);font-size:1.05rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+  .pmir-addrow .btn{flex:0 0 auto;white-space:nowrap}
+  .pmir-empty{font-family:var(--sans);font-size:.86rem;color:var(--muted);padding:14px 4px;text-align:center}
   .pmir-hold{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-top:8px;background:var(--card)}
   .pmir-hold-top{display:flex;align-items:center;gap:8px}
   input[type="text"].pmir-sym{flex:1 1 auto;font-family:var(--sans);font-size:1.05rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
-  .pmir-exp{flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:1.5px solid var(--accent);background:transparent;color:var(--accent-deep,#2456C8);font-size:1.3rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .pmir-exp{font-family:var(--sans);flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:1.5px solid var(--accent);background:transparent;color:var(--accent-deep,#2456C8);font-size:1.3rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .pmir-exp.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
   [data-theme="dark"] .pmir-exp{color:#7BA2FF}
-  .pmir-del{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .pmir-del{font-family:var(--sans);flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
   [data-theme="dark"] .pmir-del{border-color:#F06A6A;color:#F06A6A}
   .pmir-hold-body{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:8px}
   .pmir-bookval{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--muted);padding:4px 2px}
@@ -620,7 +624,7 @@
   .pmir-thesis{min-height:60px}
   .pmir-alert{display:flex;align-items:center;gap:6px;margin-top:8px}
   .pmir-alert-cond{flex:1 1 auto;min-width:0;font-family:var(--sans);font-size:.82rem;padding:8px 9px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);-webkit-appearance:none;appearance:none}
-  input[type="text"].pmir-alert-msg{flex:1 1 44%;min-width:0;font-size:.86rem;font-weight:700;padding:8px 9px;border:1px solid var(--accent);border-radius:9px;background:rgba(47,111,237,.05);color:var(--ink)}
+  input[type="text"].pmir-alert-msg{flex:1 1 44%;min-width:0;font-family:var(--sans);font-size:.86rem;font-weight:700;padding:8px 9px;border:1px solid var(--accent);border-radius:9px;background:rgba(47,111,237,.05);color:var(--ink)}
   .pmir-run{width:100%;margin-top:14px;font-size:1.05rem;padding:14px}
   .pmir-disclaimer{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:#5C6371}
   [data-theme="dark"] .pmir-disclaimer{color:var(--muted)}
@@ -1414,10 +1418,19 @@
   <div class="workspace" id="ws-8" data-ws="8" hidden>
 
     <section class="card">
+      <h2 class="pop">Add a holding</h2>
+      <p class="op-detail-intro">Type a ticker and tap <strong>Add holding</strong> (or hit enter) — bang, bang, bang.</p>
+      <div class="pmir-addrow">
+        <input id="pmirAddInput" type="text" inputmode="text" class="pmir-add-in" placeholder="ex. AAPL" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Ticker to add">
+        <button class="btn primary" id="pmirAdd" type="button">Add holding</button>
+      </div>
+      <div class="tickstatus" id="pmirAddStatus"></div>
+    </section>
+
+    <section class="card" style="margin-top:12px">
       <h2 class="pop">Your holdings</h2>
-      <p class="op-detail-intro">Enter the tickers you hold. Tap <strong>+</strong> on any row to add quantity, cost, purchase date and your original thesis. Then run the mirror for an emotionless momentum read on each one.</p>
+      <p class="op-detail-intro">Newest on top. Tap <strong>+</strong> on any row to add quantity, cost, purchase date and your original thesis. Then run the mirror for an emotionless momentum read on each one.</p>
       <div id="pmirList"></div>
-      <button class="btn op-addscn" id="pmirAdd" type="button" style="margin-top:10px">+ Add holding</button>
     </section>
 
     <section class="card" style="margin-top:12px">
@@ -4036,8 +4049,13 @@ const PM_TIER_LABEL={1:"Tier 1 · strong",2:"Tier 2 · solid",3:"Tier 3 · losin
 function pmRenderHoldings(){
   const host=$("pmirList");if(!host)return;
   if(!Array.isArray(S.pmirHoldings))S.pmirHoldings=[];
-  if(S.pmirHoldings.length===0)S.pmirHoldings.push({id:pmUID(),sym:"",_open:false});
+  // prune truly-empty rows left over from the old flow
+  S.pmirHoldings=S.pmirHoldings.filter(h=>normTicker(h.sym||"").length||num(h.qty)>0||num(h.cost)>0||(h.memo&&h.memo.trim())||h.date);
   host.innerHTML="";
+  if(!S.pmirHoldings.length){
+    const e=document.createElement("div");e.className="pmir-empty";e.textContent="No holdings yet — add your first ticker above.";
+    host.appendChild(e);return;
+  }
   S.pmirHoldings.forEach((h,idx)=>host.appendChild(pmBuildHolding(h,idx)));
 }
 function pmBuildHolding(h,idx){
@@ -4130,7 +4148,9 @@ async function pmRunMirror(){
     setStat("busy","Reading "+sym+" ("+(i+1)+" of "+holds.length+")…");
     try{
       const r=await fetch("/api/history?symbol="+encodeURIComponent(sym),{headers:{accept:"application/json"}});
-      const d=await r.json();
+      let d=null;
+      try{d=await r.json();}
+      catch(_){results.push({h,sym,error:"History service missing — deploy the latest worker.js"});continue;}
       if(!r.ok||!d||d.error||!Array.isArray(d.closes)){results.push({h,sym,error:(d&&d.error)||"No data"});}
       else{const res=pmAnalyse(d.closes,d.highs,d.lows,d.price);res.name=d.name;results.push({h,sym,res});}
     }catch(e){results.push({h,sym,error:"Couldn't reach data service"});}
@@ -4198,7 +4218,24 @@ function pmRenderResults(results){
 }
 
 // ----- wiring -----
-if($("pmirAdd"))$("pmirAdd").addEventListener("click",()=>{if(!Array.isArray(S.pmirHoldings))S.pmirHoldings=[];S.pmirHoldings.push({id:pmUID(),sym:"",_open:false});persist();pmRenderHoldings();});
+function pmAddHolding(){
+  const inp=$("pmirAddInput");if(!inp)return;
+  const sym=normTicker(inp.value||"");
+  const setStat=(k,h)=>{const e=$("pmirAddStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
+  if(!sym){setStat("err","Type a ticker first.");return;}
+  if(!Array.isArray(S.pmirHoldings))S.pmirHoldings=[];
+  if(S.pmirHoldings.some(h=>normTicker(h.sym||"")===sym)){setStat("err",sym+" is already in your holdings.");inp.select();return;}
+  S.pmirHoldings.unshift({id:pmUID(),sym:sym,_open:false});
+  persist();pmRenderHoldings();
+  setStat("ok",sym+" added.");
+  inp.value="";inp.focus(); // keep the keyboard open — bang, bang, bang
+}
+if($("pmirAdd"))$("pmirAdd").addEventListener("click",()=>pmAddHolding());
+if($("pmirAddInput")){
+  $("pmirAddInput").addEventListener("input",e=>{e.target.value=normTicker(e.target.value);});
+  $("pmirAddInput").setAttribute("enterkeyhint","go");
+  $("pmirAddInput").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();pmAddHolding();}});
+}
 if($("pmirAlertAdd"))$("pmirAlertAdd").addEventListener("click",()=>{if(!Array.isArray(S.pmirAlerts))S.pmirAlerts=[];S.pmirAlerts.push({id:pmUID(),cond:"belowSma20",msg:""});persist();pmRenderAlerts();});
 if($("pmirAlertsToggle"))$("pmirAlertsToggle").addEventListener("click",()=>{S.pmirAlertsOpen=!S.pmirAlertsOpen;persist();pmApplyAlertsOpen();});
 if($("pmirRun"))$("pmirRun").addEventListener("click",()=>pmRunMirror());
