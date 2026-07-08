@@ -36,7 +36,12 @@ async function handleQuote(url, env) {
   // 1) Primary: Yahoo (no key, rich data). If it throws or returns nothing, fall through.
   try {
     const y = await fromYahoo(raw);
-    if (y) return json(y, 200, 30);
+    if (y) {
+      if (url.searchParams.get("extra") === "1") {
+        try { y.marketCap = await yahooMarketCap(raw); } catch (e) { y.marketCap = null; }
+      }
+      return json(y, 200, 30);
+    }
   } catch (e) { /* fall through to keyed providers */ }
 
   // 2) Fallback: keyed providers (US -> Finnhub, CA -> Alpha Vantage)
@@ -359,4 +364,16 @@ async function handleHistory(url) {
   } catch (e) {
     return json({ error: "History upstream error." }, 502);
   }
+}
+
+// market cap via quoteSummary (crumb handshake — best-effort, returns null on any failure)
+async function yahooMarketCap(symbol) {
+  const sess = await yahooSession();
+  const u = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=price&crumb=${encodeURIComponent(sess.crumb)}`;
+  const r = await fetch(u, { headers: { "User-Agent": YUA, "Cookie": sess.cookies }, cf: { cacheTtl: 300 } });
+  if (!r.ok) return null;
+  const d = await r.json();
+  const p = d && d.quoteSummary && d.quoteSummary.result && d.quoteSummary.result[0] && d.quoteSummary.result[0].price;
+  const mc = p && p.marketCap;
+  return (mc && (mc.fmt || mc.raw != null)) ? { raw: mc.raw != null ? mc.raw : null, fmt: mc.fmt || null } : null;
 }
