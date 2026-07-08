@@ -604,6 +604,45 @@
   [data-theme="dark"] .wl-memo-count.low{color:#E0A458}
   .wl-memowrap{padding:12px 14px 14px;border-top:1px solid var(--line)}
   .wl-memowrap .fl{margin:0 0 4px}
+  /* portfolio mirror */
+  .pmir-hold{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin-top:8px;background:var(--card)}
+  .pmir-hold-top{display:flex;align-items:center;gap:8px}
+  input[type="text"].pmir-sym{flex:1 1 auto;font-family:var(--sans);font-size:1.05rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
+  .pmir-exp{flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:1.5px solid var(--accent);background:transparent;color:var(--accent-deep,#2456C8);font-size:1.3rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .pmir-exp.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+  [data-theme="dark"] .pmir-exp{color:#7BA2FF}
+  .pmir-del{flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  [data-theme="dark"] .pmir-del{border-color:#F06A6A;color:#F06A6A}
+  .pmir-hold-body{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:8px}
+  .pmir-bookval{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:.86rem;font-weight:600;color:var(--muted);padding:4px 2px}
+  .pmir-bookval span:last-child{font-family:var(--mono);color:var(--ink);font-weight:700}
+  .pmir-thesis,.pmir-alert-msg{font-family:var(--sans)}
+  .pmir-thesis{min-height:60px}
+  .pmir-alert{display:flex;align-items:center;gap:6px;margin-top:8px}
+  .pmir-alert-cond{flex:1 1 auto;min-width:0;font-family:var(--sans);font-size:.82rem;padding:8px 9px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);-webkit-appearance:none;appearance:none}
+  input[type="text"].pmir-alert-msg{flex:1 1 44%;min-width:0;font-size:.86rem;font-weight:700;padding:8px 9px;border:1px solid var(--accent);border-radius:9px;background:rgba(47,111,237,.05);color:var(--ink)}
+  .pmir-run{width:100%;margin-top:14px;font-size:1.05rem;padding:14px}
+  .pmir-disclaimer{font-family:var(--sans);font-size:.8rem;line-height:1.5;color:#5C6371}
+  [data-theme="dark"] .pmir-disclaimer{color:var(--muted)}
+  .pmir-res{padding:14px}
+  .pmir-res-hd{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .pmir-dot{width:16px;height:16px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 0 3px rgba(0,0,0,.04)}
+  .pmir-res-sym{font-family:var(--sans);font-size:1.15rem;font-weight:800;color:var(--ink);display:flex;flex-direction:column;line-height:1.1}
+  .pmir-res-name{font-size:.72rem;font-weight:600;color:var(--muted);margin-top:1px}
+  .pmir-res-tier{margin-left:auto;font-family:var(--sans);font-size:.86rem;font-weight:800}
+  .pmir-res-err{margin-left:auto;font-size:.84rem;color:var(--red)}
+  .pmir-res-px{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:8px}
+  .pmir-res-px span:first-child{font-family:var(--mono);font-size:1.12rem;font-weight:700;color:var(--ink)}
+  .pmir-sma{font-family:var(--sans);font-size:.76rem;color:var(--muted)}
+  .pmir-spiels{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .pmir-spiel{font-family:var(--sans);font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--chip);color:var(--ink)}
+  .pmir-fired{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .pmir-fired-msg{font-family:var(--sans);font-size:.86rem;font-weight:800;padding:6px 12px;border-radius:8px;background:rgba(200,30,30,.10);color:#C81E1E;border:1.5px solid rgba(200,30,30,.35)}
+  [data-theme="dark"] .pmir-fired-msg{color:#F06A6A;background:rgba(240,106,106,.12);border-color:rgba(240,106,106,.4)}
+  .pmir-thesis-show{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--chip);border-left:3px solid var(--accent)}
+  .pmir-period{font-family:var(--sans);font-size:.78rem;font-weight:700;color:var(--accent-deep,#2456C8);margin-bottom:3px}
+  [data-theme="dark"] .pmir-period{color:#9DBBFF}
+  .pmir-thesis-txt{font-family:var(--sans);font-size:.88rem;line-height:1.5;color:var(--ink);font-style:italic}
   #ws-2 label.fl{font-size:.96rem;margin:16px 0 7px}
   #ws-2 label.fl .opt{font-size:.74rem}
   #ws-2 #pmPrice{font-size:1.18rem;padding:14px 12px}
@@ -1371,6 +1410,57 @@
 
   </div>
 
+  <!-- ===== WORKSPACE 8 · Portfolio Mirror ===== -->
+  <div class="workspace" id="ws-8" data-ws="8" hidden>
+
+    <section class="card">
+      <h2 class="pop">Your holdings</h2>
+      <p class="op-detail-intro">Enter the tickers you hold. Tap <strong>+</strong> on any row to add quantity, cost, purchase date and your original thesis. Then run the mirror for an emotionless momentum read on each one.</p>
+      <div id="pmirList"></div>
+      <button class="btn op-addscn" id="pmirAdd" type="button" style="margin-top:10px">+ Add holding</button>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <button class="op-collapse-hd" id="pmirAlertsToggle" type="button" aria-expanded="false" aria-controls="pmirAlertsBody">
+        <span class="op-collapse-titlewrap">
+          <span class="op-collapse-title">Your custom alerts</span>
+          <span class="op-collapse-hint">optional · your own wording · tap to show</span>
+        </span>
+        <span class="op-collapse-chev" id="pmirAlertsChev" aria-hidden="true">▸</span>
+      </button>
+      <div class="op-collapse-body" id="pmirAlertsBody" hidden>
+        <p class="op-detail-intro">Write your own reminders. When a holding meets a condition, <em>your</em> message shows next to it — so it speaks to you the way you need to hear it.</p>
+        <div id="pmirAlertList"></div>
+        <button class="btn op-addscn" id="pmirAlertAdd" type="button" style="margin-top:10px">+ Add alert</button>
+        <div class="explain" data-explain="pmirAlerts"></div>
+      </div>
+    </section>
+
+    <button class="btn primary pmir-run" id="pmirRun" type="button">🪞 Mirror, mirror on the wall</button>
+    <div class="tickstatus" id="pmirStatus"></div>
+
+    <div id="pmirResults"></div>
+
+    <section class="card" id="pmirDisclaimerCard" style="margin-top:12px" hidden>
+      <div class="pmir-disclaimer">These are objective momentum signals from public indicators (MACD, DMI/ADX, PPO, moving averages) — <strong>not financial advice or buy/sell recommendations</strong>. Indicators are lagging and imperfect. You decide what to do with your money.</div>
+      <div class="explain" data-explain="pmirTier"></div>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <h2 class="pop">Notes</h2>
+      <textarea id="pmirMemo" placeholder="Overall notes on your portfolio, market conditions, or your rules." maxlength="2000"></textarea>
+      <div class="wl-memo-count" id="pmirMemoCount"></div>
+      <div class="explain" data-explain="pmirMemo"></div>
+    </section>
+
+    <div class="actions" style="margin-top:14px">
+      <button class="btn primary" id="pmirShare">Share</button>
+      <button class="btn" id="pmirImport">Import</button>
+      <button class="btn" id="pmirReset">Reset</button>
+    </div>
+
+  </div>
+
 </div><!-- /wrap -->
 
 <!-- share fallback / import sheet -->
@@ -1404,6 +1494,7 @@ const DEFAULTS={
   opStrike:"",opExpiry:"",opAsk:"",opIV:"",opOI:"",opDetailOpen:false,
   hgPort:"",hgTickerSym:"SPY",hgSpy:"",hgPct:5,hgBudgetPct:5,hgLinked:true,hgStrike:"",hgExpiry:"",hgAsk:"",hgIV:"",hgPutOpen:true,hgMemo:"",
   wlItems:[],wlMemo:"",wlRecent:[],watchlists:null,wlActive:0,
+  pmirHoldings:[],pmirAlerts:[],pmirMemo:"",pmirAlertsOpen:false,
   ciMilestones:[18,21,55,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
@@ -1418,7 +1509,8 @@ const WORKSPACES=[
   {id:4,num:4,name:"Compound Interest",tagline:"Watch money compound over time.",ready:true},
   {id:5,num:5,name:"Options Sizer",tagline:"Size options by price-move scenarios.",ready:true},
   {id:2,num:6,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:true},
-  {id:7,num:7,name:"Watchlist Dashboard",tagline:"Track your tickers, stories and levels.",ready:true}
+  {id:7,num:7,name:"Watchlist Dashboard",tagline:"Track your tickers, stories and levels.",ready:true},
+  {id:8,num:8,name:"Portfolio Mirror",tagline:"Emotionless momentum check on your holdings.",ready:true}
 ]
 .sort((a,b)=>a.num-b.num);
 function buildNav(){
@@ -1490,6 +1582,9 @@ const GLOSSARY={
   hgMemo:"<strong>Memo</strong> — Note your hedge plan or share it. Saved with your scenario and included when you share.",
   wlDash:"<strong>Watchlist Dashboard</strong> — Track multiple tickers as expandable cards. The collapsed card shows the essentials (price, change, tick) and your story; expand it for fundamentals, your Fibonacci levels, the +3% level, and where you heard about it. Live quotes are delayed and cost an API call, so refresh each row (or all) when you want a fresh reading rather than continuously. Fundamentals are entered by hand for now.",
   wlLists:"<strong>Your watchlists</strong> — Keep up to 25 separate named watchlists (e.g. “Cramer picks”, “Earnings plays”), each holding up to 100 tickers. Switch between them with the dropdown; use New, Rename and Delete to manage them. Everything auto-saves in your browser, so your lists are here when you come back. Recent tickers are remembered across all lists.",
+  pmirAlerts:"<strong>Custom alerts</strong> — Your own reminders in your own words. Pick a condition (e.g. price below the 20-day average, or MACD below zero) and write the message you need to see when it happens. When you run the mirror, any holding meeting that condition shows your message. It's your personal discipline system — the app never tells you to buy or sell.",
+  pmirMemo:"<strong>Notes</strong> — Overall notes on your portfolio or the market. Saved and included when you share.",
+  pmirTier:"<strong>Momentum tier</strong> — A 0–6 score across three trend indicators (MACD, DMI/ADX, PPO), each scored for direction and acceleration. 🟢 Tier 1 = strong, accelerating uptrend; 🔵 Tier 2 = solid; 🟠 Tier 3 = losing steam; 🔴 Tier 4 = momentum rolled over. It describes what price momentum is doing — not a recommendation. Indicators are lagging; pair them with your original thesis.",
   wlMemo:"<strong>Watchlist notes</strong> — Overall notes across your whole watchlist. Saved and included when you share.",
   opDetail:"<strong>First OTM option (~6mo)</strong> — Details for the first out-of-the-money call (or put) roughly six months out. <strong>Breakeven</strong> is the stock price where the trade starts making money — for a call, strike + premium paid; for a put, strike − premium. <strong>Implied volatility</strong> is the market's expected price swing baked into the option price. <strong>Delta</strong> estimates how much the option's value moves per $1 move in the stock. <strong>Open interest</strong> is how many of these contracts are currently outstanding — a liquidity gauge (low open interest can mean wider spreads and harder exits); it comes only from live market data. Enter the numbers by hand, or auto-fill when the data API is connected. Greeks are computed with the Black-Scholes model and are estimates."
 };
@@ -1918,6 +2013,12 @@ function importFromHash(){
       }
       if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;
       S._sharedType="wl";
+    }else if(p && p.t==="pmir"){
+      if(Array.isArray(p.pmirHoldings))S.pmirHoldings=p.pmirHoldings;
+      if(Array.isArray(p.pmirAlerts))S.pmirAlerts=p.pmirAlerts;
+      if("pmirMemo" in p)S.pmirMemo=p.pmirMemo;
+      if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;
+      S._sharedType="pmir";
     }else{
       applyImport(p);
     }
@@ -3869,14 +3970,290 @@ $("wlImport").addEventListener("click",()=>{
   $("mText").readOnly=false;$("mText").value="";$("mText").focus();
 });
 
+/* ---------- Portfolio Mirror workspace (#8) ---------- */
+function pmUID(){return "h"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+
+// ----- indicator engine -----
+function pmEMA(arr,p){const k=2/(p+1);let e=null;const out=[];let seed=0;for(let i=0;i<arr.length;i++){if(i<p-1){out.push(null);seed+=arr[i];continue;}if(i===p-1){seed+=arr[i];e=seed/p;out.push(e);continue;}e=arr[i]*k+e*(1-k);out.push(e);}return out;}
+function pmSMA(arr,p){if(arr.length<p)return null;let s=0;for(let i=arr.length-p;i<arr.length;i++)s+=arr[i];return s/p;}
+function pmLast(a){for(let i=a.length-1;i>=0;i--)if(a[i]!=null)return a[i];return null;}
+function pmPrev(a,n){let c=0;for(let i=a.length-1;i>=0;i--){if(a[i]!=null){if(c===n)return a[i];c++;}}return null;}
+function pmMACD(c){const e12=pmEMA(c,12),e26=pmEMA(c,26);const line=c.map((_,i)=>(e12[i]!=null&&e26[i]!=null)?e12[i]-e26[i]:null);const valid=line.filter(x=>x!=null);const sig=pmEMA(valid,9);const signal=Array(line.length-sig.length).fill(null).concat(sig);const hist=line.map((x,i)=>(x!=null&&signal[i]!=null)?x-signal[i]:null);return {line:pmLast(line),signal:pmLast(signal),hist:pmLast(hist),prevHist:pmPrev(hist,1)};}
+function pmPPO(c){const e12=pmEMA(c,12),e26=pmEMA(c,26);const line=c.map((_,i)=>(e12[i]!=null&&e26[i]!=null&&e26[i]!==0)?(e12[i]-e26[i])/e26[i]*100:null);const valid=line.filter(x=>x!=null);const sig=pmEMA(valid,9);const signal=Array(line.length-sig.length).fill(null).concat(sig);const hist=line.map((x,i)=>(x!=null&&signal[i]!=null)?x-signal[i]:null);return {line:pmLast(line),hist:pmLast(hist),prevHist:pmPrev(hist,1)};}
+function pmDMI(h,l,c,p){p=p||14;if(c.length<p*3)return null;const tr=[],pdm=[],ndm=[];for(let i=1;i<c.length;i++){const up=h[i]-h[i-1],dn=l[i-1]-l[i];tr.push(Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1])));pdm.push(up>dn&&up>0?up:0);ndm.push(dn>up&&dn>0?dn:0);}
+  function wilder(a){let s=0;for(let i=0;i<p;i++)s+=a[i];const o=[s];for(let i=p;i<a.length;i++){s=s-s/p+a[i];o.push(s);}return o;}
+  const str=wilder(tr),spdm=wilder(pdm),sndm=wilder(ndm);const dx=[];let pdiL=0,ndiL=0;
+  for(let i=0;i<str.length;i++){const pd=str[i]?100*spdm[i]/str[i]:0,nd=str[i]?100*sndm[i]/str[i]:0;if(i===str.length-1){pdiL=pd;ndiL=nd;}dx.push((pd+nd)?100*Math.abs(pd-nd)/(pd+nd):0);}
+  let adx=0;for(let i=0;i<p;i++)adx+=dx[i];adx/=p;const adxArr=[adx];for(let i=p;i<dx.length;i++){adx=(adx*(p-1)+dx[i])/p;adxArr.push(adx);}
+  return {pdi:pdiL,ndi:ndiL,adx:pmLast(adxArr),adxPrev:adxArr.length>=4?adxArr[adxArr.length-4]:adxArr[0]};}
+
+// analyse one holding's price series -> tier, score, spiels, raw values
+function pmAnalyse(closes,highs,lows,price){
+  const macd=pmMACD(closes), ppo=pmPPO(closes), dmi=pmDMI(highs,lows,closes);
+  const sma20=pmSMA(closes,20), sma50=pmSMA(closes,50);
+  let score=0;const spiels=[];
+  // MACD
+  const mBull=macd.line>macd.signal, mUp=(macd.hist!=null&&macd.prevHist!=null)?macd.hist>macd.prevHist:false;
+  if(mBull)score++; if(mUp)score++;
+  spiels.push(mBull?(mUp?"MACD speeding up":"MACD slowing"):(mUp?"MACD basing":"MACD rolling over"));
+  // PPO
+  const pPos=ppo.line>0, pUp=(ppo.hist!=null&&ppo.prevHist!=null)?ppo.hist>ppo.prevHist:false;
+  if(pPos)score++; if(pUp)score++;
+  spiels.push(pPos?(pUp?"PPO strengthening":"PPO fading"):(pUp?"PPO stabilizing":"PPO weakening"));
+  // DMI
+  let dBull=false,dUp=false;
+  if(dmi){dBull=dmi.pdi>dmi.ndi; dUp=dmi.adx>dmi.adxPrev; if(dBull)score++; if(dUp)score++;
+    spiels.push(dBull?(dUp?"DMI surging":"uptrend cooling"):(dUp?"downtrend building":"downtrend easing"));
+  } else spiels.push("DMI n/a");
+  const tier=score>=6?1:(score>=4?2:(score>=2?3:4));
+  return {price,sma20,sma50,macd,ppo,dmi,score,tier,spiels,
+    flags:{mBull,mUp,pPos,pUp,dBull,dUp,belowSma20:sma20!=null&&price<sma20,belowSma50:sma50!=null&&price<sma50,aboveSma20:sma20!=null&&price>sma20,macdBelowZero:macd.line<0,macdAboveZero:macd.line>0,macdBearCross:macd.line<macd.signal,macdBullCross:macd.line>macd.signal}};
+}
+
+// alert conditions
+const PM_CONDS=[
+  {k:"belowSma20",label:"Price below 20-day average"},
+  {k:"belowSma50",label:"Price below 50-day average"},
+  {k:"aboveSma20",label:"Price above 20-day average"},
+  {k:"macdBelowZero",label:"MACD below zero line"},
+  {k:"macdAboveZero",label:"MACD above zero line"},
+  {k:"macdBearCross",label:"MACD crossed below signal"},
+  {k:"macdBullCross",label:"MACD crossed above signal"},
+  {k:"tier3plus",label:"Momentum Tier 3 or worse"},
+  {k:"tier4",label:"Momentum Tier 4 (rolled over)"},
+];
+function pmCondMet(cond,res){
+  if(cond==="tier3plus")return res.tier>=3;
+  if(cond==="tier4")return res.tier===4;
+  return !!(res.flags&&res.flags[cond]);
+}
+
+const PM_TIER_COLOR={1:"#15803D",2:"#2456C8",3:"#B45309",4:"#C81E1E"};
+const PM_TIER_DARK={1:"#34C77B",2:"#7BA2FF",3:"#E0A458",4:"#F06A6A"};
+const PM_TIER_LABEL={1:"Tier 1 · strong",2:"Tier 2 · solid",3:"Tier 3 · losing steam",4:"Tier 4 · rolled over"};
+
+// ----- holdings render -----
+function pmRenderHoldings(){
+  const host=$("pmirList");if(!host)return;
+  if(!Array.isArray(S.pmirHoldings))S.pmirHoldings=[];
+  if(S.pmirHoldings.length===0)S.pmirHoldings.push({id:pmUID(),sym:"",_open:false});
+  host.innerHTML="";
+  S.pmirHoldings.forEach((h,idx)=>host.appendChild(pmBuildHolding(h,idx)));
+}
+function pmBuildHolding(h,idx){
+  const card=document.createElement("div");card.className="pmir-hold";
+  // top row: symbol input + expand + delete
+  const top=document.createElement("div");top.className="pmir-hold-top";
+  const inp=document.createElement("input");inp.type="text";inp.className="pmir-sym";inp.placeholder="Ticker";
+  inp.value=h.sym||"";inp.autocapitalize="characters";inp.spellcheck=false;inp.setAttribute("aria-label","Ticker symbol");
+  inp.addEventListener("input",e=>{e.target.value=normTicker(e.target.value);h.sym=e.target.value;persist();});
+  const exp=document.createElement("button");exp.type="button";exp.className="pmir-exp"+(h._open?" on":"");exp.textContent=h._open?"−":"+";
+  exp.title=h._open?"Hide details":"Add quantity, cost, thesis";exp.setAttribute("aria-label",exp.title);
+  exp.addEventListener("click",()=>{h._open=!h._open;persist();pmRenderHoldings();});
+  const del=document.createElement("button");del.type="button";del.className="pmir-del";del.innerHTML="✕";del.title="Remove holding";
+  del.addEventListener("click",()=>{S.pmirHoldings.splice(idx,1);persist();pmRenderHoldings();});
+  top.appendChild(inp);top.appendChild(exp);top.appendChild(del);
+  card.appendChild(top);
+  // expanded detail
+  if(h._open){
+    const body=document.createElement("div");body.className="pmir-hold-body";
+    body.appendChild(pmField(h,"qty","Quantity","ex. 100",false));
+    body.appendChild(pmField(h,"cost","Avg cost / share","ex. 145.00",true));
+    // book value (auto)
+    const q=num(h.qty),c=num(h.cost);
+    const bv=(isFinite(q)&&isFinite(c))?q*c:NaN;
+    const bvrow=document.createElement("div");bvrow.className="pmir-bookval";
+    bvrow.innerHTML='<span>Book value</span><span>'+(isFinite(bv)?(S.curSym+groupNum(bv.toFixed(2))):"—")+'</span>';
+    body.appendChild(bvrow);
+    body.appendChild(pmDateField(h));
+    const ml=document.createElement("label");ml.className="fl";ml.textContent="Your thesis · why you bought it";
+    const ta=document.createElement("textarea");ta.className="pmir-thesis";ta.value=h.memo||"";ta.maxLength=1000;
+    ta.placeholder="e.g. '10-year AI compounder — ignore short-term noise. Adding below $120.'";
+    ta.addEventListener("input",e=>{h.memo=e.target.value;persist();});
+    body.appendChild(ml);body.appendChild(ta);
+    card.appendChild(body);
+  }
+  return card;
+}
+function pmField(h,key,label,ph,isMoney){
+  const wrap=document.createElement("div");wrap.className="pmir-field";
+  const lab=document.createElement("label");lab.className="fl";lab.textContent=label;
+  const row=document.createElement("div");row.className="inrow"+(isMoney?" haspre":"");
+  if(isMoney){const pre=document.createElement("span");pre.className="pre";pre.textContent=S.curSym;row.appendChild(pre);}
+  const inp=document.createElement("input");inp.type="text";inp.inputMode="decimal";inp.value=h[key]||"";inp.placeholder=ph;inp.autocomplete="off";
+  inp.addEventListener("input",e=>{e.target.value=clean(e.target.value);h[key]=e.target.value;persist();});
+  inp.addEventListener("blur",()=>pmRenderHoldings());
+  row.appendChild(inp);wrap.appendChild(lab);wrap.appendChild(row);return wrap;
+}
+function pmDateField(h){
+  const wrap=document.createElement("div");wrap.className="pmir-field";
+  const lab=document.createElement("label");lab.className="fl";lab.textContent="Purchase date";
+  const row=document.createElement("div");row.className="inrow";
+  const inp=document.createElement("input");inp.type="date";inp.value=h.date||"";
+  inp.addEventListener("change",e=>{h.date=e.target.value;persist();});
+  row.appendChild(inp);wrap.appendChild(lab);wrap.appendChild(row);return wrap;
+}
+
+// ----- alerts render -----
+function pmRenderAlerts(){
+  const host=$("pmirAlertList");if(!host)return;
+  if(!Array.isArray(S.pmirAlerts))S.pmirAlerts=[];
+  host.innerHTML="";
+  S.pmirAlerts.forEach((a,idx)=>{
+    const row=document.createElement("div");row.className="pmir-alert";
+    const sel=document.createElement("select");sel.className="pmir-alert-cond";
+    PM_CONDS.forEach(c=>{const o=document.createElement("option");o.value=c.k;o.textContent=c.label;if(a.cond===c.k)o.selected=true;sel.appendChild(o);});
+    sel.addEventListener("change",e=>{a.cond=e.target.value;persist();});
+    const msg=document.createElement("input");msg.type="text";msg.className="pmir-alert-msg";msg.value=a.msg||"";msg.maxLength=60;
+    msg.placeholder="your message, e.g. GTFO!!!!";
+    msg.addEventListener("input",e=>{a.msg=e.target.value;persist();});
+    const del=document.createElement("button");del.type="button";del.className="pmir-del";del.innerHTML="✕";del.title="Remove alert";
+    del.addEventListener("click",()=>{S.pmirAlerts.splice(idx,1);persist();pmRenderAlerts();});
+    row.appendChild(sel);row.appendChild(msg);row.appendChild(del);
+    host.appendChild(row);
+  });
+}
+function pmApplyAlertsOpen(){
+  const open=!!S.pmirAlertsOpen;const body=$("pmirAlertsBody"),tog=$("pmirAlertsToggle"),chev=$("pmirAlertsChev");
+  if(body)body.hidden=!open;if(tog)tog.setAttribute("aria-expanded",String(open));if(chev)chev.textContent=open?"▾":"▸";
+}
+
+// ----- the mirror run -----
+async function pmRunMirror(){
+  const holds=(S.pmirHoldings||[]).filter(h=>normTicker(h.sym||"").length);
+  const setStat=(k,h)=>{const e=$("pmirStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
+  if(!holds.length){setStat("err","Add at least one ticker first.");return;}
+  const btn=$("pmirRun");if(btn){btn.disabled=true;btn.textContent="🔮 Gazing…";}
+  const results=[];
+  for(let i=0;i<holds.length;i++){
+    const h=holds[i];const sym=normTicker(h.sym);
+    setStat("busy","Reading "+sym+" ("+(i+1)+" of "+holds.length+")…");
+    try{
+      const r=await fetch("/api/history?symbol="+encodeURIComponent(sym),{headers:{accept:"application/json"}});
+      const d=await r.json();
+      if(!r.ok||!d||d.error||!Array.isArray(d.closes)){results.push({h,sym,error:(d&&d.error)||"No data"});}
+      else{const res=pmAnalyse(d.closes,d.highs,d.lows,d.price);res.name=d.name;results.push({h,sym,res});}
+    }catch(e){results.push({h,sym,error:"Couldn't reach data service"});}
+    await new Promise(r=>setTimeout(r,700));
+  }
+  if(btn){btn.disabled=false;btn.textContent="🪞 Mirror, mirror on the wall";}
+  setStat("ok","Done — "+results.filter(x=>x.res).length+" of "+holds.length+" read.");
+  pmRenderResults(results);
+}
+
+function pmHoldPeriod(dateStr){
+  if(!dateStr)return "";
+  const d=new Date(dateStr+"T00:00:00");if(isNaN(d))return "";
+  const days=Math.floor((Date.now()-d)/(1000*60*60*24));if(days<0)return "";
+  if(days<14)return "held "+days+" day"+(days===1?"":"s");
+  if(days<60)return "held "+Math.floor(days/7)+" weeks";
+  if(days<730)return "held "+Math.floor(days/30)+" months";
+  return "held "+(days/365).toFixed(1)+" years";
+}
+
+function pmRenderResults(results){
+  const host=$("pmirResults");if(!host)return;host.innerHTML="";
+  if(!results.length)return;
+  if($("pmirDisclaimerCard"))$("pmirDisclaimerCard").hidden=false;
+  const dark=document.body.getAttribute("data-theme")==="dark";
+  results.forEach(({h,sym,res,error})=>{
+    const card=document.createElement("section");card.className="card pmir-res";card.style.marginTop="12px";
+    if(error){
+      card.innerHTML='<div class="pmir-res-hd"><span class="pmir-res-sym">'+sym+'</span><span class="pmir-res-err">'+error+'</span></div>';
+      host.appendChild(card);return;
+    }
+    const color=(dark?PM_TIER_DARK:PM_TIER_COLOR)[res.tier];
+    // header: dot + symbol + tier label + price
+    const hd=document.createElement("div");hd.className="pmir-res-hd";
+    hd.innerHTML='<span class="pmir-dot" style="background:'+color+'"></span>'+
+      '<span class="pmir-res-sym">'+sym+(res.name?'<span class="pmir-res-name">'+res.name+'</span>':'')+'</span>'+
+      '<span class="pmir-res-tier" style="color:'+color+'">'+PM_TIER_LABEL[res.tier]+'</span>';
+    card.appendChild(hd);
+    // price + SMAs
+    const px=document.createElement("div");px.className="pmir-res-px";
+    px.innerHTML='<span>'+S.curSym+groupNum(res.price.toFixed(2))+'</span>'+
+      '<span class="pmir-sma">20d '+(res.sma20!=null?S.curSym+groupNum(res.sma20.toFixed(2)):"—")+' · 50d '+(res.sma50!=null?S.curSym+groupNum(res.sma50.toFixed(2)):"—")+'</span>';
+    card.appendChild(px);
+    // spiels
+    const sp=document.createElement("div");sp.className="pmir-spiels";
+    sp.innerHTML=res.spiels.map(s=>'<span class="pmir-spiel">'+s+'</span>').join("");
+    card.appendChild(sp);
+    // custom alerts triggered
+    const fired=(S.pmirAlerts||[]).filter(a=>a.msg&&a.msg.trim()&&pmCondMet(a.cond,res));
+    if(fired.length){
+      const al=document.createElement("div");al.className="pmir-fired";
+      al.innerHTML=fired.map(a=>'<span class="pmir-fired-msg">'+a.msg.replace(/</g,"&lt;")+'</span>').join("");
+      card.appendChild(al);
+    }
+    // thesis + hold period
+    if((h.memo&&h.memo.trim())||h.date){
+      const th=document.createElement("div");th.className="pmir-thesis-show";
+      const period=pmHoldPeriod(h.date);
+      th.innerHTML=(period?'<div class="pmir-period">🕒 '+period+'</div>':'')+
+        (h.memo&&h.memo.trim()?'<div class="pmir-thesis-txt">“'+h.memo.trim().replace(/</g,"&lt;")+'”</div>':'');
+      card.appendChild(th);
+    }
+    host.appendChild(card);
+  });
+}
+
+// ----- wiring -----
+if($("pmirAdd"))$("pmirAdd").addEventListener("click",()=>{if(!Array.isArray(S.pmirHoldings))S.pmirHoldings=[];S.pmirHoldings.push({id:pmUID(),sym:"",_open:false});persist();pmRenderHoldings();});
+if($("pmirAlertAdd"))$("pmirAlertAdd").addEventListener("click",()=>{if(!Array.isArray(S.pmirAlerts))S.pmirAlerts=[];S.pmirAlerts.push({id:pmUID(),cond:"belowSma20",msg:""});persist();pmRenderAlerts();});
+if($("pmirAlertsToggle"))$("pmirAlertsToggle").addEventListener("click",()=>{S.pmirAlertsOpen=!S.pmirAlertsOpen;persist();pmApplyAlertsOpen();});
+if($("pmirRun"))$("pmirRun").addEventListener("click",()=>pmRunMirror());
+if($("pmirMemo"))$("pmirMemo").addEventListener("input",e=>{S.pmirMemo=e.target.value;memoCount("pmirMemo","pmirMemoCount");persist();});
+if($("pmirReset"))$("pmirReset").addEventListener("click",()=>{
+  openSheet("Reset Portfolio Mirror?","This clears your holdings, alerts and notes.","",[
+    ["Clear all",function(){S.pmirHoldings=[];S.pmirAlerts=[];S.pmirMemo="";persist();pmRenderHoldings();pmRenderAlerts();if($("pmirMemo"))$("pmirMemo").value="";if($("pmirResults"))$("pmirResults").innerHTML="";if($("pmirDisclaimerCard"))$("pmirDisclaimerCard").hidden=true;memoCount("pmirMemo","pmirMemoCount");closeSheet();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+});
+function pmEncode(){
+  const holds=(S.pmirHoldings||[]).map(h=>{const c=Object.assign({},h);delete c._open;return c;});
+  const p={t:"pmir",pmirHoldings:holds,pmirAlerts:S.pmirAlerts,pmirMemo:S.pmirMemo,curSym:S.curSym,curCode:S.curCode};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function pmShareText(){
+  const L=[];L.push("🪞 Portfolio Mirror");
+  (S.pmirHoldings||[]).forEach(h=>{if(normTicker(h.sym||"").length){L.push("");L.push("• "+normTicker(h.sym)+(h.memo&&h.memo.trim()?" — “"+h.memo.trim()+"”":""));}});
+  if(S.pmirMemo&&S.pmirMemo.trim()){L.push("");L.push("Notes: "+S.pmirMemo.trim());}
+  L.push("");L.push(location.origin+location.pathname+"#d="+pmEncode());
+  return L.join("\n");
+}
+if($("pmirShare"))$("pmirShare").addEventListener("click",async()=>{
+  const text=pmShareText();
+  if(navigator.share){try{await navigator.share({title:"Portfolio Mirror",text});return}catch(e){if(e&&e.name==="AbortError")return}}
+  openSheet("Share this","Your share sheet isn't available here — use email or copy.",text,[
+    ["Email",async function(){const ok=await copyText(text);const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent("Portfolio Mirror")+"&body="+encodeURIComponent(text);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);this.textContent=ok?"✓ Copied too":"Email";},false],
+    ["Copy",async function(){if(await copyText(text))this.textContent="✓ Copied";},true],
+    ["Close",closeSheet,false]
+  ]);
+});
+if($("pmirImport"))$("pmirImport").addEventListener("click",()=>{
+  openSheet("Import","Paste a Portfolio Mirror share code (or full message).","",[
+    ["Load",function(){
+      try{
+        const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
+        const p=decodeState(code);
+        if(p.t==="pmir"){if(Array.isArray(p.pmirHoldings))S.pmirHoldings=p.pmirHoldings;if(Array.isArray(p.pmirAlerts))S.pmirAlerts=p.pmirAlerts;if("pmirMemo" in p)S.pmirMemo=p.pmirMemo;if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;}
+        closeSheet();persist();pmRenderHoldings();pmRenderAlerts();renderAll();
+      }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
+    },true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
+function pmRenderAll(){pmRenderHoldings();pmRenderAlerts();pmApplyAlertsOpen();if($("pmirMemo")&&document.activeElement!==$("pmirMemo"))$("pmirMemo").value=S.pmirMemo||"";memoCount("pmirMemo","pmirMemoCount");}
+
 /* ---------- boot ---------- */
 (async function(){
   const saved=await load();
   if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
   // ensure monthly top-up reflects saved annual value (back-compat)
   if((!S.ciTopupMo||S.ciTopupMo==="")&&num(S.ciTopup)>0){S.ciTopupMo=String(Math.round(num(S.ciTopup)/12*100)/100);}
-  let sharedCI=false, sharedGL=false, sharedPM=false, sharedOP=false, sharedHG=false, sharedWL=false;
-  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true; if(S._sharedType==="gl")sharedGL=true; if(S._sharedType==="pm")sharedPM=true; if(S._sharedType==="op")sharedOP=true; if(S._sharedType==="hg")sharedHG=true; if(S._sharedType==="wl")sharedWL=true;}
+  let sharedCI=false, sharedGL=false, sharedPM=false, sharedOP=false, sharedHG=false, sharedWL=false, sharedPMIR=false;
+  if(importFromHash()){persist(); if(S._sharedType==="ci")sharedCI=true; if(S._sharedType==="gl")sharedGL=true; if(S._sharedType==="pm")sharedPM=true; if(S._sharedType==="op")sharedOP=true; if(S._sharedType==="hg")sharedHG=true; if(S._sharedType==="wl")sharedWL=true; if(S._sharedType==="pmir")sharedPMIR=true;}
   populateGlossary();
   applyExplain();
   buildNav();
@@ -3892,7 +4269,8 @@ $("wlImport").addEventListener("click",()=>{
   hgRender();
   wlEnsure();
   wlRender();
-  switchWs(sharedCI?4:(sharedGL?3:(sharedPM?2:(sharedOP?5:(sharedHG?6:(sharedWL?7:(S.activeWs||1)))))));
+  pmRenderAll();
+  switchWs(sharedCI?4:(sharedGL?3:(sharedPM?2:(sharedOP?5:(sharedHG?6:(sharedWL?7:(sharedPMIR?8:(S.activeWs||1))))))));
   renderAll();
 })();
 })();
