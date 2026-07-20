@@ -9,7 +9,7 @@
 # After this commit, wrangler.toml goes back to sleep — routine pencil
 # deploys (index.html / worker.js) resume exactly as before.
 
-name = "trade-risk-calculator-app"
+name = "portfolio-sizer"
 main = "worker.js"
 compatibility_date = "2026-06-22"   # if your existing file has a different
                                     # date, KEEP YOURS — don't downgrade it.
