@@ -19,6 +19,16 @@
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // ── VIBE FENCE (Q1 blast-radius law): all /api/vibe/* traffic is dispatched
+    //    here, wrapped so a Vibe bug can ONLY fail into its own JSON 500 and can
+    //    never take down /api/quote, /api/options, or /api/history below. ──
+    if (url.pathname.startsWith("/api/vibe/")) {
+      try { return await handleVibe(request, env, url); }
+      catch (e) {
+        console.error("vibe fence caught:", (e && e.stack) || e);   // internals → worker logs only
+        return json({ error: "vibe hiccup" }, 500);                 // public surface stays generic
+      }
+    }
     if (url.pathname === "/api/quote") return handleQuote(url, env);
     if (url.pathname === "/api/options") return handleOptions(url);
     if (url.pathname === "/api/history") return handleHistory(url);
@@ -376,4 +386,76 @@ async function yahooMarketCap(symbol) {
   const p = d && d.quoteSummary && d.quoteSummary.result && d.quoteSummary.result[0] && d.quoteSummary.result[0].price;
   const mc = p && p.marketCap;
   return (mc && (mc.fmt || mc.raw != null)) ? { raw: mc.raw != null ? mc.raw : null, fmt: mc.fmt || null } : null;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VIBE MODULE — Portfolio Vibe backend (Phase A)
+   Stage 1: bootstrap only — fence, health ping, and the VibeRoom Durable
+   Object scaffold the wrangler.toml migration points at. Chat loop arrives
+   stage 3. Zero shared functions with calculator endpoints (uses only the
+   generic json() helper). All routes live under /api/vibe/*.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+async function handleVibe(request, env, url) {
+  const path = url.pathname;
+
+  // GET /api/vibe/ping — stage-1 acceptance test, callable from any browser.
+  //   ?boom=1 deliberately throws so the blast-radius fence can be verified
+  //   LIVE: expect a vibe-scoped 500 here while /api/quote keeps serving.
+  if (path === "/api/vibe/ping") {
+    if (url.searchParams.get("boom") === "1") {
+      throw new Error("deliberate test throw — fence check");
+    }
+
+    // D1 binding check (real round-trip, not just presence)
+    let d1 = "missing binding — add [[d1_databases]] to wrangler.toml";
+    try {
+      if (env.VIBE_DB) {
+        const row = await env.VIBE_DB.prepare("SELECT 1 AS ok").first();
+        d1 = row && row.ok === 1 ? "ok" : "unexpected result";
+      }
+    } catch (e) {
+      console.error("vibe ping D1 check:", (e && e.message) || e);
+      d1 = "error — check worker logs";
+    }
+
+    // Durable Object binding check (real stub round-trip into VibeRoom)
+    let durable = "missing binding — add [[durable_objects.bindings]] to wrangler.toml";
+    try {
+      if (env.VIBE_ROOM) {
+        const stub = env.VIBE_ROOM.get(env.VIBE_ROOM.idFromName("ping"));
+        const r = await stub.fetch("https://vibe-room/ping");
+        const j = await r.json();
+        durable = j && j.online
+          ? (j.sqlite ? "ok (sqlite-backed)" : "online but NOT sqlite — check new_sqlite_classes migration")
+          : "unexpected response";
+      }
+    } catch (e) {
+      console.error("vibe ping DO check:", (e && e.message) || e);
+      durable = "error — check worker logs";
+    }
+
+    return json({ vibe: "alive", stage: 1, d1, durableObject: durable }, 200);
+  }
+
+  return json({ error: "Unknown vibe endpoint." }, 404);
+}
+
+// ── VibeRoom Durable Object ──────────────────────────────────────────────────
+// Stage-1 scaffold: exists so the SQLite migration has a class to attach to,
+// and answers the ping stub so the live acceptance test can prove the object
+// spins up sqlite-backed. Rooms/WebSockets/messages arrive in stage 3.
+export class VibeRoom {
+  constructor(ctx, env) {
+    this.ctx = ctx;
+    this.env = env;
+  }
+  async fetch(request) {
+    const sqlite = !!(this.ctx && this.ctx.storage && this.ctx.storage.sql
+      && typeof this.ctx.storage.sql.exec === "function");
+    return new Response(
+      JSON.stringify({ online: true, room: "VibeRoom", stage: 1, sqlite }),
+      { headers: { "content-type": "application/json; charset=utf-8" } }
+    );
+  }
 }
