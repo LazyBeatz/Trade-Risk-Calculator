@@ -35,3 +35,4 @@ class_name = "VibeRoom"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["VibeRoom"]
+
