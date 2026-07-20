@@ -1,7 +1,37 @@
+# wrangler.toml — Trade Risk Calculator (+ Portfolio Vibe backend, stage 1)
+#
+# ═══ ONE-TIME VIBE BOOTSTRAP (Deploy Ritual v2) ═══
+# Before committing this file, do ONE dashboard step:
+#   Cloudflare dashboard → Storage & Databases → D1 → Create database
+#     name it exactly:  portfolio-vibe
+#   → copy its Database ID (a UUID) and paste it below where marked.
+# Then commit this file + worker.js together as ONE isolated commit.
+# After this commit, wrangler.toml goes back to sleep — routine pencil
+# deploys (index.html / worker.js) resume exactly as before.
+
 name = "trade-risk-calculator-app"
 main = "worker.js"
-compatibility_date = "2026-06-22"
+compatibility_date = "2026-06-22"   # if your existing file has a different
+                                    # date, KEEP YOURS — don't downgrade it.
 
+# ── Static frontend (unchanged) ──────────────────────────────────────────────
 [assets]
-directory = "./public"
+directory = "public"
 binding = "ASSETS"
+
+# ── Portfolio Vibe: D1 (global tables — handles, rooms, modtrail…) ───────────
+[[d1_databases]]
+binding = "VIBE_DB"
+database_name = "portfolio-vibe"
+database_id = "65d722a5-904a-4e93-8951-5bc8bfa15a18"
+
+# ── Portfolio Vibe: Durable Objects (live rooms) ─────────────────────────────
+[[durable_objects.bindings]]
+name = "VIBE_ROOM"
+class_name = "VibeRoom"
+
+# SQLite-backed DO migration — this is what makes VibeRoom run on the FREE
+# plan with its own per-room SQLite. Tag v1 must never be reused.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["VibeRoom"]
