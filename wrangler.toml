@@ -37,3 +37,8 @@ tag = "v1"
 new_sqlite_classes = ["VibeRoom"]
 
 
+
+
+[observability.logs]
+enabled = true
+invocation_logs = true
