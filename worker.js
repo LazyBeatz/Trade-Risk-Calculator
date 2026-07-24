@@ -435,7 +435,7 @@ async function handleVibe(request, env, url) {
       durable = "error — check worker logs";
     }
 
-    return json({ vibe: "alive", stage: 1, d1, durableObject: durable }, 200);
+    return json({ vibe: "alive", stage: 3, d1, durableObject: durable }, 200);
   }
 
   // ── Stage-2 routes (identity + rooms) — need D1; schema bootstraps lazily ──
@@ -449,26 +449,239 @@ async function handleVibe(request, env, url) {
     return vibeRoomsRoute(request, env, url);
   }
 
+  // ── Stage-3 route: WebSocket upgrade → room DO. Auth happens INSIDE the
+  //    socket (first message), never in the URL — POST-only law extended.
+  if (path === "/api/vibe/ws") {
+    if (request.headers.get("Upgrade") !== "websocket") {
+      return json({ error: "Expected websocket upgrade." }, 426);
+    }
+    const roomId = String(url.searchParams.get("room") || "");
+    if (!/^[a-z0-9-]{1,32}$/.test(roomId)) return json({ error: "Bad room id." }, 400);
+    if (!env.VIBE_DB || !env.VIBE_ROOM) {
+      console.error("vibe ws: bindings missing");
+      return json({ error: "vibe backend not configured" }, 503);
+    }
+    await vibeEnsureSchema(env);
+    const room = await env.VIBE_DB.prepare(
+      "SELECT id FROM rooms WHERE id=?").bind(roomId).first();
+    if (!room) return json({ error: "No such room." }, 404);
+    const stub = env.VIBE_ROOM.get(env.VIBE_ROOM.idFromName(roomId));
+    return stub.fetch(request);
+  }
+
   return json({ error: "Unknown vibe endpoint." }, 404);
 }
 
-// ── VibeRoom Durable Object ──────────────────────────────────────────────────
-// Stage-1 scaffold: exists so the SQLite migration has a class to attach to,
-// and answers the ping stub so the live acceptance test can prove the object
-// spins up sqlite-backed. Rooms/WebSockets/messages arrive in stage 3.
+// ── VibeRoom Durable Object — STAGE 3: the chat engine ──────────────────────
+// WebSocket Hibernation API. Auth = FIRST MESSAGE (never the URL). Ingest law:
+// staple(2000) → lexicon filter → per-handle rate limit → room daily cap →
+// persist (1 sqlite row = the oxygen) → broadcast (outgoing = free).
+// Healthy rooms write ZERO D1; only filtered messages touch modtrail.
 export class VibeRoom {
   constructor(ctx, env) {
     this.ctx = ctx;
     this.env = env;
+    this.buckets = new Map();          // per-handle token buckets (memory; cap backs it)
+    this.lex = { phrases: null, at: 0 }; // lexicon cache, 5-min TTL
+    this.dayCount = null;              // {day, n} — rebuilt with one COUNT per wake
+    this.roomId = null;
+    this.schemaDone = false;
   }
+
+  sqlA(q, ...b) { return this.ctx.storage.sql.exec(q, ...b).toArray(); }
+
+  roomSchema() {
+    if (this.schemaDone) return;
+    this.ctx.storage.sql.exec(
+      "CREATE TABLE IF NOT EXISTS messages(id TEXT PRIMARY KEY, handle TEXT, body TEXT, ts INTEGER)");
+    this.ctx.storage.sql.exec(
+      "CREATE INDEX IF NOT EXISTS idx_messages_ts ON messages(ts)");
+    this.ctx.storage.sql.exec(
+      "CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT)");
+    this.schemaDone = true;
+  }
+
+  getRoomId() {
+    if (this.roomId) return this.roomId;
+    const r = this.sqlA("SELECT v FROM meta WHERE k='roomId'");
+    this.roomId = r.length ? r[0].v : null;
+    return this.roomId;
+  }
+
   async fetch(request) {
-    const sqlite = !!(this.ctx && this.ctx.storage && this.ctx.storage.sql
-      && typeof this.ctx.storage.sql.exec === "function");
-    return new Response(
-      JSON.stringify({ online: true, room: "VibeRoom", stage: 1, sqlite }),
-      { headers: { "content-type": "application/json; charset=utf-8" } }
-    );
+    const url = new URL(request.url);
+    if (url.pathname === "/ping") {
+      const sqlite = !!(this.ctx && this.ctx.storage && this.ctx.storage.sql
+        && typeof this.ctx.storage.sql.exec === "function");
+      return new Response(
+        JSON.stringify({ online: true, room: "VibeRoom", stage: 3, sqlite }),
+        { headers: { "content-type": "application/json; charset=utf-8" } });
+    }
+    if (request.headers.get("Upgrade") === "websocket") {
+      this.roomSchema();
+      const rid = url.searchParams.get("room");
+      if (rid) {
+        this.ctx.storage.sql.exec(
+          "INSERT OR REPLACE INTO meta(k, v) VALUES('roomId', ?)", rid);
+        this.roomId = rid;
+      }
+      const pair = new WebSocketPair();
+      const client = pair[0], server = pair[1];
+      this.ctx.acceptWebSocket(server);
+      server.serializeAttachment({ authed: false });
+      return new Response(null, { status: 101, webSocket: client });
+    }
+    return new Response(JSON.stringify({ error: "Unknown room endpoint." }),
+      { status: 404, headers: { "content-type": "application/json; charset=utf-8" } });
   }
+
+  send(ws, obj) { try { ws.send(JSON.stringify(obj)); } catch (e) { /* gone */ } }
+
+  broadcast(obj, exceptWs) {
+    const s = JSON.stringify(obj);
+    for (const ws of this.ctx.getWebSockets()) {
+      if (ws === exceptWs) continue;
+      let att = null;
+      try { att = ws.deserializeAttachment(); } catch (e) { att = null; }
+      if (att && att.authed) { try { ws.send(s); } catch (e) { /* gone */ } }
+    }
+  }
+
+  roster() {
+    const names = [];
+    for (const ws of this.ctx.getWebSockets()) {
+      let att = null;
+      try { att = ws.deserializeAttachment(); } catch (e) { att = null; }
+      if (att && att.authed && att.handle) names.push(att.handle);
+    }
+    return names;
+  }
+
+  async lexHit(body) {
+    const now = Date.now();
+    if (!this.lex.phrases || now - this.lex.at > 300_000) {
+      try {
+        const rows = await this.env.VIBE_DB.prepare("SELECT phrase FROM lexicon").all();
+        this.lex = {
+          phrases: (rows && rows.results ? rows.results : []).map(r => String(r.phrase).toLowerCase()),
+          at: now,
+        };
+      } catch (e) {
+        console.error("vibe lexicon load:", (e && e.message) || e);
+        if (!this.lex.phrases) this.lex = { phrases: [], at: now }; // fail-open, retry next TTL
+      }
+    }
+    const low = body.toLowerCase();
+    for (const p of this.lex.phrases) if (p && low.includes(p)) return p;
+    return null;
+  }
+
+  todayCount() {
+    this.roomSchema();
+    const day = new Date().toISOString().slice(0, 10);
+    if (this.dayCount && this.dayCount.day === day) return this.dayCount.n;
+    const d = new Date();
+    const dayStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    const r = this.sqlA("SELECT COUNT(*) AS n FROM messages WHERE ts >= ?", dayStart);
+    this.dayCount = { day, n: r.length ? Number(r[0].n) : 0 };
+    return this.dayCount.n;
+  }
+
+  async webSocketMessage(ws, raw) {
+    if (typeof raw !== "string") { this.send(ws, { t: "err", error: "Text frames only." }); return; }
+    let msg = null;
+    try { msg = JSON.parse(raw); } catch (e) { this.send(ws, { t: "err", error: "Bad message." }); return; }
+    let att = null;
+    try { att = ws.deserializeAttachment(); } catch (e) { att = { authed: false }; }
+    att = att || { authed: false };
+    this.roomSchema();
+
+    if (msg.op === "auth") {
+      if (att.authed) { this.send(ws, { t: "err", error: "Already signed in." }); return; }
+      let auth = null;
+      try { auth = await vibeAuth(this.env.VIBE_DB, msg.handle, msg.syncCode); }
+      catch (e) { console.error("vibe ws auth:", (e && e.message) || e); this.send(ws, { t: "err", error: "vibe hiccup" }); return; }
+      if (!auth.ok) {
+        this.send(ws, { t: "err", error: auth.status === 429 ? "Too many attempts — wait a minute." : "Handle and code don't match." });
+        try { ws.close(1008, "auth failed"); } catch (e) {}
+        return;
+      }
+      const roomId = this.getRoomId();
+      let member = null;
+      try {
+        member = await this.env.VIBE_DB.prepare(
+          "SELECT 1 AS x FROM memberships WHERE roomId=? AND handle_lc=?")
+          .bind(roomId, auth.lc).first();
+      } catch (e) { console.error("vibe ws membership:", (e && e.message) || e); }
+      if (!member) {
+        this.send(ws, { t: "err", error: "Join this room first." });
+        try { ws.close(1008, "not a member"); } catch (e) {}
+        return;
+      }
+      att = { authed: true, handle: auth.handle, lc: auth.lc };
+      ws.serializeAttachment(att);
+      const rows = this.sqlA(
+        "SELECT id, handle, body, ts FROM messages ORDER BY ts DESC, id DESC LIMIT " + VIBE_BACKFILL
+      ).reverse();
+      this.send(ws, { t: "welcome", room: roomId, handle: auth.handle, roster: this.roster(), backfill: rows });
+      this.broadcast({ t: "join", handle: auth.handle, ts: Date.now() }, ws);
+      return;
+    }
+
+    if (!att.authed) { this.send(ws, { t: "err", error: "Sign in first." }); return; }
+
+    if (msg.op === "msg") {
+      const body = String(msg.body == null ? "" : msg.body);
+      if (!body.trim()) { this.send(ws, { t: "err", error: "Empty message." }); return; }
+      if (body.length > 2000) { this.send(ws, { t: "err", error: "Message exceeds 2,000 characters." }); return; }
+
+      const hit = await this.lexHit(body);
+      if (hit) {
+        try {
+          await this.env.VIBE_DB.prepare(
+            "INSERT INTO modtrail(msgId, roomId, handle, body, reason, ts) VALUES(?,?,?,?,?,?)")
+            .bind("f" + vibeRandB32(12), this.getRoomId(), att.handle, body, "lexicon", Date.now()).run();
+        } catch (e) { console.error("vibe modtrail:", (e && e.message) || e); }
+        this.send(ws, { t: "held", error: "Message held by the scam filter." });
+        return;
+      }
+
+      const now = Date.now();
+      let b = this.buckets.get(att.lc);
+      if (!b) { b = { tokens: 5, last: now }; this.buckets.set(att.lc, b); }
+      b.tokens = Math.min(5, b.tokens + (now - b.last) / 1000);
+      b.last = now;
+      if (b.tokens < 1) { this.send(ws, { t: "err", error: "Slow down — 1 message per second." }); return; }
+      b.tokens -= 1;
+
+      if (this.todayCount() >= VIBE_ROOM_DAILY_CAP) {
+        this.send(ws, { t: "err", error: "Room's cooling off until midnight UTC — daily message limit reached (free tier)." });
+        return;
+      }
+
+      const id = now.toString(36) + vibeRandB32(6);
+      this.ctx.storage.sql.exec(
+        "INSERT INTO messages(id, handle, body, ts) VALUES(?,?,?,?)", id, att.handle, body, now);
+      this.dayCount.n += 1;
+      const out = { t: "msg", id, handle: att.handle, body, ts: now };
+      this.send(ws, out);
+      this.broadcast(out, ws);
+      return;
+    }
+
+    this.send(ws, { t: "err", error: "Unknown op." });
+  }
+
+  webSocketClose(ws) {
+    let att = null;
+    try { att = ws.deserializeAttachment(); } catch (e) { att = null; }
+    if (att && att.authed && !att.left) {
+      try { ws.serializeAttachment({ ...att, left: true }); } catch (e) {}
+      this.broadcast({ t: "leave", handle: att.handle, ts: Date.now() }, ws);
+    }
+  }
+
+  webSocketError(ws) { this.webSocketClose(ws); }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -537,10 +750,18 @@ async function vibeBootstrap(env) {
     "INSERT OR IGNORE INTO handles(handle_lc, handle, codeHash, createdAt, reserved) VALUES(?,?,NULL,?,1)");
   const seedR = db.prepare(
     "INSERT OR IGNORE INTO rooms(id, name, official, createdBy, inviteCode, createdAt) VALUES(?,?,1,'official',NULL,?)");
+  const LEXICON_SEED = [
+    "guaranteed returns", "guaranteed profits", "risk-free returns",
+    "double your money", "insider tip", "join my telegram",
+    "join my whatsapp", "dm me to invest", "send me crypto",
+  ];
+  const seedL = db.prepare(
+    "INSERT OR IGNORE INTO lexicon(phrase, addedBy, ts) VALUES(?,'seed',?)");
   await db.batch([
     ...RESERVED.map(h => seedH.bind(h.toLowerCase(), h, now)),
     seedR.bind("trading-floor", "The Trading Floor", now),
     seedR.bind("casino-lounge", "Casino Lounge", now),
+    ...LEXICON_SEED.map(p => seedL.bind(p, now)),
   ]);
 }
 
@@ -553,6 +774,9 @@ const VIBE_BACKFILL = 50;   // stage-3 constant, locked now: join backfill sends
 const VIBE_CLAIMS_PER_IP_DAY = 10; // third wall: handle claims per hashed IP/day
 const VIBE_ROOMS_PER_DAY = 5;      // third wall: room creations per handle/day
                                    // (the 20 lifetime cap stays alongside)
+const VIBE_ROOM_DAILY_CAP = 10000; // second governor (consultant-approved):
+                                   // msgs/room/day — one maxed room = 10% of
+                                   // daily oxygen; resets midnight UTC.
 const HANDLE_RX = /^[A-Za-z][A-Za-z0-9_]{2,19}$/;    // 3–20, letter-first, ASCII
 
 function vibeRandB32(chars) {
