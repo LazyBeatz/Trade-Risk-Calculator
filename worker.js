@@ -518,6 +518,10 @@ export class VibeRoom {
         { headers: { "content-type": "application/json; charset=utf-8" } });
     }
     if (request.headers.get("Upgrade") === "websocket") {
+      if (this.ctx.getWebSockets().length >= VIBE_SOCKET_CEILING) {
+        return new Response(JSON.stringify({ error: "Room connection limit reached — try again shortly." }),
+          { status: 503, headers: { "content-type": "application/json; charset=utf-8" } });
+      }
       this.roomSchema();
       const rid = url.searchParams.get("room");
       if (rid) {
@@ -777,6 +781,10 @@ const VIBE_ROOMS_PER_DAY = 5;      // third wall: room creations per handle/day
 const VIBE_ROOM_DAILY_CAP = 10000; // second governor (consultant-approved):
                                    // msgs/room/day — one maxed room = 10% of
                                    // daily oxygen; resets midnight UTC.
+const VIBE_SOCKET_CEILING = 200;   // per-room-DO connection ceiling (cap-50
+                                   // members × generous reconnect/device slack).
+                                   // Closes socket-count exhaustion by never-
+                                   // authing squatters; no idle timers needed.
 const HANDLE_RX = /^[A-Za-z][A-Za-z0-9_]{2,19}$/;    // 3–20, letter-first, ASCII
 
 function vibeRandB32(chars) {
