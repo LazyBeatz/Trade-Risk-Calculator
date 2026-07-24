@@ -438,6 +438,17 @@ async function handleVibe(request, env, url) {
     return json({ vibe: "alive", stage: 1, d1, durableObject: durable }, 200);
   }
 
+  // ── Stage-2 routes (identity + rooms) — need D1; schema bootstraps lazily ──
+  if (path === "/api/vibe/handle" || path === "/api/vibe/rooms") {
+    if (!env.VIBE_DB) {
+      console.error("vibe: VIBE_DB binding missing");
+      return json({ error: "vibe backend not configured" }, 503);
+    }
+    await vibeEnsureSchema(env);
+    if (path === "/api/vibe/handle") return vibeHandleRoute(request, env, url);
+    return vibeRoomsRoute(request, env, url);
+  }
+
   return json({ error: "Unknown vibe endpoint." }, 404);
 }
 
@@ -458,4 +469,327 @@ export class VibeRoom {
       { headers: { "content-type": "application/json; charset=utf-8" } }
     );
   }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   STAGE 2 — Identity (handle + sync-code) and Rooms API.
+   Laws in force: entropy law (generated-only codes, ≥128 bits — this build uses
+   160), case-insensitive handle uniqueness, reserved-handle seed, 5/min verify
+   rate limit, information hygiene (generic public errors, internals → logs).
+   Sync-codes are NEVER stored (SHA-256 only) and must NEVER appear in URLs —
+   claims/verifies are POST-body only.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+// ── Schema bootstrap (lazy, idempotent, memoized per isolate) ────────────────
+let _vibeSchemaReady = null;
+function vibeEnsureSchema(env) {
+  if (!_vibeSchemaReady) _vibeSchemaReady = vibeBootstrap(env).catch(e => {
+    _vibeSchemaReady = null;            // allow retry on next request
+    throw e;                            // fence turns this into a generic 500
+  });
+  return _vibeSchemaReady;
+}
+
+async function vibeBootstrap(env) {
+  const db = env.VIBE_DB;
+  const stmts = [
+    `CREATE TABLE IF NOT EXISTS handles(
+       handle_lc TEXT PRIMARY KEY, handle TEXT NOT NULL, codeHash TEXT,
+       createdAt INTEGER, isAdmin INTEGER DEFAULT 0, reserved INTEGER DEFAULT 0,
+       verifyCount INTEGER DEFAULT 0, verifyWindow INTEGER DEFAULT 0)`,
+    `CREATE TABLE IF NOT EXISTS rooms(
+       id TEXT PRIMARY KEY, name TEXT NOT NULL, official INTEGER DEFAULT 0,
+       createdBy TEXT, inviteCode TEXT UNIQUE, createdAt INTEGER)`,
+    `CREATE TABLE IF NOT EXISTS memberships(
+       roomId TEXT, handle_lc TEXT, joinedAt INTEGER,
+       PRIMARY KEY(roomId, handle_lc))`,
+    `CREATE TABLE IF NOT EXISTS modtrail(
+       id INTEGER PRIMARY KEY AUTOINCREMENT, msgId TEXT, roomId TEXT,
+       handle TEXT, body TEXT, reason TEXT, ts INTEGER)`,
+    `CREATE TABLE IF NOT EXISTS reports(
+       id INTEGER PRIMARY KEY AUTOINCREMENT, modtrailId INTEGER,
+       reporter_lc TEXT, roomId TEXT, msgId TEXT, reason TEXT, ts INTEGER)`,
+    `CREATE TABLE IF NOT EXISTS blocks(
+       blocker_lc TEXT, blocked_lc TEXT, ts INTEGER,
+       PRIMARY KEY(blocker_lc, blocked_lc))`,
+    `CREATE TABLE IF NOT EXISTS mutes(
+       muter_lc TEXT, muted_lc TEXT, ts INTEGER,
+       PRIMARY KEY(muter_lc, muted_lc))`,
+    `CREATE TABLE IF NOT EXISTS outclicks(
+       day TEXT, dest TEXT, symbol TEXT, count INTEGER DEFAULT 0,
+       PRIMARY KEY(day, dest, symbol))`,
+    `CREATE TABLE IF NOT EXISTS lexicon(
+       phrase TEXT PRIMARY KEY, addedBy TEXT, ts INTEGER)`,
+    `CREATE TABLE IF NOT EXISTS ipclaims(
+       day TEXT, iphash TEXT, count INTEGER DEFAULT 0,
+       PRIMARY KEY(day, iphash))`,
+  ];
+  await db.batch(stmts.map(s => db.prepare(s)));
+
+  // Reserved handles — squatters evicted at bootstrap (case-insensitive law).
+  const RESERVED = [
+    "LazyBeatz", "LazyBeats", "Lazy_Beatz", "LexBeatz", "Lex_Beatz",
+    "admin", "administrator", "official", "support", "mod", "moderator",
+    "portfoliovibe", "vibe", "staff", "help", "verified",
+  ];
+  const now = Date.now();
+  const seedH = db.prepare(
+    "INSERT OR IGNORE INTO handles(handle_lc, handle, codeHash, createdAt, reserved) VALUES(?,?,NULL,?,1)");
+  const seedR = db.prepare(
+    "INSERT OR IGNORE INTO rooms(id, name, official, createdBy, inviteCode, createdAt) VALUES(?,?,1,'official',NULL,?)");
+  await db.batch([
+    ...RESERVED.map(h => seedH.bind(h.toLowerCase(), h, now)),
+    seedR.bind("trading-floor", "The Trading Floor", now),
+    seedR.bind("casino-lounge", "Casino Lounge", now),
+  ]);
+}
+
+// ── Identity helpers ─────────────────────────────────────────────────────────
+const VIBE_B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"; // Crockford: no I L O U
+const VIBE_ROOM_CAP = 50;   // v1 member cap per room — the D8 free/paid seam.
+                            // Raising it is the paid tier's job, not a hotfix.
+const VIBE_BACKFILL = 50;   // stage-3 constant, locked now: join backfill sends
+                            // the last N messages, never the whole scroll.
+const VIBE_CLAIMS_PER_IP_DAY = 10; // third wall: handle claims per hashed IP/day
+const VIBE_ROOMS_PER_DAY = 5;      // third wall: room creations per handle/day
+                                   // (the 20 lifetime cap stays alongside)
+const HANDLE_RX = /^[A-Za-z][A-Za-z0-9_]{2,19}$/;    // 3–20, letter-first, ASCII
+
+function vibeRandB32(chars) {
+  const buf = new Uint8Array(chars);
+  crypto.getRandomValues(buf);
+  let out = "";
+  for (let i = 0; i < chars; i++) out += VIBE_B32[buf[i] % 32]; // 256%32===0 → no bias
+  return out;
+}
+
+function vibeNewSyncCode() {
+  // 32 Crockford chars × 5 bits = 160 bits entropy (law: ≥128). Grouped for humans.
+  const raw = vibeRandB32(32);
+  return "VIBE-" + raw.match(/.{4}/g).join("-");
+}
+
+function vibeNormalizeCode(input) {
+  // tolerate dashes/spaces/case; strip the VIBE prefix only when lengths prove it
+  const s = String(input || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+  if (s.length === 36 && s.startsWith("VIBE")) return s.slice(4);
+  if (s.length === 32) return s;
+  return null; // wrong shape → caller treats as auth failure
+}
+
+async function vibeSha256Hex(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// auth check shared by every authed op — enforces the 5/min verify rate limit
+async function vibeAuth(db, handle, syncCode) {
+  const lc = String(handle || "").toLowerCase();
+  const row = await db.prepare(
+    "SELECT handle, handle_lc, codeHash, isAdmin, reserved, verifyCount, verifyWindow FROM handles WHERE handle_lc=?"
+  ).bind(lc).first();
+  if (!row || !row.codeHash) return { ok: false, status: 401 };
+
+  const now = Date.now();
+  let count = row.verifyCount || 0, win = row.verifyWindow || 0;
+  if (now - win > 60_000) { count = 0; win = now; }
+  if (count >= 5) return { ok: false, status: 429 };
+
+  const norm = vibeNormalizeCode(syncCode);
+  const ok = norm ? (await vibeSha256Hex(norm)) === row.codeHash : false;
+  // D1 write-budget guard: clean success (ok, no strikes) is a no-op — skip the
+  // UPDATE entirely. Failures always write; successes only write to clear strikes.
+  if (!ok || count > 0) {
+    await db.prepare("UPDATE handles SET verifyCount=?, verifyWindow=? WHERE handle_lc=?")
+      .bind(ok ? 0 : count + 1, win, lc).run();
+  }
+  return ok
+    ? { ok: true, handle: row.handle, lc, isAdmin: !!row.isAdmin }
+    : { ok: false, status: 401 };
+}
+
+async function vibeReadJson(request) {
+  try { return await request.json(); } catch (e) { return null; }
+}
+
+// ── /api/vibe/handle — claim & verify ────────────────────────────────────────
+async function vibeHandleRoute(request, env, url) {
+  if (request.method !== "POST") return json({ error: "POST only." }, 405);
+  const db = env.VIBE_DB;
+  const body = await vibeReadJson(request);
+  if (!body) return json({ error: "Bad request." }, 400);
+
+  if (body.op === "claim") {
+    const handle = String(body.handle || "").trim();
+    if (!HANDLE_RX.test(handle)) {
+      return json({ error: "Handle must be 3–20 chars, start with a letter, letters/numbers/_ only." }, 400);
+    }
+    const lc = handle.toLowerCase();
+    const existing = await db.prepare(
+      "SELECT codeHash, reserved FROM handles WHERE handle_lc=?").bind(lc).first();
+
+    // Reserved handles unlock ONLY with the founder's VIBE_ADMIN_KEY secret.
+    let admin = false;
+    if (existing && existing.reserved && !existing.codeHash) {
+      const key = body.adminKey ? String(body.adminKey) : "";
+      const match = env.VIBE_ADMIN_KEY && key &&
+        (await vibeSha256Hex(key)) === (await vibeSha256Hex(env.VIBE_ADMIN_KEY));
+      if (!match) return json({ error: "That handle is reserved." }, 403);
+      admin = true;
+    } else if (existing && existing.codeHash) {
+      return json({ error: "Handle already taken." }, 409);
+    }
+
+    // Third wall — per-IP daily claim throttle (hashed IP, zero-PII; admin
+    // claims bypass so the founder can crown reserved handles in one sitting).
+    const day = new Date().toISOString().slice(0, 10);
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    const iphash = (await vibeSha256Hex("vibe-ip|" + ip)).slice(0, 16);
+    if (!admin) {
+      const used = await db.prepare(
+        "SELECT count FROM ipclaims WHERE day=? AND iphash=?").bind(day, iphash).first();
+      if (used && used.count >= VIBE_CLAIMS_PER_IP_DAY) {
+        return json({ error: "Too many new handles from your network today — try again tomorrow." }, 429);
+      }
+    }
+
+    const syncCode = vibeNewSyncCode();
+    const codeHash = await vibeSha256Hex(vibeNormalizeCode(syncCode));
+    const now = Date.now();
+    if (existing) {
+      await db.prepare(
+        "UPDATE handles SET handle=?, codeHash=?, createdAt=?, isAdmin=? WHERE handle_lc=? AND codeHash IS NULL")
+        .bind(handle, codeHash, now, admin ? 1 : 0, lc).run();
+    } else {
+      // INSERT OR IGNORE + verify: two same-name claims can race; only one wins.
+      await db.prepare(
+        "INSERT OR IGNORE INTO handles(handle_lc, handle, codeHash, createdAt, isAdmin) VALUES(?,?,?,?,0)")
+        .bind(lc, handle, codeHash, now).run();
+    }
+    const winner = await db.prepare(
+      "SELECT codeHash FROM handles WHERE handle_lc=?").bind(lc).first();
+    if (!winner || winner.codeHash !== codeHash) {
+      return json({ error: "Handle already taken." }, 409);
+    }
+    if (!admin) {
+      await db.prepare(
+        `INSERT INTO ipclaims(day, iphash, count) VALUES(?,?,1)
+         ON CONFLICT(day, iphash) DO UPDATE SET count = count + 1`)
+        .bind(day, iphash).run();
+    }
+    return json({
+      ok: true, handle, isAdmin: admin, syncCode,
+      warning: "Your sync-code IS your identity. Lost code = lost handle, permanently — there is no recovery until accounts arrive. Save it now.",
+    }, 200);
+  }
+
+  if (body.op === "verify") {
+    const auth = await vibeAuth(db, body.handle, body.syncCode);
+    if (!auth.ok) return json({ error: auth.status === 429 ? "Too many attempts — wait a minute." : "Handle and code don't match." }, auth.status);
+    return json({ ok: true, handle: auth.handle, isAdmin: auth.isAdmin }, 200);
+  }
+
+  return json({ error: "Unknown op." }, 400);
+}
+
+// ── /api/vibe/rooms — create / join / joinOfficial / mine / official ─────────
+async function vibeRoomsRoute(request, env, url) {
+  const db = env.VIBE_DB;
+
+  // Public, read-only: the official curated rooms (GET-friendly for testing).
+  const opQ = url.searchParams.get("op");
+  if (request.method === "GET" && opQ === "official") return vibeOfficialList(db);
+
+  if (request.method !== "POST") return json({ error: "POST only." }, 405);
+  const body = await vibeReadJson(request);
+  if (!body) return json({ error: "Bad request." }, 400);
+  if (body.op === "official") return vibeOfficialList(db);
+
+  // Everything below requires identity.
+  const auth = await vibeAuth(db, body.handle, body.syncCode);
+  if (!auth.ok) return json({ error: auth.status === 429 ? "Too many attempts — wait a minute." : "Sign in first — handle and code don't match." }, auth.status);
+  const now = Date.now();
+
+  if (body.op === "create") {
+    let name = String(body.name || "").replace(/[\u0000-\u001F\u007F]/g, "").trim().replace(/\s+/g, " ");
+    if (name.length < 1 || name.length > 50) return json({ error: "Room name must be 1–50 characters." }, 400);
+    const mine = await db.prepare(
+      "SELECT COUNT(*) AS n FROM rooms WHERE createdBy=?").bind(auth.lc).first();
+    if ((mine && mine.n) >= 20) return json({ error: "Room limit reached (20)." }, 403);
+    const d = new Date();
+    const dayStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+    const today = await db.prepare(
+      "SELECT COUNT(*) AS n FROM rooms WHERE createdBy=? AND createdAt>=?")
+      .bind(auth.lc, dayStart).first();
+    if ((today && today.n) >= VIBE_ROOMS_PER_DAY) {
+      return json({ error: "Room-creation limit for today (" + VIBE_ROOMS_PER_DAY + "/day on the free tier)." }, 429);
+    }
+    const id = vibeRandB32(16).toLowerCase();
+    const inviteCode = vibeRandB32(10);
+    await db.batch([
+      db.prepare("INSERT INTO rooms(id, name, official, createdBy, inviteCode, createdAt) VALUES(?,?,0,?,?,?)")
+        .bind(id, name, auth.lc, inviteCode, now),
+      db.prepare("INSERT OR IGNORE INTO memberships(roomId, handle_lc, joinedAt) VALUES(?,?,?)")
+        .bind(id, auth.lc, now),
+    ]);
+    return json({ ok: true, room: { id, name, official: false, inviteCode } }, 200);
+  }
+
+  if (body.op === "join") {
+    const invite = String(body.invite || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+    if (!invite) return json({ error: "Invite code required." }, 400);
+    const room = await db.prepare(
+      "SELECT id, name, official, inviteCode FROM rooms WHERE inviteCode=?").bind(invite).first();
+    if (!room) return json({ error: "Invite not found." }, 404);
+    const full = await vibeJoinCapCheck(db, room.id, auth.lc, now);
+    if (full) return full;
+    return json({ ok: true, room: { id: room.id, name: room.name, official: !!room.official, inviteCode: room.inviteCode } }, 200);
+  }
+
+  if (body.op === "joinOfficial") {
+    const roomId = String(body.roomId || "");
+    const room = await db.prepare(
+      "SELECT id, name FROM rooms WHERE id=? AND official=1").bind(roomId).first();
+    if (!room) return json({ error: "No such official room." }, 404);
+    const full = await vibeJoinCapCheck(db, room.id, auth.lc, now);
+    if (full) return full;
+    return json({ ok: true, room: { id: room.id, name: room.name, official: true } }, 200);
+  }
+
+  if (body.op === "mine") {
+    const rows = await db.prepare(
+      `SELECT r.id, r.name, r.official, r.inviteCode, m.joinedAt
+         FROM rooms r JOIN memberships m ON m.roomId = r.id
+        WHERE m.handle_lc=? ORDER BY m.joinedAt DESC`).bind(auth.lc).all();
+    const rooms = (rows && rows.results ? rows.results : []).map(r => ({
+      id: r.id, name: r.name, official: !!r.official,
+      inviteCode: r.official ? null : r.inviteCode, joinedAt: r.joinedAt,
+    }));
+    return json({ ok: true, rooms }, 200);
+  }
+
+  return json({ error: "Unknown op." }, 400);
+}
+
+// Join-path cap law: existing members re-join freely (idempotent) even at cap;
+// new member #51 bounces. Returns a Response when full, null when joined.
+async function vibeJoinCapCheck(db, roomId, lc, now) {
+  const already = await db.prepare(
+    "SELECT 1 AS x FROM memberships WHERE roomId=? AND handle_lc=?").bind(roomId, lc).first();
+  if (already) return null;
+  const n = await db.prepare(
+    "SELECT COUNT(*) AS n FROM memberships WHERE roomId=?").bind(roomId).first();
+  if ((n && n.n) >= VIBE_ROOM_CAP) {
+    return json({ error: "Room is full (" + VIBE_ROOM_CAP + " members max on the free tier)." }, 403);
+  }
+  await db.prepare("INSERT OR IGNORE INTO memberships(roomId, handle_lc, joinedAt) VALUES(?,?,?)")
+    .bind(roomId, lc, now).run();
+  return null;
+}
+
+async function vibeOfficialList(db) {
+  const rows = await db.prepare(
+    "SELECT id, name FROM rooms WHERE official=1 ORDER BY createdAt ASC").all();
+  const rooms = (rows && rows.results ? rows.results : []).map(r => ({ id: r.id, name: r.name, official: true }));
+  return json({ ok: true, rooms }, 200);
 }
