@@ -740,6 +740,33 @@
   @media(min-width:560px){.modal{align-items:center}}
   .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* ═══ WS9 · Portfolio Vibe (stage 4a) ═══ */
+  .vb-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .vb-row input[type="text"],.vb-row input[type="password"]{flex:1;min-width:0}
+  input[type="password"].vb-key{width:100%;font-family:var(--mono)}
+  #ws-9 label.fl{color:var(--ink)}
+  .vb-msg-line{margin:10px 0 2px;font-family:var(--sans);font-size:.85rem;color:var(--ink)}
+  .vb-list{margin-top:8px}
+  .vb-room{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--chip);border-radius:12px;padding:10px 12px;margin-top:8px}
+  .vb-room .vb-rn{font-family:var(--sans);font-weight:700;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vb-room .vb-tag{font-size:.7rem;color:var(--accent-deep,#2456C8);font-weight:700;letter-spacing:.03em}
+  .vb-chathd{display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .vb-conn{width:10px;height:10px;border-radius:50%;background:var(--red);flex:0 0 auto}
+  .vb-conn.on{background:var(--green)}
+  .vb-roster{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
+  .vb-msgs{margin-top:10px;max-height:52vh;overflow-y:auto;padding:2px 2px 6px;-webkit-overflow-scrolling:touch}
+  .vb-m{background:var(--chip);border-radius:12px;padding:8px 10px;margin:8px 0;font-family:var(--sans)}
+  .vb-m .vb-h{font-weight:800;color:var(--accent-deep,#2456C8);margin-right:6px}
+  .vb-m .vb-t{float:right;font-family:var(--mono);font-size:.68rem;color:var(--ink);opacity:.62;margin-left:8px}
+  .vb-m .vb-b{color:var(--ink);word-wrap:break-word;overflow-wrap:anywhere;white-space:pre-wrap}
+  .vb-m.mine{border-left:3px solid var(--accent)}
+  .vb-sys{font-family:var(--sans);font-size:.78rem;color:var(--ink);opacity:.72;text-align:center;margin:8px 0}
+  .vb-sys.held{color:var(--amber);opacity:1;font-weight:600}
+  .vb-sayrow{display:flex;gap:8px;margin-top:10px;align-items:flex-end}
+  input[type="text"].vb-say{flex:1;font-family:var(--sans)}
+  .vb-hiccup{border:1px dashed var(--red);border-radius:12px;padding:14px;margin-top:12px;font-family:var(--sans);color:var(--ink)}
+  .vb-code{font-family:var(--mono);letter-spacing:.04em;word-break:break-all}
 </style>
 </head>
 <body data-theme="light">
@@ -1501,7 +1528,356 @@
   </div>
 </div>
 
+
+<div class="workspace" id="ws-9" data-ws="9" hidden>
+
+  <section class="card">
+    <h2 class="pop">Your Vibe identity</h2>
+    <div id="vbAuthOut">
+      <p class="op-detail-intro">Pick a handle — no email, no password. Your generated <strong>sync-code</strong> becomes your only key, so you'll save it when it appears.</p>
+      <label class="fl" for="vbHandle">Handle</label>
+      <div class="vb-row">
+        <input id="vbHandle" type="text" placeholder="ex. DiamondHands" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Handle to claim">
+        <button class="btn primary" id="vbClaim" type="button">Claim</button>
+      </div>
+      <details style="margin-top:8px"><summary class="fl" style="cursor:pointer">Claiming a reserved handle? (founder key)</summary>
+        <input id="vbAdminKey" type="password" class="vb-key" placeholder="ex. paste VIBE_ADMIN_KEY — used once, never stored" autocomplete="off" aria-label="Admin key" style="margin-top:8px">
+      </details>
+      <p class="op-detail-intro" style="margin-top:14px">Already have a handle? Sign in:</p>
+      <label class="fl" for="vbInHandle">Handle</label>
+      <input id="vbInHandle" type="text" placeholder="ex. DiamondHands" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Handle">
+      <label class="fl" for="vbInCode" style="margin-top:8px">Sync-code</label>
+      <div class="vb-row">
+        <input id="vbInCode" type="text" placeholder="ex. VIBE-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Sync-code">
+        <button class="btn" id="vbSignin" type="button">Sign in</button>
+      </div>
+    </div>
+    <div id="vbAuthIn" hidden>
+      <p class="vb-msg-line" style="font-size:1rem">Signed in as <strong id="vbWho"></strong> <span id="vbCrown" hidden>👑</span></p>
+      <div class="vb-row">
+        <button class="btn" id="vbCopyCode" type="button">Copy sync-code</button>
+        <button class="btn" id="vbSignout" type="button">Sign out</button>
+      </div>
+    </div>
+    <div class="vb-msg-line" id="vbAuthMsg" aria-live="polite"></div>
+  </section>
+
+  <section class="card" style="margin-top:12px" id="vbRoomsCard">
+    <h2 class="pop">Rooms</h2>
+    <p class="op-detail-intro">Official rooms are open to everyone. Your own rooms travel by invite code.</p>
+    <div class="vb-list" id="vbOfficialList"></div>
+    <div class="vb-list" id="vbMineList"></div>
+    <label class="fl" for="vbNewRoom" style="margin-top:12px">Create a room</label>
+    <div class="vb-row">
+      <input id="vbNewRoom" type="text" placeholder="ex. 💎 Diamond Hands Den" autocomplete="off" aria-label="New room name">
+      <button class="btn primary" id="vbCreate" type="button">Create</button>
+    </div>
+    <label class="fl" for="vbInviteCode" style="margin-top:8px">Join with an invite code</label>
+    <div class="vb-row">
+      <input id="vbInviteCode" type="text" placeholder="ex. 7Q3KM9P2XA" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Invite code">
+      <button class="btn" id="vbJoin" type="button">Join</button>
+    </div>
+    <div class="vb-msg-line" id="vbRoomsMsg" aria-live="polite"></div>
+  </section>
+
+  <section class="card" style="margin-top:12px" id="vbChatCard" hidden>
+    <div class="vb-chathd">
+      <h2 class="pop" id="vbChatName" style="margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Room</h2>
+      <span class="vb-roster" id="vbRosterN">0 here</span>
+      <span class="vb-conn" id="vbConnDot" title="Connection"></span>
+      <button class="btn" id="vbLeave" type="button">Back</button>
+    </div>
+    <div class="vb-msgs" id="vbMsgs" aria-live="polite"></div>
+    <div class="vb-sayrow">
+      <input id="vbSay" type="text" class="vb-say" placeholder="ex. sup — first message travels the wire" maxlength="2000" autocomplete="off" aria-label="Message">
+      <button class="btn primary" id="vbSend" type="button">Send</button>
+    </div>
+    <div class="wl-memo-count" id="vbSayCount"></div>
+    <p class="op-detail-intro" style="margin-top:10px">Educational chat between traders — never investment advice. Be kind; report/block tools arrive in the Shield update.</p>
+  </section>
+
+  <div class="vb-hiccup" id="vbHiccup" hidden></div>
+</div>
+
 <script>
+
+/* ═══ VIBE MODULE (WS9 · stage 4a) ═══════════════════════════════════════════
+   Frontend fence (Q1's twin): every entry point and socket callback runs inside
+   vbSafe() — a vibe bug renders a hiccup card in WS9 and NEVER escapes to the
+   eight calculators. Sync-codes: POST bodies and wss frames only, never URLs.
+   Admin key: used once at claim, never stored. All user content rendered via
+   textContent — no innerHTML for anything a stranger typed. */
+function vibeEnsure(){
+  if(!S.vibe||typeof S.vibe!=="object")S.vibe={handle:"",syncCode:"",isAdmin:false,activeRoom:""};
+  if(typeof S.vibe.handle!=="string")S.vibe.handle="";
+  if(typeof S.vibe.syncCode!=="string")S.vibe.syncCode="";
+}
+function vbHiccupShow(e){
+  try{console.error("vibe fence caught:",(e&&e.stack)||e);}catch(_){}
+  try{
+    const h=$("vbHiccup");
+    if(h){h.hidden=false;h.textContent="vibe hiccup — this panel stumbled, but every calculator is fine. Refresh to retry; if it repeats, the thumbs-down + worker logs tell the story.";}
+  }catch(_){}
+}
+function vbSafe(fn){return function(){try{return fn.apply(this,arguments);}catch(e){vbHiccupShow(e);}};}
+async function vbSafeA(p){try{return await p;}catch(e){vbHiccupShow(e);}}
+
+async function vbApi(path,body){
+  try{
+    const r=await fetch(path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body||{})});
+    let data=null;
+    try{data=await r.json();}catch(_){return {status:0,data:{error:"Vibe service missing — deploy the latest worker.js"}};}
+    return {status:r.status,data};
+  }catch(_){return {status:0,data:{error:"Network hiccup — check your connection and try again."}};}
+}
+function vbEsc(s){return String(s==null?"":s);}
+function vbTime(ts){const d=new Date(ts);const p=n=>String(n).padStart(2,"0");return p(d.getHours())+":"+p(d.getMinutes());}
+
+/* ── identity ── */
+function vbRenderAuth(){
+  vibeEnsure();
+  const inn=$("vbAuthIn"),out=$("vbAuthOut");
+  const signed=!!(S.vibe.handle&&S.vibe.syncCode);
+  if(out)out.hidden=signed; if(inn)inn.hidden=!signed;
+  if(signed){const w=$("vbWho");if(w)w.textContent="@"+S.vibe.handle;const c=$("vbCrown");if(c)c.hidden=!S.vibe.isAdmin;}
+}
+function vbCodeSheet(title,intro){
+  openSheet(title,intro,S.vibe.syncCode,[
+    ["📋 Copy code",async function(){const ok=await copyText(S.vibe.syncCode);this.textContent=ok?"✓ Copied":"Copy failed — long-press the code";},false],
+    ["I saved it ✓",closeSheet,true]
+  ]);
+}
+const vbClaim=vbSafe(async function(){
+  vibeEnsure();
+  const hEl=$("vbHandle"),kEl=$("vbAdminKey"),msg=$("vbAuthMsg");
+  const handle=(hEl&&hEl.value||"").trim();
+  const adminKey=kEl?kEl.value:"";
+  if(kEl)kEl.value="";                       // the key is used once — never kept
+  if(!/^[A-Za-z][A-Za-z0-9_]{2,19}$/.test(handle)){if(msg)msg.textContent="Handles: 3–20 chars, start with a letter, letters/numbers/_ only.";return;}
+  if(msg)msg.textContent="Claiming…";
+  const body={op:"claim",handle}; if(adminKey)body.adminKey=adminKey;
+  const r=await vbApi("/api/vibe/handle",body);
+  if(r.status===200&&r.data&&r.data.ok){
+    S.vibe.handle=r.data.handle;S.vibe.syncCode=r.data.syncCode;S.vibe.isAdmin=!!r.data.isAdmin;persist();
+    if(msg)msg.textContent="";
+    vbRenderAuth();
+    vbCodeSheet("Save your sync-code — NOW","Your sync-code IS your identity. Lost code = lost handle, permanently — there is no recovery until accounts arrive. It's stored on this device and rides your 💾 backups, but copy it somewhere safe too.");
+    vbLoadRooms();
+  }else if(msg){msg.textContent=(r.data&&r.data.error)||"Couldn't claim that handle.";}
+});
+const vbSignin=vbSafe(async function(){
+  vibeEnsure();
+  const msg=$("vbAuthMsg");
+  const handle=($("vbInHandle")&&$("vbInHandle").value||"").trim();
+  const code=($("vbInCode")&&$("vbInCode").value||"").trim();
+  if(!handle||!code){if(msg)msg.textContent="Enter your handle and sync-code.";return;}
+  if(msg)msg.textContent="Signing in…";
+  const r=await vbApi("/api/vibe/handle",{op:"verify",handle,syncCode:code});
+  if(r.status===200&&r.data&&r.data.ok){
+    S.vibe.handle=r.data.handle;S.vibe.syncCode=code;S.vibe.isAdmin=!!r.data.isAdmin;persist();
+    if($("vbInCode"))$("vbInCode").value="";
+    if(msg)msg.textContent="";
+    vbRenderAuth();vbLoadRooms();
+  }else if(msg){msg.textContent=(r.data&&r.data.error)||"Sign-in failed.";}
+});
+const vbSignout=vbSafe(function(){
+  openSheet("Sign out?","Your handle stays claimed. To return you'll need your sync-code — make sure it's saved (💾 backups carry it).",null,[
+    ["Copy code first",async function(){const ok=await copyText(S.vibe.syncCode);this.textContent=ok?"✓ Copied":"Copy failed";},false],
+    ["Sign out",function(){vbDisconnect(true);S.vibe={handle:"",syncCode:"",isAdmin:false,activeRoom:""};persist();vbRenderAuth();vbRenderRooms({official:vbRoomsCache.official,mine:[]});closeSheet();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+});
+
+/* ── rooms ── */
+let vbRoomsCache={official:[],mine:[]};
+function vbRoomRow(r,kind){
+  const row=document.createElement("div");row.className="vb-room";
+  const left=document.createElement("div");left.style.minWidth="0";
+  const nm=document.createElement("div");nm.className="vb-rn";nm.textContent=r.name;left.appendChild(nm);
+  if(kind==="official"){const t=document.createElement("div");t.className="vb-tag";t.textContent="OFFICIAL";left.appendChild(t);}
+  else if(r.inviteCode){const t=document.createElement("div");t.className="vb-tag";t.textContent="invite: "+r.inviteCode;left.appendChild(t);}
+  row.appendChild(left);
+  const b=document.createElement("button");b.type="button";b.className="btn primary";b.textContent="Open";
+  b.addEventListener("click",vbSafe(function(){vbOpenRoom(r,kind==="official");}));
+  row.appendChild(b);
+  return row;
+}
+function vbRenderRooms(data){
+  const ol=$("vbOfficialList"),ml=$("vbMineList");
+  if(ol){ol.innerHTML="";(data.official||[]).forEach(r=>ol.appendChild(vbRoomRow(r,"official")));}
+  if(ml){ml.innerHTML="";(data.mine||[]).filter(m=>!m.official).forEach(r=>ml.appendChild(vbRoomRow(r,"mine")));}
+}
+const vbLoadRooms=vbSafe(async function(){
+  vibeEnsure();
+  let official=[];
+  try{const r=await fetch("/api/vibe/rooms?op=official");const j=await r.json();if(j&&j.ok)official=j.rooms||[];}
+  catch(_){const m=$("vbRoomsMsg");if(m)m.textContent="Vibe service missing — deploy the latest worker.js";}
+  let mine=[];
+  if(S.vibe.handle&&S.vibe.syncCode){
+    const r=await vbApi("/api/vibe/rooms",{op:"mine",handle:S.vibe.handle,syncCode:S.vibe.syncCode});
+    if(r.status===200&&r.data&&r.data.ok)mine=r.data.rooms||[];
+  }
+  vbRoomsCache={official,mine};
+  vbRenderRooms(vbRoomsCache);
+});
+const vbCreate=vbSafe(async function(){
+  const msg=$("vbRoomsMsg"),el=$("vbNewRoom");
+  if(!(S.vibe.handle&&S.vibe.syncCode)){if(msg)msg.textContent="Claim or sign in first — a handle is your room key.";return;}
+  const name=(el&&el.value||"").trim();
+  if(!name){if(msg)msg.textContent="Give the room a name.";return;}
+  if(msg)msg.textContent="Creating…";
+  const r=await vbApi("/api/vibe/rooms",{op:"create",handle:S.vibe.handle,syncCode:S.vibe.syncCode,name});
+  if(r.status===200&&r.data&&r.data.ok){if(el)el.value="";if(msg)msg.textContent="Room created — invite code "+r.data.room.inviteCode;vbLoadRooms();}
+  else if(msg){msg.textContent=(r.data&&r.data.error)||"Couldn't create the room.";}
+});
+const vbJoin=vbSafe(async function(){
+  const msg=$("vbRoomsMsg"),el=$("vbInviteCode");
+  if(!(S.vibe.handle&&S.vibe.syncCode)){if(msg)msg.textContent="Claim or sign in first.";return;}
+  const invite=(el&&el.value||"").trim();
+  if(!invite){if(msg)msg.textContent="Paste an invite code.";return;}
+  if(msg)msg.textContent="Joining…";
+  const r=await vbApi("/api/vibe/rooms",{op:"join",handle:S.vibe.handle,syncCode:S.vibe.syncCode,invite});
+  if(r.status===200&&r.data&&r.data.ok){if(el)el.value="";if(msg)msg.textContent="";vbLoadRooms();vbOpenRoom(r.data.room,false);}
+  else if(msg){msg.textContent=(r.data&&r.data.error)||"Couldn't join with that code.";}
+});
+const vbOpenRoom=vbSafe(async function(room,official){
+  const msg=$("vbRoomsMsg");
+  if(!(S.vibe.handle&&S.vibe.syncCode)){if(msg)msg.textContent="Claim or sign in first — rooms need a handle.";return;}
+  if(official){
+    const r=await vbApi("/api/vibe/rooms",{op:"joinOfficial",handle:S.vibe.handle,syncCode:S.vibe.syncCode,roomId:room.id});
+    if(!(r.status===200&&r.data&&r.data.ok)){if(msg)msg.textContent=(r.data&&r.data.error)||"Couldn't enter that room.";return;}
+  }
+  S.vibe.activeRoom=room.id;persist();
+  const nm=$("vbChatName");if(nm)nm.textContent=room.name;
+  const cc=$("vbChatCard");if(cc)cc.hidden=false;
+  const rc=$("vbRoomsCard");if(rc)rc.hidden=true;
+  const mm=$("vbMsgs");if(mm)mm.innerHTML="";
+  vbConnect(room.id);
+});
+
+/* ── socket ── */
+let vbWS=null,vbWant=null,vbTries=0,vbTimer=null,vbRoster=new Set();
+function vbConnDot(on){const d=$("vbConnDot");if(d)d.classList.toggle("on",!!on);}
+function vbSys(text,held){
+  const m=$("vbMsgs");if(!m)return;
+  const div=document.createElement("div");div.className="vb-sys"+(held?" held":"");div.textContent=text;
+  m.appendChild(div);m.scrollTop=m.scrollHeight;
+}
+function vbMsgRow(o){
+  const m=$("vbMsgs");if(!m)return;
+  const div=document.createElement("div");div.className="vb-m"+(o.handle===S.vibe.handle?" mine":"");
+  const t=document.createElement("span");t.className="vb-t";t.textContent=vbTime(o.ts);
+  const h=document.createElement("span");h.className="vb-h";h.textContent="@"+vbEsc(o.handle);
+  const b=document.createElement("span");b.className="vb-b";b.textContent=vbEsc(o.body);
+  div.appendChild(t);div.appendChild(h);div.appendChild(b);
+  m.appendChild(div);m.scrollTop=m.scrollHeight;
+}
+function vbRosterN(){const el=$("vbRosterN");if(el)el.textContent=vbRoster.size+" here";}
+const vbOnMsg=vbSafe(function(ev){
+  let o=null;try{o=JSON.parse(ev.data);}catch(_){return;}
+  if(o.t==="welcome"){
+    vbRoster=new Set(o.roster||[]);vbRosterN();
+    (o.backfill||[]).forEach(vbMsgRow);
+    vbSys("— you're in · last "+(o.backfill?o.backfill.length:0)+" messages —");
+  }else if(o.t==="msg"){vbMsgRow(o);}
+  else if(o.t==="join"){vbRoster.add(o.handle);vbRosterN();vbSys("@"+o.handle+" joined");}
+  else if(o.t==="leave"){vbRoster.delete(o.handle);vbRosterN();vbSys("@"+o.handle+" left");}
+  else if(o.t==="held"){vbSys(o.error||"Message held by the scam filter.",true);}
+  else if(o.t==="err"){vbSys(o.error||"vibe hiccup");}
+});
+function vbConnect(roomId){
+  vbWant=roomId;vbTries=0;clearTimeout(vbTimer);
+  vbDial();
+}
+const vbDial=vbSafe(function(){
+  if(!vbWant)return;
+  vbDisconnect(false);
+  const proto=location.protocol==="https:"?"wss://":"ws://";
+  let ws=null;
+  try{ws=new WebSocket(proto+location.host+"/api/vibe/ws?room="+encodeURIComponent(vbWant));}
+  catch(e){vbSys("Couldn't open a connection.");return;}
+  vbWS=ws;
+  ws.addEventListener("open",vbSafe(function(){
+    vbTries=0;vbConnDot(true);
+    ws.send(JSON.stringify({op:"auth",handle:S.vibe.handle,syncCode:S.vibe.syncCode}));
+  }));
+  ws.addEventListener("message",vbOnMsg);
+  ws.addEventListener("close",vbSafe(function(){
+    vbConnDot(false);
+    if(!vbWant)return;
+    vbTries++;const delay=Math.min(15000,Math.round(1000*Math.pow(1.6,vbTries)));
+    vbSys("reconnecting…");
+    clearTimeout(vbTimer);vbTimer=setTimeout(vbDial,delay);
+  }));
+  ws.addEventListener("error",vbSafe(function(){/* close handler drives retry */}));
+});
+function vbDisconnect(forget){
+  if(forget){vbWant=null;clearTimeout(vbTimer);}
+  if(vbWS){try{vbWS.close(1000,"bye");}catch(_){}vbWS=null;}
+  vbConnDot(false);
+}
+const vbLeave=vbSafe(function(){
+  vbDisconnect(true);
+  S.vibe.activeRoom="";persist();
+  const cc=$("vbChatCard");if(cc)cc.hidden=true;
+  const rc=$("vbRoomsCard");if(rc)rc.hidden=false;
+  vbRoster=new Set();vbRosterN();
+});
+const vbSend=vbSafe(function(){
+  const el=$("vbSay");if(!el)return;
+  const body=el.value;
+  if(!body.trim())return;
+  if(body.length>2000){vbSys("Message exceeds 2,000 characters.",true);return;}
+  if(!vbWS||vbWS.readyState!==1){vbSys("Not connected yet — hold on…");return;}
+  vbWS.send(JSON.stringify({op:"msg",body}));
+  el.value="";vbUpdSayCount(0);el.focus();
+});
+function vbUpdSayCount(len){
+  const c=$("vbSayCount");if(!c)return;
+  if(len===0){c.style.display="none";return;}
+  c.style.display="";
+  const left=2000-len;
+  c.textContent=left+" character"+(left===1?"":"s")+" left";
+  c.classList.toggle("low",left<=75);
+}
+
+/* ── lazy bind + enter hook (fenced) ── */
+let vbBound=false;
+const vibeOnEnter=vbSafe(function(){
+  vibeEnsure();
+  if(S._vibeBoom){throw new Error("deliberate vibe test throw — frontend fence check");}
+  if(!vbBound){
+    vbBound=true;
+    const on=(id,ev,fn)=>{const el=$(id);if(el)el.addEventListener(ev,fn);};
+    on("vbClaim","click",vbClaim);
+    on("vbSignin","click",vbSignin);
+    on("vbSignout","click",vbSignout);
+    on("vbCopyCode","click",vbSafe(function(){vbCodeSheet("Your sync-code","This code IS your identity — lost code = lost handle, permanently. It rides your 💾 backups.");}));
+    on("vbCreate","click",vbCreate);
+    on("vbJoin","click",vbJoin);
+    on("vbLeave","click",vbLeave);
+    on("vbSend","click",vbSend);
+    on("vbSay","input",vbSafe(function(e){vbUpdSayCount((e.target.value||"").length);}));
+    on("vbSay","keydown",vbSafe(function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();vbSend();}}));
+    on("vbHandle","keydown",vbSafe(function(e){if(e.key==="Enter"){e.preventDefault();vbClaim();}}));
+    on("vbInCode","keydown",vbSafe(function(e){if(e.key==="Enter"){e.preventDefault();vbSignin();}}));
+    on("vbInviteCode","keydown",vbSafe(function(e){if(e.key==="Enter"){e.preventDefault();vbJoin();}}));
+    on("vbNewRoom","keydown",vbSafe(function(e){if(e.key==="Enter"){e.preventDefault();vbCreate();}}));
+  }
+  vbRenderAuth();
+  vbLoadRooms();
+});
+if(typeof switchWs==="function"){
+  const _vbOrigSwitch=switchWs;
+  switchWs=function(id){
+    _vbOrigSwitch(id);
+    if(id===9)vibeOnEnter();
+    else vbDisconnect(false);            // leave panel = pause socket (resume on return)
+  };
+}
+if(typeof window!=="undefined")window.__vibeTest={vibeOnEnter,vbUpdSayCount,vbSafe,vbHiccupShow};
+/* ═══ end vibe module ═══ */
+
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
@@ -1523,6 +1899,7 @@ const DEFAULTS={
   hgPort:"",hgTickerSym:"SPY",hgSpy:"",hgPct:5,hgBudgetPct:5,hgLinked:true,hgStrike:"",hgExpiry:"",hgAsk:"",hgIV:"",hgPutOpen:true,hgMemo:"",
   wlItems:[],wlMemo:"",wlRecent:[],watchlists:null,wlActive:0,
   pmirHoldings:[],pmirAlerts:[],pmirMemo:"",pmirAlertsOpen:false,
+  vibe:{handle:"",syncCode:"",isAdmin:false,activeRoom:""},
   ciMilestones:[18,21,55,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
@@ -1538,7 +1915,8 @@ const WORKSPACES=[
   {id:5,num:5,name:"Options Sizer",tagline:"Size options by price-move scenarios.",ready:true},
   {id:2,num:6,name:"% Price-Move Ladder",tagline:"Expected dollar moves at each % step.",ready:true},
   {id:7,num:7,name:"Watchlist Dashboard",tagline:"Track your tickers, stories and levels.",ready:true},
-  {id:8,num:8,name:"Portfolio Mirror",tagline:"Emotionless momentum check on your holdings.",ready:true}
+  {id:8,num:8,name:"Portfolio Mirror",tagline:"Emotionless momentum check on your holdings.",ready:true},
+  {id:9,num:9,name:"Portfolio Vibe",tagline:"Live rooms · drops & tick-offs.",ready:true}
 ]
 .sort((a,b)=>a.num-b.num);
 function buildNav(){
@@ -2095,7 +2473,7 @@ function restoreBackup(file){
       const parsed=JSON.parse(reader.result);
       const st=(parsed&&parsed.state&&typeof parsed.state==="object")?parsed.state:parsed;
       if(!st||typeof st!=="object"||Array.isArray(st))throw new Error("bad");
-      const known=["watchlists","opScenarios","hgPort","curSym","memo","wlItems"];
+      const known=["watchlists","opScenarios","hgPort","curSym","memo","wlItems","vibe"];
       if(!known.some(k=>k in st))throw new Error("unrecognized");
       Object.keys(st).forEach(k=>{S[k]=st[k];});
       if(typeof wlEnsure==="function")wlEnsure();
