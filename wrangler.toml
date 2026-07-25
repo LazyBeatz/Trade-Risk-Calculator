@@ -11,7 +11,7 @@
 
 name = "trade-risk-calculator-app"
 main = "worker.js"
-compatibility_date = "2026-06-22"   # if your existing file has a different
+compatibility_date = "2025-06-01"   # if your existing file has a different
                                     # date, KEEP YOURS — don't downgrade it.
 
 # ── Static frontend (unchanged) ──────────────────────────────────────────────
@@ -23,7 +23,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "VIBE_DB"
 database_name = "portfolio-vibe"
-database_id = "65d722a5-904a-4e93-8951-5bc8bfa15a18"
+database_id = "PASTE-YOUR-DATABASE-ID-HERE"
 
 # ── Portfolio Vibe: Durable Objects (live rooms) ─────────────────────────────
 [[durable_objects.bindings]]
@@ -36,9 +36,10 @@ class_name = "VibeRoom"
 tag = "v1"
 new_sqlite_classes = ["VibeRoom"]
 
-
-
-
+# ── Observability (RECEIPTS LAW, 24-Jl-26 — permanent) ───────────────────────
+# Any future supersede of this file MUST carry this block: config outranks the
+# dashboard toggle, so a toml without it silently switches receipts back off
+# on the next deploy. Analytics is the gauge; these logs are the record.
 [observability.logs]
 enabled = true
 invocation_logs = true
