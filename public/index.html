@@ -1543,6 +1543,7 @@
       <details style="margin-top:8px"><summary class="fl" style="cursor:pointer">Claiming a reserved handle? (founder key)</summary>
         <input id="vbAdminKey" type="password" class="vb-key" placeholder="ex. paste VIBE_ADMIN_KEY — used once, never stored" autocomplete="off" aria-label="Admin key" style="margin-top:8px">
       </details>
+      <div class="vb-msg-line" id="vbClaimMsg" aria-live="polite"></div>
       <p class="op-detail-intro" style="margin-top:14px">Already have a handle? Sign in:</p>
       <label class="fl" for="vbInHandle">Handle</label>
       <input id="vbInHandle" type="text" placeholder="ex. DiamondHands" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Handle">
@@ -1551,6 +1552,7 @@
         <input id="vbInCode" type="text" placeholder="ex. VIBE-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Sync-code">
         <button class="btn" id="vbSignin" type="button">Sign in</button>
       </div>
+      <div class="vb-msg-line" id="vbInMsg" aria-live="polite"></div>
     </div>
     <div id="vbAuthIn" hidden>
       <p class="vb-msg-line" style="font-size:1rem">Signed in as <strong id="vbWho"></strong> <span id="vbCrown" hidden>👑</span></p>
@@ -1559,7 +1561,6 @@
         <button class="btn" id="vbSignout" type="button">Sign out</button>
       </div>
     </div>
-    <div class="vb-msg-line" id="vbAuthMsg" aria-live="polite"></div>
   </section>
 
   <section class="card" style="margin-top:12px" id="vbRoomsCard">
@@ -4525,7 +4526,7 @@ function vbCodeSheet(title,intro){
 }
 const vbClaim=vbSafe(async function(){
   vibeEnsure();
-  const hEl=$("vbHandle"),kEl=$("vbAdminKey"),msg=$("vbAuthMsg");
+  const hEl=$("vbHandle"),kEl=$("vbAdminKey"),msg=$("vbClaimMsg");
   const handle=(hEl&&hEl.value||"").trim();
   const adminKey=kEl?kEl.value:"";
   if(kEl)kEl.value="";                       // the key is used once — never kept
@@ -4543,7 +4544,7 @@ const vbClaim=vbSafe(async function(){
 });
 const vbSignin=vbSafe(async function(){
   vibeEnsure();
-  const msg=$("vbAuthMsg");
+  const msg=$("vbInMsg");
   const handle=($("vbInHandle")&&$("vbInHandle").value||"").trim();
   const code=($("vbInCode")&&$("vbInCode").value||"").trim();
   if(!handle||!code){if(msg)msg.textContent="Enter your handle and sync-code.";return;}
