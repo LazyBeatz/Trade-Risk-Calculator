@@ -802,9 +802,13 @@ function vibeNewSyncCode() {
 }
 
 function vibeNormalizeCode(input) {
-  // tolerate dashes/spaces/case; strip the VIBE prefix only when lengths prove it
-  const s = String(input || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
-  if (s.length === 36 && s.startsWith("VIBE")) return s.slice(4);
+  // CROCKFORD FORGIVENESS (porch-ratified, 25-Jl-26): the spec's own decode
+  // table — case-fold, hyphens/spaces ignored, O→0, I→1, L→1 — applied on the
+  // VERIFY path only, before hashing. Stored hashes never change; the mapping
+  // is canonical so entropy cost is zero. Handwriting can't lock a citizen out.
+  let s = String(input || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+  s = s.replace(/O/g, "0").replace(/[IL]/g, "1");
+  if (s.length === 36 && s.startsWith("V1BE")) return s.slice(4); // VIBE folds to V1BE
   if (s.length === 32) return s;
   return null; // wrong shape → caller treats as auth failure
 }
