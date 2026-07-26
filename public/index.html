@@ -767,6 +767,35 @@
   input[type="text"].vb-say{flex:1;font-family:var(--sans)}
   .vb-hiccup{border:1px dashed var(--red);border-radius:12px;padding:14px;margin-top:12px;font-family:var(--sans);color:var(--ink)}
   .vb-code{font-family:var(--mono);letter-spacing:.04em;word-break:break-all}
+
+  /* ═══ WS9 · Live Objects (stage 4b) ═══ */
+  .vb-lo{border:1.5px dashed var(--accent);border-radius:14px;background:var(--card);padding:10px 12px;margin-top:8px;font-family:var(--sans)}
+  .vb-lo.gray{border-color:var(--muted)}
+  .vb-lo-hd{display:flex;align-items:center;gap:8px}
+  .vb-lo-hd .ic{font-size:1.05rem}
+  .vb-lo-hd .t{font-weight:800;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vb-lo-hd .tag{margin-left:auto;font-size:.64rem;font-weight:800;letter-spacing:.1em;color:var(--ink);opacity:.6;text-transform:uppercase;white-space:nowrap}
+  .vb-lo-big{font-weight:800;color:var(--ink);margin-top:6px}
+  .vb-score{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:800;font-size:1.25rem;color:var(--green)}
+  .vb-stars{letter-spacing:.06em}
+  .vb-lo-row{display:flex;align-items:center;gap:8px;padding:7px 2px;border-top:1px dashed var(--chip)}
+  .vb-lo-row:first-of-type{border-top:0}
+  .vb-lo-row .sym{font-family:var(--mono);font-style:italic;font-weight:800;color:var(--ink)}
+  .vb-lo-row .px{margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+  .vb-lo-row.live{cursor:pointer}
+  .vb-lo-sub{font-size:.76rem;color:var(--ink);opacity:.78;width:100%}
+  .vb-lo-exp{display:none;padding:4px 2px 8px;border-top:1px dashed var(--chip)}
+  .vb-lo-exp.show{display:block}
+  .vb-thesis{font-size:.82rem;font-style:italic;color:var(--ink);border-left:3px solid var(--accent);padding:5px 9px;background:var(--chip);border-radius:8px;margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+  .vb-memo{font-size:.8rem;color:var(--ink);opacity:.85;margin-top:6px;white-space:pre-wrap;overflow-wrap:anywhere}
+  .vb-kicker{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.78rem;color:var(--ink);margin-top:8px}
+  .vb-modeled{font-size:.6rem;font-weight:800;letter-spacing:.08em;color:var(--amber);border:1px solid var(--amber);border-radius:6px;padding:1px 5px;margin-left:6px;vertical-align:middle}
+  .vb-foot{font-size:.68rem;color:var(--ink);opacity:.6;margin-top:8px}
+  .vb-anchor{font-family:var(--mono);font-size:.68rem;color:var(--ink);opacity:.6;margin-top:4px}
+  .vb-lo-btns{display:flex;gap:8px;margin-top:10px}
+  .vb-lo-btns .btn{flex:1}
+  .vb-heat{font-weight:800;color:var(--amber);letter-spacing:.06em}
+  .vb-rank{width:1.6em;text-align:center;flex:0 0 auto}
 </style>
 </head>
 <body data-theme="light">
@@ -4647,6 +4676,7 @@ function vbMsgRow(o){
   const h=document.createElement("span");h.className="vb-h";h.textContent="@"+vbEsc(o.handle);
   const b=document.createElement("span");b.className="vb-b";b.textContent=vbEsc(o.body);
   div.appendChild(t);div.appendChild(h);div.appendChild(b);
+  try{vbRenderDrop(div,o.body);}catch(e){console.error("vibe drop render:",(e&&e.message)||e);div.appendChild(vbGray("couldn't render this drop"));}
   m.appendChild(div);m.scrollTop=m.scrollHeight;
 }
 function vbRosterN(){const el=$("vbRosterN");if(el)el.textContent=vbRoster.size+" here";}
@@ -4716,6 +4746,272 @@ function vbUpdSayCount(len){
   const left=2000-len;
   c.textContent=left+" character"+(left===1?"":"s")+" left";
   c.classList.toggle("low",left<=75);
+}
+
+
+/* ── STAGE 4b · LIVE OBJECTS RENDERER — spends the Rosetta Stone ─────────────
+   Rails in force: (1) decoded payloads are stranger input — every string via
+   textContent, every enum whitelist-mapped before touching class/style;
+   (2) decode is a fortress — per-message try/catch, gray card, room survives;
+   (3) non-pmir #d= codes get the generic card, never a misfire; (4) quote
+   enrichment is paced + cached, failure mode = absence. Laws quoted at site. */
+const VB_FOOT_CASINO="Educational signals — Not investment advice.";
+const VB_CASINO_URL="https://green-flag-slot-monsters.lexbeatz.workers.dev";
+const VB_M={G:"Surging",B:"Easing off",P:"Tapping gas",R:"Slowing"};
+const VB_D={GS:"Strong up",BL:"Mild up",OR:"Gently down",RS:"Strong down"};
+const VB_P={G:"Strengthening",N:"Flat",R:"Weakening"};
+const VB_WS_OF_T={pm:1,hg:6,gl:3,ci:4,op:5,wl:7,pmir:8};
+const VB_T_LABEL={pm:"Portfolio Sizer",hg:"Portfolio Hedge",gl:"Gain/Loss",ci:"Compound Interest",op:"Options Sizer",wl:"Watchlist",pmir:"Portfolio Mirror"};
+
+function vbDark(){try{return document.documentElement.getAttribute("data-theme")==="dark";}catch(_){return false;}}
+function vbInt(v,min,max){const n=Number(v);return Number.isInteger(n)&&n>=min&&n<=max?n:null;}
+function vbNum(v){const n=Number(v);return Number.isFinite(n)?n:null;}
+function vbTierDot(t){ // rail 1: tier is an ENUM — lookup only, never interpolated
+  const tv=vbInt(t,1,4);
+  const d=document.createElement("span");
+  d.style.cssText="width:11px;height:11px;border-radius:50%;flex:0 0 auto;display:inline-block";
+  d.style.background=tv?((vbDark()?PM_TIER_DARK:PM_TIER_COLOR)[tv]):"var(--muted)";
+  if(tv)d.title=PM_TIER_LABEL[tv];
+  return d;
+}
+function vbB64JsonUTF8(code){ // Rosetta decode — throws on garbage (fortress catches)
+  const b=String(code).replace(/-/g,"+").replace(/_/g,"/");
+  const pad=b+"===".slice(0,(4-b.length%4)%4);
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(pad),c=>c.charCodeAt(0))));
+}
+function vbCurFromTicker(t){return /\.(TO|V|NE|CN)$/i.test(String(t||""))?"C$":"$";}
+function vbEl(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=String(text);return e;}
+function vbCard(icon,title,tag){
+  const c=vbEl("div","vb-lo");
+  const hd=vbEl("div","vb-lo-hd");
+  hd.appendChild(vbEl("span","ic",icon));
+  hd.appendChild(vbEl("span","t",title));
+  hd.appendChild(vbEl("span","tag",tag));
+  c.appendChild(hd);
+  return c;
+}
+function vbGray(label){const c=vbCard("🃏",label,"unreadable");c.classList.add("gray");return c;}
+function vbCasinoLink(){const a=vbEl("a","btn","Open in Casino 🎰");a.href=VB_CASINO_URL;a.target="_blank";a.rel="noopener";a.style.textDecoration="none";a.style.textAlign="center";return a;}
+function vbImportBtn(payload,label){
+  const b=vbEl("button","btn primary",label||"⤵ Import");b.type="button";
+  b.addEventListener("click",vbSafe(function(){
+    const clone=JSON.parse(JSON.stringify(payload));
+    applyImport(clone);persist();
+    const ws=VB_WS_OF_T[clone.t];if(ws)switchWs(ws);
+  }));
+  return b;
+}
+
+/* ── quote enrichment (rail 4): session cache + 700ms pacing, absence on fail ── */
+const vbQCache=new Map();let vbQBusy=false;const vbQQueue=[];
+function vbQuoteLine(sym,el){
+  const s=String(sym||"").toUpperCase();
+  if(!/^[A-Z0-9.\-]{1,12}$/.test(s))return;             // same regex law as the ledger
+  const hit=vbQCache.get(s);
+  if(hit){el.textContent=hit;return;}
+  vbQQueue.push({s,el});vbQPump();
+}
+function vbQPump(){
+  if(vbQBusy||!vbQQueue.length)return;
+  vbQBusy=true;
+  const job=vbQQueue.shift();
+  fetch("/api/quote?symbol="+encodeURIComponent(job.s))
+    .then(r=>r.json())
+    .then(j=>{ if(j&&typeof j.price==="number"){
+        const line=job.s+"  "+(j.currency==="CAD"?"C$":"$")+j.price+(typeof j.changePct==="number"?"  "+(j.changePct>=0?"+":"")+j.changePct+"%":"");
+        vbQCache.set(job.s,line);
+        const again=vbQCache.get(job.s);
+        job.el.textContent=again;
+        vbQQueue.forEach(q=>{if(q.s===job.s){q.el.textContent=again;}});
+        for(let i=vbQQueue.length-1;i>=0;i--)if(vbQQueue[i].s===job.s)vbQQueue.splice(i,1);
+      } })
+    .catch(()=>{})                                        // absence, never a broken card
+    .finally(()=>{setTimeout(()=>{vbQBusy=false;vbQPump();},700);});
+}
+
+/* ── species cards ── */
+function vbCardSpin(p){
+  const t=String(p.t||"");
+  const c=vbCard("🎰",t||"Spin","Spin Drop");
+  const r=p.r||{};
+  const big=vbEl("div","vb-lo-big",String(r.big||""));c.appendChild(big);
+  const stars=vbInt(r.stars,0,5);
+  const line=vbEl("div",null,"");
+  const st=vbEl("span","vb-stars",stars!=null?"★".repeat(stars)+"☆".repeat(5-stars):"");
+  st.style.color="var(--amber)";
+  const sc=vbNum(r.sc);
+  const scEl=vbEl("span","vb-score",sc!=null?"  GFM "+sc:"");
+  line.appendChild(st);line.appendChild(scEl);
+  c.appendChild(line);
+  const tierRow=vbEl("div","vb-lo-row");
+  tierRow.appendChild(vbTierDot(r.tier));
+  const tv=vbInt(r.tier,1,4);
+  tierRow.appendChild(vbEl("span","vb-lo-sub",tv?PM_TIER_LABEL[tv]:"tier —"));
+  c.appendChild(tierRow);
+  if(p.m)c.appendChild(vbEl("div","vb-memo",String(p.m)));
+  const q=vbEl("div","vb-anchor","");c.appendChild(q);vbQuoteLine(t,q);   // enrichment
+  const btns=vbEl("div","vb-lo-btns");btns.appendChild(vbCasinoLink());c.appendChild(btns);
+  c.appendChild(vbEl("div","vb-foot",VB_FOOT_CASINO));
+  return c;
+}
+function vbCardGFMirror(p){
+  const hs=Array.isArray(p.h)?p.h:[];
+  const c=vbCard("🎰","Green Flag Mirror","Mirror Drop");
+  c.appendChild(vbEl("div","vb-lo-sub",hs.length+" holding"+(hs.length===1?"":"s")));
+  hs.forEach(function(h){
+    const snap=h&&h.snap||{};
+    const row=vbEl("div","vb-lo-row live");
+    row.appendChild(vbTierDot(snap.t));
+    row.appendChild(vbEl("span","sym",String(h.t||"")));
+    const kind=[h.kind,h.mode].filter(Boolean).join(" · ");
+    if(kind)row.appendChild(vbEl("span","vb-lo-sub",kind));
+    const px=vbNum(snap.px);
+    row.appendChild(vbEl("span","px",px!=null?vbCurFromTicker(h.t)+px:""));
+    c.appendChild(row);
+    const exp=vbEl("div","vb-lo-exp");
+    const words=[VB_M[snap.m],VB_D[snap.d],VB_P[snap.p]].filter(Boolean);   // legend words VERBATIM; unknown letters omitted
+    const a=vbInt(snap.a,0,4);
+    if(a!=null)words.push("Trend lines: "+a+" of 4");
+    // ★ STUD — strict boolean from snap alone (stars≠stud law); ♣/🌎 NEVER (no sector/RRG in transport)
+    if(snap.t===1&&snap.m==="G"&&snap.d==="GS"&&snap.p==="G"&&snap.a===4){
+      const s=vbEl("span",null," ★ STUD");s.style.color="var(--amber)";s.style.fontWeight="800";
+      const w=vbEl("div","vb-lo-sub",words.join(" · "));w.appendChild(s);exp.appendChild(w);
+    }else{
+      exp.appendChild(vbEl("div","vb-lo-sub",words.join(" · ")));
+    }
+    if(h.added)exp.appendChild(vbEl("div","vb-anchor","added "+String(h.added)));
+    if(h.memo)exp.appendChild(vbEl("div","vb-thesis",String(h.memo)));
+    c.appendChild(exp);
+    row.addEventListener("click",vbSafe(function(){exp.classList.toggle("show");}));
+  });
+  if(p.pm)c.appendChild(vbEl("div","vb-memo",String(p.pm)));
+  const btns=vbEl("div","vb-lo-btns");btns.appendChild(vbCasinoLink());c.appendChild(btns);
+  c.appendChild(vbEl("div","vb-foot",VB_FOOT_CASINO));
+  return c;
+}
+function vbCardBattle(p){
+  const corners=Array.isArray(p.corners)?p.corners:[];
+  const mode=String(p.mode||"");
+  const MODES={"1v1":"1V1","rumble":"RUMBLE","tourney":"TOURNEY"};
+  const c=vbCard("⚔️","Battle · "+(MODES[mode]||mode),"Battle Drop");
+  const win=Number.isInteger(p.win)?p.win:null;
+  const deadHeat=win===-1;                                  // DEAD-HEAT LAW: guard BEFORE indexing
+  const champ=(win!=null&&win>=0&&win<corners.length)?corners[win]:null;
+  if(deadHeat){
+    const h=vbEl("div","vb-lo-big","DEAD HEAT");h.classList.add("vb-heat");c.appendChild(h);
+  }
+  if(mode==="tourney"){
+    if(champ)c.appendChild(vbEl("div","vb-lo-big","🏆 CHAMPION · "+String(champ.t||"")+" (GFM "+(vbNum(champ.sc)??"—")+")"));
+    c.appendChild(vbEl("div","vb-lo-sub",corners.length+"-FIGHTER BRACKET — entrant order"));
+  }
+  if(mode==="rumble"&&win!=null&&win>=0&&win!==0){          // cross-check: house says champ@0
+    console.warn("vibe battle: rumble win!=0 — crown follows win, discrepancy logged");
+  }
+  corners.forEach(function(k,i){
+    const row=vbEl("div","vb-lo-row");
+    let rank="";
+    if(mode==="rumble"){rank=i===0?"🥇":i===1?"🥈":i===2?"🥉":(i===corners.length-1?"🗑":"#"+(i+1));} // payload order VERBATIM (ordering law v2)
+    row.appendChild(vbEl("span","vb-rank",rank));
+    row.appendChild(vbTierDot(k&&k.tier));
+    row.appendChild(vbEl("span","sym",String(k&&k.t||"")));
+    const sc=vbNum(k&&k.sc);
+    row.appendChild(vbEl("span","px",(sc!=null?"GFM "+sc:"")+(champ===k?"  🏆":"")));
+    c.appendChild(row);
+  });
+  const pr=p.prize;
+  if(pr&&pr.k==="kicker"){                                  // prize.k ENUM — unknown kinds omit gracefully
+    const strike=vbNum(pr.strike),iv=vbNum(pr.iv),prem=vbNum(pr.prem),be=vbNum(pr.be),bePct=vbNum(pr.bePct);
+    const cur=String(pr.cur||"");
+    if(strike!=null&&be!=null){
+      const line=vbEl("div","vb-kicker","🎟 KICKER: "+strike+"C · "+String(pr.exp||"")+" · IV "+(iv??"—")+"% · "+cur+(prem??"—")+" → BE "+cur+be+(bePct!=null?" (+"+bePct+"%)":""));
+      const tag=vbEl("span","vb-modeled","MODELED");        // disclosure parity law
+      line.appendChild(tag);
+      c.appendChild(line);
+    }
+  }
+  if(p.anchor)c.appendChild(vbEl("div","vb-anchor","anchor "+String(p.anchor)));  // VERBATIM, never reformat
+  if(p.m)c.appendChild(vbEl("div","vb-memo",String(p.m)));
+  c.appendChild(vbEl("div","vb-foot",VB_FOOT_CASINO));
+  return c;
+}
+function vbCardPmir(p){
+  const hs=Array.isArray(p.pmirHoldings)?p.pmirHoldings:[];
+  const c=vbCard("🪞","Portfolio Mirror · Live","Mirror Drop");
+  c.appendChild(vbEl("div","vb-lo-sub",hs.length+" holding"+(hs.length===1?"":"s")));
+  hs.forEach(function(h){
+    const row=vbEl("div","vb-lo-row live");
+    row.appendChild(vbEl("span","sym",String(h&&h.sym||"")));
+    const chg=vbNum(h&&h.chgPct);
+    const last=vbNum(h&&h.last);
+    const px=vbEl("span","px",(last!=null?"$"+last:"")+(chg!=null?"  "+(chg>=0?"+":"")+chg+"%":""));
+    if(chg!=null)px.style.color=chg>=0?"var(--green)":"var(--red)";
+    row.appendChild(px);
+    c.appendChild(row);
+    const exp=vbEl("div","vb-lo-exp");
+    const qty=vbNum(h&&h.qty),cost=vbNum(h&&h.cost);
+    const bits=[];
+    if(qty!=null&&cost!=null)bits.push(qty+" @ $"+cost+"  ·  book $"+Math.round(qty*cost*100)/100);
+    if(h&&h.date){const d=new Date(h.date);const days=Math.floor((Date.now()-d.getTime())/86400000);
+      if(Number.isFinite(days)&&days>=0)bits.push("🕒 held "+days+"d");}
+    if(bits.length)exp.appendChild(vbEl("div","vb-lo-sub",bits.join("  ·  ")));
+    if(h&&h.memo)exp.appendChild(vbEl("div","vb-thesis",String(h.memo)));
+    c.appendChild(exp);
+    row.addEventListener("click",vbSafe(function(){exp.classList.toggle("show");}));
+  });
+  if(p.pmirMemo)c.appendChild(vbEl("div","vb-memo",String(p.pmirMemo)));
+  const btns=vbEl("div","vb-lo-btns");
+  btns.appendChild(vbImportBtn(p,"⤵ Import to my Mirror"));
+  c.appendChild(btns);
+  return c;
+}
+function vbCardGeneric(p){
+  const label=VB_T_LABEL[p.t]||"Trade Risk share";
+  const c=vbCard("📦",label+" code","Share Code");
+  c.appendChild(vbEl("div","vb-lo-sub","A Trade Risk Calculator share — import to open it in its workspace."));
+  const btns=vbEl("div","vb-lo-btns");
+  btns.appendChild(vbImportBtn(p,"⤵ Import"));
+  c.appendChild(btns);
+  return c;
+}
+
+/* ── detection: envelope-first, collision-law order (GFSB1 before GFS1) ── */
+function vbRenderDrop(container,body){
+  const text=String(body||"");
+  let m;
+  if((m=text.match(/GFSB1-([A-Za-z0-9_-]{8,})/))){
+    try{
+      const p=vbB64JsonUTF8(m[1]);
+      if(p&&p.v===1&&(p.mode==="1v1"||p.mode==="rumble"||p.mode==="tourney")){container.appendChild(vbCardBattle(p));}
+      else container.appendChild(vbGray("newer battle format — open in Casino 🎰"));
+    }catch(e){container.appendChild(vbGray("battle code — couldn't read"));}
+    return true;
+  }
+  if((m=text.match(/GFSM1:([A-Za-z0-9_-]{8,})/))){
+    try{
+      const p=vbB64JsonUTF8(m[1]);
+      if(p&&p.v===1&&Array.isArray(p.h)){container.appendChild(vbCardGFMirror(p));}
+      else container.appendChild(vbGray("newer mirror format — open in Casino 🎰"));
+    }catch(e){container.appendChild(vbGray("mirror code — couldn't read"));}
+    return true;
+  }
+  if((m=text.match(/GFS1-([A-Za-z0-9_-]{8,})/))){
+    try{
+      const p=vbB64JsonUTF8(m[1]);
+      if(p&&p.v===1&&p.r){container.appendChild(vbCardSpin(p));}
+      else container.appendChild(vbGray("newer spin format — open in Casino 🎰"));
+    }catch(e){container.appendChild(vbGray("spin code — couldn't read"));}
+    return true;
+  }
+  if((m=text.match(/[#&]d=([A-Za-z0-9_-]{8,})/))){
+    try{
+      const p=decodeState(m[1]);
+      if(p&&p.t==="pmir"){container.appendChild(vbCardPmir(p));}
+      else if(p&&VB_T_LABEL[p.t]){container.appendChild(vbCardGeneric(p));}
+      else container.appendChild(vbGray("share code — open in the calculator"));
+    }catch(e){container.appendChild(vbGray("share code — couldn't read"));}
+    return true;
+  }
+  return false;
 }
 
 /* ── lazy bind + enter hook (fenced) ── */
