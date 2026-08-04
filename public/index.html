@@ -741,6 +741,16 @@
   .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
   @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
+  .wl-picker{
+    width:100%;font-family:var(--sans);font-size:1.02rem;font-weight:700;color:var(--ink);
+    padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);
+    -webkit-appearance:none;appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23697080' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;
+  }
+  [data-theme="dark"] .wl-picker{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239AA2B1' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>")}
+  .wl-portal{width:100%;margin-top:10px;border:1.5px dashed var(--accent);color:var(--accent-deep,#2456C8);background:rgba(47,111,237,.05);font-weight:700}
+  [data-theme="dark"] .wl-portal{color:#9DBBFF;background:rgba(91,140,255,.10)}
   /* ═══ WS9 · Portfolio Vibe (stage 4a) ═══ */
   .vb-row{display:flex;gap:8px;align-items:center;margin-top:8px}
   .vb-row input[type="text"],.vb-row input[type="password"]{flex:1;min-width:0}
@@ -1499,6 +1509,7 @@
       <button class="btn" id="wlImport">Import</button>
       <button class="btn" id="wlReset">Reset</button>
     </div>
+    <button class="btn wl-portal" id="wlPortal" type="button" title="Send this list's tickers to Portfolio Mirror">🕳💨 Portal this list to Portfolio Mirror</button>
 
   </div>
 
@@ -1506,8 +1517,21 @@
   <div class="workspace" id="ws-8" data-ws="8" hidden>
 
     <section class="card">
+      <h2 class="pop">Your portfolios</h2>
+      <div class="wl-lists">
+        <select id="pmirPicker" class="wl-picker" aria-label="Choose portfolio"></select>
+        <div class="wl-list-actions">
+          <button class="wl-mini" id="pmirNewPort" type="button">+ New</button>
+          <button class="wl-mini" id="pmirRenamePort" type="button">Rename</button>
+          <button class="wl-mini wl-del" id="pmirDeletePort" type="button">Delete</button>
+        </div>
+      </div>
+      <div class="explain" data-explain="pmirPorts"></div>
+    </section>
+
+    <section class="card" style="margin-top:12px">
       <h2 class="pop">Add a holding</h2>
-      <p class="op-detail-intro">Type a ticker and tap <strong>Add holding</strong> (or hit enter) — bang, bang, bang.</p>
+      <p class="op-detail-intro">Type a ticker and tap <strong>Add holding</strong> (or hit enter).</p>
       <div class="pmir-addrow">
         <input id="pmirAddInput" type="text" inputmode="text" class="pmir-add-in" placeholder="ex. AAPL" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Ticker to add">
         <button class="btn primary" id="pmirAdd" type="button">Add holding</button>
@@ -1560,21 +1584,13 @@
       <button class="btn" id="pmirImport">Import</button>
       <button class="btn" id="pmirReset">Reset</button>
     </div>
+    <button class="btn wl-portal" id="pmirPortal" type="button" title="Send this portfolio's tickers to the Watchlist">🕳💨 Portal this portfolio to Watchlist</button>
 
   </div>
 
 </div><!-- /wrap -->
 
 <!-- share fallback / import sheet -->
-<div class="modal" id="modal" role="dialog" aria-modal="true">
-  <div class="sheet">
-    <h3 id="mTitle">Share</h3>
-    <p id="mBody"></p>
-    <textarea id="mText" rows="4"></textarea>
-    <div class="srow" id="mActions"></div>
-  </div>
-</div>
-
 
 <div class="workspace" id="ws-9" data-ws="9" hidden>
 
@@ -1668,7 +1684,7 @@ const DEFAULTS={
   opStrike:"",opExpiry:"",opAsk:"",opIV:"",opOI:"",opDetailOpen:false,
   hgPort:"",hgTickerSym:"SPY",hgSpy:"",hgPct:5,hgBudgetPct:5,hgLinked:true,hgStrike:"",hgExpiry:"",hgAsk:"",hgIV:"",hgPutOpen:true,hgMemo:"",
   wlItems:[],wlMemo:"",wlRecent:[],watchlists:null,wlActive:0,
-  pmirHoldings:[],pmirAlerts:[],pmirMemo:"",pmirAlertsOpen:false,
+  pmirHoldings:[],pmirAlerts:[],pmirMemo:"",pmirAlertsOpen:false,pmirPortfolios:null,pmirActive:0,
   vibe:{handle:"",syncCode:"",isAdmin:false,activeRoom:""},
   ciMilestones:[18,21,55,65,70]
 };
@@ -1722,6 +1738,7 @@ function switchWs(id){
 
 /* ---------- plain-language glossary (single source; powers Explain Mode) ---------- */
 const GLOSSARY={
+  pmirPorts:"<strong>Your portfolios</strong> — Keep up to 25 separate named portfolios (e.g. “Dividends”, “Moonshots”, “RRSP”), each with its own holdings and notes. Switch with the dropdown; New, Rename and Delete manage them. Custom alerts are shared across all portfolios. You can also beam a whole watchlist here with the 🕳💨 Portal button in the Watchlist workspace.",
   portfolio:"<strong>Portfolio size</strong> — The total money in your trading account. Everything else is measured against this.",
   lock:"<strong>Lock (padlock)</strong> — Pins your portfolio size so it won't change while you play with the other numbers. Tap to lock or unlock.",
   riskPct:"<strong>% of portfolio</strong> — How big a slice of your whole account this one trade uses. Smaller = safer. A rough guide many advisors use: 1–3% for speculative or volatile bets (ie. bets you are willing to risk/lose it all on), 3–5% for stable blue-chips, and 5–10% for high-conviction picks you've deeply researched — keeping any single stock modest so one bad trade can't sink you.",
@@ -2190,10 +2207,7 @@ function importFromHash(){
       if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;
       S._sharedType="wl";
     }else if(p && p.t==="pmir"){
-      if(Array.isArray(p.pmirHoldings))S.pmirHoldings=p.pmirHoldings;
-      if(Array.isArray(p.pmirAlerts))S.pmirAlerts=p.pmirAlerts;
-      if("pmirMemo" in p)S.pmirMemo=p.pmirMemo;
-      if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;
+      pmImportPortfolio(p);
       S._sharedType="pmir";
     }else{
       applyImport(p);
@@ -4149,6 +4163,41 @@ $("wlImport").addEventListener("click",()=>{
 /* ---------- Portfolio Mirror workspace (#8) ---------- */
 function pmUID(){return "h"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 
+// ----- multiple named portfolios (mirrors the multi-watchlist pattern) -----
+const PMIR_MAX_PORTFOLIOS=25;
+function pmEnsure(){
+  if(!Array.isArray(S.pmirPortfolios)||!S.pmirPortfolios.length){
+    S.pmirPortfolios=[{id:pmUID(),name:"My Portfolio",holdings:Array.isArray(S.pmirHoldings)?S.pmirHoldings:[],memo:(typeof S.pmirMemo==="string")?S.pmirMemo:""}];
+    S.pmirActive=0;
+  }
+  if(typeof S.pmirActive!=="number"||S.pmirActive<0||S.pmirActive>=S.pmirPortfolios.length)S.pmirActive=0;
+  const p=S.pmirPortfolios[S.pmirActive];
+  if(!Array.isArray(p.holdings))p.holdings=[];
+  return p;
+}
+function pmP(){return pmEnsure();}
+function pmHoldingsRef(){return pmEnsure().holdings;}
+function pmClearResults(){if($("pmirResults"))$("pmirResults").innerHTML="";if($("pmirDisclaimerCard"))$("pmirDisclaimerCard").hidden=true;const st=$("pmirStatus");if(st)st.className="tickstatus";}
+function pmRenderPicker(){
+  const sel=$("pmirPicker");if(!sel)return;pmEnsure();
+  sel.innerHTML="";
+  S.pmirPortfolios.forEach((p,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=p.name||("Portfolio "+(i+1));if(i===S.pmirActive)o.selected=true;sel.appendChild(o);});
+  if($("pmirNewPort"))$("pmirNewPort").disabled=S.pmirPortfolios.length>=PMIR_MAX_PORTFOLIOS;
+}
+// import a shared mirror as a NEW portfolio (non-destructive); shared alerts merge in without duplicates
+function pmImportPortfolio(p){
+  pmEnsure();
+  if(S.pmirPortfolios.length<PMIR_MAX_PORTFOLIOS){
+    S.pmirPortfolios.push({id:pmUID(),name:String(p.pmirName||"Imported portfolio").slice(0,40),holdings:Array.isArray(p.pmirHoldings)?p.pmirHoldings:[],memo:(typeof p.pmirMemo==="string")?p.pmirMemo:""});
+    S.pmirActive=S.pmirPortfolios.length-1;
+  }
+  if(Array.isArray(p.pmirAlerts)){
+    if(!Array.isArray(S.pmirAlerts))S.pmirAlerts=[];
+    p.pmirAlerts.forEach(a=>{if(a&&a.msg&&!S.pmirAlerts.some(x=>x.cond===a.cond&&x.msg===a.msg))S.pmirAlerts.push(a);});
+  }
+  if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;
+}
+
 // ----- indicator engine -----
 function pmEMA(arr,p){const k=2/(p+1);let e=null;const out=[];let seed=0;for(let i=0;i<arr.length;i++){if(i<p-1){out.push(null);seed+=arr[i];continue;}if(i===p-1){seed+=arr[i];e=seed/p;out.push(e);continue;}e=arr[i]*k+e*(1-k);out.push(e);}return out;}
 function pmSMA(arr,p){if(arr.length<p)return null;let s=0;for(let i=arr.length-p;i<arr.length;i++)s+=arr[i];return s/p;}
@@ -4211,15 +4260,15 @@ const PM_TIER_LABEL={1:"Tier 1 · strong",2:"Tier 2 · solid",3:"Tier 3 · losin
 // ----- holdings render -----
 function pmRenderHoldings(){
   const host=$("pmirList");if(!host)return;
-  if(!Array.isArray(S.pmirHoldings))S.pmirHoldings=[];
+  const P=pmEnsure();
   // prune truly-empty rows left over from the old flow
-  S.pmirHoldings=S.pmirHoldings.filter(h=>normTicker(h.sym||"").length||num(h.qty)>0||num(h.cost)>0||(h.memo&&h.memo.trim())||h.date);
+  P.holdings=P.holdings.filter(h=>normTicker(h.sym||"").length||num(h.qty)>0||num(h.cost)>0||(h.memo&&h.memo.trim())||h.date);
   host.innerHTML="";
-  if(!S.pmirHoldings.length){
+  if(!P.holdings.length){
     const e=document.createElement("div");e.className="pmir-empty";e.textContent="No holdings yet — add your first ticker above.";
     host.appendChild(e);return;
   }
-  S.pmirHoldings.forEach((h,idx)=>host.appendChild(pmBuildHolding(h,idx)));
+  P.holdings.forEach((h,idx)=>host.appendChild(pmBuildHolding(h,idx)));
 }
 function pmBuildHolding(h,idx){
   const card=document.createElement("div");card.className="pmir-hold";
@@ -4232,7 +4281,7 @@ function pmBuildHolding(h,idx){
   exp.title=h._open?"Hide details":"Add quantity, cost, thesis";exp.setAttribute("aria-label",exp.title);
   exp.addEventListener("click",()=>{h._open=!h._open;persist();pmRenderHoldings();});
   const del=document.createElement("button");del.type="button";del.className="pmir-del";del.innerHTML="✕";del.title="Remove holding";
-  del.addEventListener("click",()=>{S.pmirHoldings.splice(idx,1);persist();pmRenderHoldings();});
+  del.addEventListener("click",()=>{pmHoldingsRef().splice(idx,1);persist();pmRenderHoldings();});
   top.appendChild(inp);
   if(h.last!=null){
     const qd=document.createElement("div");qd.className="pmir-quote";
@@ -4261,7 +4310,7 @@ function pmBuildHolding(h,idx){
     body.appendChild(bvrow);
     body.appendChild(pmDateField(h));
     const ml=document.createElement("label");ml.className="fl";ml.textContent="Your thesis · why you bought it";
-    const ta=document.createElement("textarea");ta.className="pmir-thesis";ta.value=h.memo||"";ta.maxLength=1000;
+    const ta=document.createElement("textarea");ta.className="pmir-thesis";ta.value=h.memo||"";ta.maxLength=2000;
     ta.placeholder="e.g. '10-year AI compounder — ignore short-term noise. Adding below $120.'";
     ta.addEventListener("input",e=>{h.memo=e.target.value;persist();});
     body.appendChild(ml);body.appendChild(ta);
@@ -4316,9 +4365,9 @@ function pmApplyAlertsOpen(){
 function pmCompact(n){n=Number(n);if(!isFinite(n))return "—";const a=Math.abs(n);
   if(a>=1e12)return (n/1e12).toFixed(2)+"T";if(a>=1e9)return (n/1e9).toFixed(2)+"B";
   if(a>=1e6)return (n/1e6).toFixed(1)+"M";if(a>=1e3)return (n/1e3).toFixed(1)+"K";return String(Math.round(n));}
-function pmSyncPopBtn(){const btn=$("pmirPop");if(!btn)return;const has=(S.pmirHoldings||[]).some(h=>h.last!=null);btn.textContent=has?"Update Values":"Populate Values";}
+function pmSyncPopBtn(){const btn=$("pmirPop");if(!btn)return;const has=pmHoldingsRef().some(h=>h.last!=null);btn.textContent=has?"Update Values":"Populate Values";}
 async function pmPopulate(){
-  const holds=(S.pmirHoldings||[]).filter(h=>normTicker(h.sym||"").length);
+  const holds=pmHoldingsRef().filter(h=>normTicker(h.sym||"").length);
   const setStat=(k,h)=>{const e=$("pmirPopStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
   if(!holds.length){setStat("err","Add a ticker first.");return;}
   const btn=$("pmirPop");if(btn)btn.disabled=true;
@@ -4349,7 +4398,7 @@ if($("pmirPop"))$("pmirPop").addEventListener("click",()=>pmPopulate());
 
 // ----- the mirror run -----
 async function pmRunMirror(){
-  const holds=(S.pmirHoldings||[]).filter(h=>normTicker(h.sym||"").length);
+  const holds=pmHoldingsRef().filter(h=>normTicker(h.sym||"").length);
   const setStat=(k,h)=>{const e=$("pmirStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
   if(!holds.length){setStat("err","Add at least one ticker first.");return;}
   const btn=$("pmirRun");if(btn){btn.disabled=true;btn.textContent="🔮 Gazing…";}
@@ -4441,9 +4490,9 @@ function pmAddHolding(){
   const sym=normTicker(inp.value||"");
   const setStat=(k,h)=>{const e=$("pmirAddStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
   if(!sym){setStat("err","Type a ticker first.");return;}
-  if(!Array.isArray(S.pmirHoldings))S.pmirHoldings=[];
-  if(S.pmirHoldings.some(h=>normTicker(h.sym||"")===sym)){setStat("err",sym+" is already in your holdings.");inp.select();return;}
-  S.pmirHoldings.unshift({id:pmUID(),sym:sym,_open:false});
+  const H=pmHoldingsRef();
+  if(H.some(h=>normTicker(h.sym||"")===sym)){setStat("err",sym+" is already in your holdings.");inp.select();return;}
+  H.unshift({id:pmUID(),sym:sym,_open:false});
   persist();pmRenderHoldings();
   setStat("ok",sym+" added.");
   inp.value="";inp.focus(); // keep the keyboard open — bang, bang, bang
@@ -4457,22 +4506,22 @@ if($("pmirAddInput")){
 if($("pmirAlertAdd"))$("pmirAlertAdd").addEventListener("click",()=>{if(!Array.isArray(S.pmirAlerts))S.pmirAlerts=[];S.pmirAlerts.push({id:pmUID(),cond:"belowSma20",msg:""});persist();pmRenderAlerts();});
 if($("pmirAlertsToggle"))$("pmirAlertsToggle").addEventListener("click",()=>{S.pmirAlertsOpen=!S.pmirAlertsOpen;persist();pmApplyAlertsOpen();});
 if($("pmirRun"))$("pmirRun").addEventListener("click",()=>pmRunMirror());
-if($("pmirMemo"))$("pmirMemo").addEventListener("input",e=>{S.pmirMemo=e.target.value;memoCount("pmirMemo","pmirMemoCount");persist();});
+if($("pmirMemo"))$("pmirMemo").addEventListener("input",e=>{pmP().memo=e.target.value;memoCount("pmirMemo","pmirMemoCount");persist();});
 if($("pmirReset"))$("pmirReset").addEventListener("click",()=>{
-  openSheet("Reset Portfolio Mirror?","This clears your holdings, alerts and notes.","",[
-    ["Clear all",function(){S.pmirHoldings=[];S.pmirAlerts=[];S.pmirMemo="";persist();pmRenderHoldings();pmRenderAlerts();if($("pmirMemo"))$("pmirMemo").value="";if($("pmirResults"))$("pmirResults").innerHTML="";if($("pmirDisclaimerCard"))$("pmirDisclaimerCard").hidden=true;memoCount("pmirMemo","pmirMemoCount");closeSheet();},true],
+  openSheet("Reset this portfolio?","This clears “"+(pmP().name||"this portfolio")+"” — its holdings and notes. Your custom alerts are shared across portfolios and are kept.","",[
+    ["Clear all",function(){const P=pmEnsure();P.holdings=[];P.memo="";persist();pmRenderHoldings();pmRenderAlerts();if($("pmirMemo"))$("pmirMemo").value="";if($("pmirResults"))$("pmirResults").innerHTML="";if($("pmirDisclaimerCard"))$("pmirDisclaimerCard").hidden=true;memoCount("pmirMemo","pmirMemoCount");closeSheet();},true],
     ["Cancel",closeSheet,false]
   ]);
 });
 function pmEncode(){
-  const holds=(S.pmirHoldings||[]).map(h=>{const c=Object.assign({},h);delete c._open;return c;});
-  const p={t:"pmir",pmirHoldings:holds,pmirAlerts:S.pmirAlerts,pmirMemo:S.pmirMemo,curSym:S.curSym,curCode:S.curCode};
+  const holds=pmHoldingsRef().map(h=>{const c=Object.assign({},h);delete c._open;return c;});
+  const p={t:"pmir",pmirName:pmP().name,pmirHoldings:holds,pmirAlerts:S.pmirAlerts,pmirMemo:pmP().memo,curSym:S.curSym,curCode:S.curCode};
   return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 function pmShareText(){
-  const L=[];L.push("🪞 Portfolio Mirror");
-  (S.pmirHoldings||[]).forEach(h=>{if(normTicker(h.sym||"").length){L.push("");L.push("• "+normTicker(h.sym)+(h.memo&&h.memo.trim()?" — “"+h.memo.trim()+"”":""));}});
-  if(S.pmirMemo&&S.pmirMemo.trim()){L.push("");L.push("Notes: "+S.pmirMemo.trim());}
+  const L=[];L.push("🪞 Portfolio Mirror — "+(pmP().name||"My Portfolio"));
+  pmHoldingsRef().forEach(h=>{if(normTicker(h.sym||"").length){L.push("");L.push("• "+normTicker(h.sym)+(h.memo&&h.memo.trim()?" — “"+h.memo.trim()+"”":""));}});
+  if(pmP().memo&&pmP().memo.trim()){L.push("");L.push("Notes: "+pmP().memo.trim());}
   L.push("");L.push(location.origin+location.pathname+"#d="+pmEncode());
   return L.join("\n");
 }
@@ -4491,15 +4540,101 @@ if($("pmirImport"))$("pmirImport").addEventListener("click",()=>{
       try{
         const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
         const p=decodeState(code);
-        if(p.t==="pmir"){if(Array.isArray(p.pmirHoldings))S.pmirHoldings=p.pmirHoldings;if(Array.isArray(p.pmirAlerts))S.pmirAlerts=p.pmirAlerts;if("pmirMemo" in p)S.pmirMemo=p.pmirMemo;if(p.curSym)S.curSym=p.curSym;if(p.curCode)S.curCode=p.curCode;}
-        closeSheet();persist();pmRenderHoldings();pmRenderAlerts();renderAll();
+        if(p.t==="pmir"){pmImportPortfolio(p);}
+        closeSheet();persist();pmClearResults();pmRenderAll();renderAll();
       }catch(e){$("mBody").textContent="That code didn't parse — check it was copied completely.";}
     },true],
     ["Cancel",closeSheet,false]
   ]);
   $("mText").readOnly=false;$("mText").value="";$("mText").focus();
 });
-function pmRenderAll(){pmRenderHoldings();pmRenderAlerts();pmApplyAlertsOpen();pmSyncPopBtn();if($("pmirMemo")&&document.activeElement!==$("pmirMemo"))$("pmirMemo").value=S.pmirMemo||"";memoCount("pmirMemo","pmirMemoCount");}
+if($("pmirPicker"))$("pmirPicker").addEventListener("change",e=>{const i=parseInt(e.target.value,10);pmEnsure();if(isFinite(i)&&i>=0&&i<S.pmirPortfolios.length){S.pmirActive=i;persist();pmClearResults();pmRenderAll();}});
+if($("pmirNewPort"))$("pmirNewPort").addEventListener("click",()=>{
+  pmEnsure();
+  if(S.pmirPortfolios.length>=PMIR_MAX_PORTFOLIOS){openSheet("Limit reached","You can keep up to "+PMIR_MAX_PORTFOLIOS+" portfolios. Delete one to make room.",null,[["OK",closeSheet,true]]);return;}
+  openSheet("New portfolio","Name your new portfolio:","",[
+    ["Create",function(){const name=($("mText").value||"").trim().slice(0,40)||("Portfolio "+(S.pmirPortfolios.length+1));S.pmirPortfolios.push({id:pmUID(),name:name,holdings:[],memo:""});S.pmirActive=S.pmirPortfolios.length-1;persist();closeSheet();pmClearResults();pmRenderAll();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value="";$("mText").focus();
+});
+if($("pmirRenamePort"))$("pmirRenamePort").addEventListener("click",()=>{
+  const P=pmEnsure();
+  openSheet("Rename portfolio","Give this portfolio a new name:","",[
+    ["Save",function(){const name=($("mText").value||"").trim().slice(0,40);if(name){P.name=name;persist();}closeSheet();pmRenderAll();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+  $("mText").readOnly=false;$("mText").value=P.name||"";$("mText").focus();$("mText").select&&$("mText").select();
+});
+if($("pmirDeletePort"))$("pmirDeletePort").addEventListener("click",()=>{
+  pmEnsure();
+  if(S.pmirPortfolios.length<=1){openSheet("Can't delete","This is your only portfolio. Create another first, or use Reset to clear it.",null,[["OK",closeSheet,true]]);return;}
+  const P=S.pmirPortfolios[S.pmirActive];
+  openSheet("Delete this portfolio?","“"+P.name+"” and its "+(P.holdings?P.holdings.length:0)+" holding(s) will be removed. This can't be undone.",null,[
+    ["Delete",function(){S.pmirPortfolios.splice(S.pmirActive,1);if(S.pmirActive>=S.pmirPortfolios.length)S.pmirActive=S.pmirPortfolios.length-1;persist();closeSheet();pmClearResults();pmRenderAll();},true],
+    ["Cancel",closeSheet,false]
+  ]);
+});
+// 🕳💨 portal: beam the active watchlist's tickers into a new mirror portfolio
+function wlPortalToMirror(){
+  const L=wlEnsure();
+  const src=(L.items||[]).filter(it=>normTicker(it.sym||"").length);
+  if(!src.length){openSheet("Nothing to portal","This watchlist has no tickers yet — add some first.",null,[["OK",closeSheet,true]]);return;}
+  pmEnsure();
+  if(S.pmirPortfolios.length>=PMIR_MAX_PORTFOLIOS){openSheet("Mirror limit reached","You can keep up to "+PMIR_MAX_PORTFOLIOS+" portfolios in the Mirror. Delete one there to make room.",null,[["OK",closeSheet,true]]);return;}
+  const seen={},holds=[];
+  src.forEach(it=>{
+    const s=normTicker(it.sym);if(seen[s])return;seen[s]=1;
+    const h={id:pmUID(),sym:s,_open:false};
+    // the story rides the portal: watchlist memo -> mirror thesis
+    if(it.memo&&it.memo.trim())h.memo=it.memo.trim().slice(0,2000);
+    // carry any values the watchlist already knows
+    const ln=num(it.last);if(isFinite(ln)&&ln>0)h.last=ln;
+    const cn=num(it.chg);if(isFinite(cn))h.chg=cn;
+    const pn=num(it.pct);if(isFinite(pn))h.chgPct=pn;
+    const vn=num(it.volume);if(isFinite(vn)&&vn>0)h.vol=vn;
+    if(it.marketCap)h.mcap=String(it.marketCap);
+    if(it.name)h.name=it.name;
+    holds.push(h);
+  });
+  S.pmirPortfolios.push({id:pmUID(),name:((L.name||"Watchlist")+" 🕳💨").slice(0,40),holdings:holds,memo:""});
+  S.pmirActive=S.pmirPortfolios.length-1;persist();
+  pmClearResults();pmRenderAll();switchWs(8);
+  window.scrollTo({top:0});
+  const st=$("pmirAddStatus");if(st){st.className="tickstatus show ok";st.innerHTML="🕳💨 "+holds.length+" ticker"+(holds.length===1?"":"s")+" portaled in from “"+L.name+"” — tap the mirror when ready.";}
+}
+if($("wlPortal"))$("wlPortal").addEventListener("click",wlPortalToMirror);
+// 🕳💨 reverse portal: beam the active mirror portfolio's tickers into a new watchlist
+function pmPortalToWatchlist(){
+  const P=pmEnsure();
+  const src=(P.holdings||[]).filter(h=>normTicker(h.sym||"").length);
+  if(!src.length){openSheet("Nothing to portal","This portfolio has no tickers yet — add some first.",null,[["OK",closeSheet,true]]);return;}
+  wlEnsure();
+  if(S.watchlists.length>=WL_MAX_LISTS){openSheet("Watchlist limit reached","You can keep up to "+WL_MAX_LISTS+" watchlists. Delete one there to make room.",null,[["OK",closeSheet,true]]);return;}
+  const seen={},items=[];
+  src.forEach(h=>{
+    const s=normTicker(h.sym);if(seen[s])return;seen[s]=1;
+    const it={id:wlUID(),sym:s,_open:false};
+    // carry populated values through the portal so the list lands pre-filled
+    if(h.last!=null)it.last=String(h.last);
+    if(h.chg!=null)it.chg=String(h.chg);
+    if(h.chgPct!=null)it.pct=String(h.chgPct);
+    if(h.vol!=null)it.volume=String(h.vol);
+    if(h.mcap)it.marketCap=String(h.mcap);
+    if(h.name)it.name=h.name;
+    // the story rides the portal: mirror thesis -> watchlist memo
+    if(h.memo&&h.memo.trim())it.memo=h.memo.trim().slice(0,2000);
+    items.push(it);
+  });
+  S.watchlists.push({id:wlUID(),name:((P.name||"Portfolio")+" 🕳💨").slice(0,40),items:items.slice(0,WL_MAX_SYMBOLS),memo:""});
+  S.wlActive=S.watchlists.length-1;persist();
+  wlRender();switchWs(7);
+  window.scrollTo({top:0});
+  const st=$("wlAddStatus");if(st){st.className="tickstatus show ok";st.innerHTML="🕳💨 "+items.length+" ticker"+(items.length===1?"":"s")+" portaled in from “"+(P.name||"your portfolio")+"” — welcome to the Watchlist.";}
+}
+if($("pmirPortal"))$("pmirPortal").addEventListener("click",pmPortalToWatchlist);
+function pmRenderAll(){pmRenderPicker();pmRenderHoldings();pmRenderAlerts();pmApplyAlertsOpen();pmSyncPopBtn();if($("pmirMemo")&&document.activeElement!==$("pmirMemo"))$("pmirMemo").value=pmP().memo||"";memoCount("pmirMemo","pmirMemoCount");}
+
 
 /* keep the focused field visible above the on-screen keyboard (all workspaces) */
 document.addEventListener("focusin",e=>{
@@ -4814,7 +4949,10 @@ function vbImportBtn(payload,label){
   const b=vbEl("button","btn primary",label||"⤵ Import");b.type="button";
   b.addEventListener("click",vbSafe(function(){
     const clone=JSON.parse(JSON.stringify(payload));
-    applyImport(clone);persist();
+    // list species have their own NON-DESTRUCTIVE importers — applyImport is flat-state only
+    if(clone.t==="pmir"){pmImportPortfolio(clone);persist();pmClearResults();pmRenderAll();}
+    else if(clone.t==="wl"&&typeof wlImportList==="function"){wlImportList(clone);persist();}
+    else{applyImport(clone);persist();}
     const ws=VB_WS_OF_T[clone.t];if(ws)switchWs(ws);
   }));
   return b;
@@ -4955,6 +5093,7 @@ function vbCardBattle(p){
 function vbCardPmir(p){
   const hs=Array.isArray(p.pmirHoldings)?p.pmirHoldings:[];
   const c=vbCard("🪞","Portfolio Mirror · Live","Mirror Drop");
+  if(p.pmirName)c.appendChild(vbEl("div","vb-lo-big",String(p.pmirName)));
   c.appendChild(vbEl("div","vb-lo-sub",hs.length+" holding"+(hs.length===1?"":"s")));
   hs.forEach(function(h){
     const row=vbEl("div","vb-lo-row live");
