@@ -4531,7 +4531,7 @@ function pmirShareText(){
   const L=[];L.push("🪞 Portfolio Mirror — "+(pmP().name||"My Portfolio"));
   pmHoldingsRef().forEach(h=>{if(normTicker(h.sym||"").length){L.push("");L.push("• "+normTicker(h.sym)+(h.memo&&h.memo.trim()?" — “"+h.memo.trim()+"”":""));}});
   if(pmP().memo&&pmP().memo.trim()){L.push("");L.push("Notes: "+pmP().memo.trim());}
-  L.push("");L.push(location.origin+location.pathname+"#d="+pmEncode());
+  L.push("");L.push(location.origin+location.pathname+"#d="+pmirEncode());
   return L.join("\n");
 }
 if($("pmirShare"))$("pmirShare").addEventListener("click",async()=>{
@@ -4922,8 +4922,8 @@ const VB_CASINO_URL="https://green-flag-slot-monsters.lexbeatz.workers.dev";
 const VB_M={G:"Surging",B:"Easing off",P:"Tapping gas",R:"Slowing"};
 const VB_D={GS:"Strong up",BL:"Mild up",OR:"Gently down",RS:"Strong down"};
 const VB_P={G:"Strengthening",N:"Flat",R:"Weakening"};
-const VB_WS_OF_T={pm:1,hg:6,gl:3,ci:4,op:5,wl:7,pmir:8};
-const VB_T_LABEL={pm:"Portfolio Sizer",hg:"Portfolio Hedge",gl:"Gain/Loss",ci:"Compound Interest",op:"Options Sizer",wl:"Watchlist",pmir:"Portfolio Mirror"};
+const VB_WS_OF_T={pm:2,hg:6,gl:3,ci:4,op:5,wl:7,pmir:8};
+const VB_T_LABEL={pm:"% Price-Move Ladder",hg:"Portfolio Hedge",gl:"Gain/Loss",ci:"Compound Interest",op:"Options Sizer",wl:"Watchlist",pmir:"Portfolio Mirror"};
 
 function vbDark(){try{return document.documentElement.getAttribute("data-theme")==="dark";}catch(_){return false;}}
 function vbInt(v,min,max){const n=Number(v);return Number.isInteger(n)&&n>=min&&n<=max?n:null;}
