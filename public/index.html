@@ -1663,6 +1663,15 @@
   <div class="vb-hiccup" id="vbHiccup" hidden></div>
 </div>
 
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <h3 id="mTitle">Share</h3>
+    <p id="mBody"></p>
+    <textarea id="mText" rows="4"></textarea>
+    <div class="srow" id="mActions"></div>
+  </div>
+</div>
+
 <script>
 (function(){
 "use strict";
@@ -4513,12 +4522,12 @@ if($("pmirReset"))$("pmirReset").addEventListener("click",()=>{
     ["Cancel",closeSheet,false]
   ]);
 });
-function pmEncode(){
+function pmirEncode(){
   const holds=pmHoldingsRef().map(h=>{const c=Object.assign({},h);delete c._open;return c;});
   const p={t:"pmir",pmirName:pmP().name,pmirHoldings:holds,pmirAlerts:S.pmirAlerts,pmirMemo:pmP().memo,curSym:S.curSym,curCode:S.curCode};
   return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
-function pmShareText(){
+function pmirShareText(){
   const L=[];L.push("🪞 Portfolio Mirror — "+(pmP().name||"My Portfolio"));
   pmHoldingsRef().forEach(h=>{if(normTicker(h.sym||"").length){L.push("");L.push("• "+normTicker(h.sym)+(h.memo&&h.memo.trim()?" — “"+h.memo.trim()+"”":""));}});
   if(pmP().memo&&pmP().memo.trim()){L.push("");L.push("Notes: "+pmP().memo.trim());}
@@ -4526,7 +4535,7 @@ function pmShareText(){
   return L.join("\n");
 }
 if($("pmirShare"))$("pmirShare").addEventListener("click",async()=>{
-  const text=pmShareText();
+  const text=pmirShareText();
   if(navigator.share){try{await navigator.share({title:"Portfolio Mirror",text});return}catch(e){if(e&&e.name==="AbortError")return}}
   openSheet("Share this","Your share sheet isn't available here — use email or copy.",text,[
     ["Email",async function(){const ok=await copyText(text);const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent("Portfolio Mirror")+"&body="+encodeURIComponent(text);a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);this.textContent=ok?"✓ Copied too":"Email";},false],
