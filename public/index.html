@@ -824,6 +824,13 @@
   .vb-msg-line{overflow-wrap:anywhere}
   .sheet textarea{width:100%;overflow-wrap:anywhere;font-family:var(--mono)}
   .vb-chathd{min-width:0}
+
+  /* ═══ 4b.2 · live-card affordance polish ═══ */
+  .vb-lo-row.live{min-height:44px;cursor:pointer}
+  .vb-chev{margin-left:6px;color:var(--accent-deep,#2456C8);font-size:.8rem;flex:0 0 auto;transition:transform .15s}
+  .vb-lo-row.open .vb-chev{transform:rotate(90deg)}
+  @media (prefers-reduced-motion:reduce){.vb-chev{transition:none}}
+  .vb-pill{margin-left:auto;font-family:var(--sans);font-weight:800;font-size:.72rem;color:var(--accent-deep,#2456C8);background:transparent;border:1.5px solid var(--accent);border-radius:999px;padding:7px 12px;cursor:pointer;min-height:32px}
 </style>
 </head>
 <body data-theme="light">
@@ -959,7 +966,7 @@
   <!-- Memo -->
   <section class="card">
     <h2 class="pop">Memo · trade catalyst</h2>
-    <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="2000"></textarea>
+    <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="memoCount"></div>
     <div class="explain" data-explain="memo"></div>
   </section>
@@ -1006,7 +1013,7 @@
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="pmMemo" placeholder="Note your plan — e.g. 'Long entry $100, take profit at +7%, stop at −3%.'" maxlength="2000"></textarea>
+      <textarea id="pmMemo" placeholder="Note your plan — e.g. 'Long entry $100, take profit at +7%, stop at −3%.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="pmMemoCount"></div>
       <div class="explain" data-explain="pmMemo"></div>
     </section>
@@ -1117,7 +1124,7 @@
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="glMemo" placeholder="Journal this trade or share your win/loss — e.g. 'Sold NVDA +30%, rotated into energy.'" maxlength="2000"></textarea>
+      <textarea id="glMemo" placeholder="Journal this trade or share your win/loss — e.g. 'Sold NVDA +30%, rotated into energy.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="glMemoCount"></div>
       <div class="explain" data-explain="glMemo"></div>
     </section>
@@ -1240,7 +1247,7 @@
 
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="ciMemo" placeholder="Journal your plan or leave notes to share — e.g. 'Contribute $1k/yr until kids graduate at 18, then let it ride to retirement.'" maxlength="2000"></textarea>
+      <textarea id="ciMemo" placeholder="Journal your plan or leave notes to share — e.g. 'Contribute $1k/yr until kids graduate at 18, then let it ride to retirement.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="ciMemoCount"></div>
       <div class="explain" data-explain="ciMemo"></div>
     </section>
@@ -1334,7 +1341,7 @@
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="opMemo" placeholder="Note your options play — e.g. 'Comparing 1 / 10 / 100 calls into earnings.'" maxlength="2000"></textarea>
+      <textarea id="opMemo" placeholder="Note your options play — e.g. 'Comparing 1 / 10 / 100 calls into earnings.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="opMemoCount"></div>
       <div class="explain" data-explain="opMemo"></div>
     </section>
@@ -1447,7 +1454,7 @@
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Memo · your notes</h2>
-      <textarea id="hgMemo" placeholder="Note your hedge plan — e.g. 'Hedging $100k with 6-month SPY puts when the market looks toppy.'" maxlength="2000"></textarea>
+      <textarea id="hgMemo" placeholder="Note your hedge plan — e.g. 'Hedging $100k with 6-month SPY puts when the market looks toppy.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="hgMemoCount"></div>
       <div class="explain" data-explain="hgMemo"></div>
     </section>
@@ -1499,7 +1506,7 @@
     <!-- Memo (global watchlist notes) -->
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Watchlist notes</h2>
-      <textarea id="wlMemo" placeholder="Overall market notes — e.g. 'Watching for a pullback before adding. Fed meeting Wednesday.'" maxlength="2000"></textarea>
+      <textarea id="wlMemo" placeholder="Overall market notes — e.g. 'Watching for a pullback before adding. Fed meeting Wednesday.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="wlMemoCount"></div>
       <div class="explain" data-explain="wlMemo"></div>
     </section>
@@ -1574,7 +1581,7 @@
 
     <section class="card" style="margin-top:12px">
       <h2 class="pop">Notes</h2>
-      <textarea id="pmirMemo" placeholder="Overall notes on your portfolio, market conditions, or your rules." maxlength="2000"></textarea>
+      <textarea id="pmirMemo" placeholder="Overall notes on your portfolio, market conditions, or your rules." maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="pmirMemoCount"></div>
       <div class="explain" data-explain="pmirMemo"></div>
     </section>
@@ -1667,7 +1674,7 @@
   <div class="sheet">
     <h3 id="mTitle">Share</h3>
     <p id="mBody"></p>
-    <textarea id="mText" rows="4"></textarea>
+    <textarea id="mText" rows="4" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>
     <div class="srow" id="mActions"></div>
   </div>
 </div>
@@ -4953,6 +4960,36 @@ function vbCard(icon,title,tag){
   return c;
 }
 function vbGray(label){const c=vbCard("🃏",label,"unreadable");c.classList.add("gray");return c;}
+
+function vbWireExpand(row,exp,reg){ // no false doors: chevron only when content waits
+  if(!exp.children.length)return;
+  row.classList.add("live");
+  row.setAttribute("role","button");row.setAttribute("tabindex","0");row.setAttribute("aria-expanded","false");
+  const ch=vbEl("span","vb-chev","\u25B8");row.appendChild(ch);
+  const tg=function(){
+    const open=!exp.classList.contains("show");
+    if(open){exp.classList.add("show");row.classList.add("open");}else{exp.classList.remove("show");row.classList.remove("open");}
+    row.setAttribute("aria-expanded",open?"true":"false");
+  };
+  row.addEventListener("click",vbSafe(tg));
+  row.addEventListener("keydown",vbSafe(function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();tg();}}));
+  reg.push({row,exp});
+}
+function vbMasterPill(card,reg){ // only when ≥2 doors exist; default all-collapsed (ratified)
+  if(reg.length<2)return;
+  const bar=vbEl("div",null,"");bar.style.display="flex";bar.style.marginTop="6px";
+  const pill=vbEl("button","vb-pill","\u25BE Expand all");pill.type="button";
+  let open=false;
+  pill.addEventListener("click",vbSafe(function(){
+    open=!open;
+    reg.forEach(function(r){
+      if(open){r.exp.classList.add("show");r.row.classList.add("open");r.row.setAttribute("aria-expanded","true");}
+      else{r.exp.classList.remove("show");r.row.classList.remove("open");r.row.setAttribute("aria-expanded","false");}
+    });
+    pill.textContent=open?"\u25B8 Collapse all":"\u25BE Expand all";
+  }));
+  bar.appendChild(pill);card.appendChild(bar);
+}
 function vbCasinoLink(){const a=vbEl("a","btn","Open in Casino 🎰");a.href=VB_CASINO_URL;a.target="_blank";a.rel="noopener";a.style.textDecoration="none";a.style.textAlign="center";return a;}
 function vbImportBtn(payload,label){
   const b=vbEl("button","btn primary",label||"⤵ Import");b.type="button";
@@ -5022,10 +5059,11 @@ function vbCardSpin(p){
 function vbCardGFMirror(p){
   const hs=Array.isArray(p.h)?p.h:[];
   const c=vbCard("🎰","Green Flag Mirror","Mirror Drop");
+  const expReg=[];
   c.appendChild(vbEl("div","vb-lo-sub",hs.length+" holding"+(hs.length===1?"":"s")));
   hs.forEach(function(h){
     const snap=h&&h.snap||{};
-    const row=vbEl("div","vb-lo-row live");
+    const row=vbEl("div","vb-lo-row");
     row.appendChild(vbTierDot(snap.t));
     row.appendChild(vbEl("span","sym",String(h.t||"")));
     const kind=[h.kind,h.mode].filter(Boolean).join(" · ");
@@ -5041,14 +5079,15 @@ function vbCardGFMirror(p){
     if(snap.t===1&&snap.m==="G"&&snap.d==="GS"&&snap.p==="G"&&snap.a===4){
       const s=vbEl("span",null," ★ STUD");s.style.color="var(--amber)";s.style.fontWeight="800";
       const w=vbEl("div","vb-lo-sub",words.join(" · "));w.appendChild(s);exp.appendChild(w);
-    }else{
+    }else if(words.length){
       exp.appendChild(vbEl("div","vb-lo-sub",words.join(" · ")));
     }
     if(h.added)exp.appendChild(vbEl("div","vb-anchor","added "+String(h.added)));
     if(h.memo)exp.appendChild(vbEl("div","vb-thesis",String(h.memo)));
     c.appendChild(exp);
-    row.addEventListener("click",vbSafe(function(){exp.classList.toggle("show");}));
+    vbWireExpand(row,exp,expReg);
   });
+  vbMasterPill(c,expReg);
   if(p.pm)c.appendChild(vbEl("div","vb-memo",String(p.pm)));
   const btns=vbEl("div","vb-lo-btns");btns.appendChild(vbCasinoLink());c.appendChild(btns);
   c.appendChild(vbEl("div","vb-foot",VB_FOOT_CASINO));
@@ -5102,10 +5141,11 @@ function vbCardBattle(p){
 function vbCardPmir(p){
   const hs=Array.isArray(p.pmirHoldings)?p.pmirHoldings:[];
   const c=vbCard("🪞","Portfolio Mirror · Live","Mirror Drop");
+  const expReg=[];
   if(p.pmirName)c.appendChild(vbEl("div","vb-lo-big",String(p.pmirName)));
   c.appendChild(vbEl("div","vb-lo-sub",hs.length+" holding"+(hs.length===1?"":"s")));
   hs.forEach(function(h){
-    const row=vbEl("div","vb-lo-row live");
+    const row=vbEl("div","vb-lo-row");
     row.appendChild(vbEl("span","sym",String(h&&h.sym||"")));
     const chg=vbNum(h&&h.chgPct);
     const last=vbNum(h&&h.last);
@@ -5122,8 +5162,9 @@ function vbCardPmir(p){
     if(bits.length)exp.appendChild(vbEl("div","vb-lo-sub",bits.join("  ·  ")));
     if(h&&h.memo)exp.appendChild(vbEl("div","vb-thesis",String(h.memo)));
     c.appendChild(exp);
-    row.addEventListener("click",vbSafe(function(){exp.classList.toggle("show");}));
+    vbWireExpand(row,exp,expReg);
   });
+  vbMasterPill(c,expReg);
   if(p.pmirMemo)c.appendChild(vbEl("div","vb-memo",String(p.pmirMemo)));
   const btns=vbEl("div","vb-lo-btns");
   btns.appendChild(vbImportBtn(p,"⤵ Import to my Mirror"));
