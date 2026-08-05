@@ -831,6 +831,7 @@
   .vb-lo-row.open .vb-chev{transform:rotate(90deg)}
   @media (prefers-reduced-motion:reduce){.vb-chev{transition:none}}
   .vb-pill{margin-left:auto;font-family:var(--sans);font-weight:800;font-size:.72rem;color:var(--accent-deep,#2456C8);background:transparent;border:1.5px solid var(--accent);border-radius:999px;padding:7px 12px;cursor:pointer;min-height:32px}
+  .vb-pill .vb-pillch{font-size:1.1rem;font-weight:800;line-height:1;margin-right:6px;vertical-align:-1px}
 </style>
 </head>
 <body data-theme="light">
@@ -4978,7 +4979,9 @@ function vbWireExpand(row,exp,reg){ // no false doors: chevron only when content
 function vbMasterPill(card,reg){ // only when ≥2 doors exist; default all-collapsed (ratified)
   if(reg.length<2)return;
   const bar=vbEl("div",null,"");bar.style.display="flex";bar.style.marginTop="6px";
-  const pill=vbEl("button","vb-pill","\u25BE Expand all");pill.type="button";
+  const pill=vbEl("button","vb-pill","");pill.type="button";
+  const pch=vbEl("span","vb-pillch","▾");const plb=vbEl("span",null,"Expand all");
+  pill.appendChild(pch);pill.appendChild(plb);
   let open=false;
   pill.addEventListener("click",vbSafe(function(){
     open=!open;
@@ -4986,7 +4989,7 @@ function vbMasterPill(card,reg){ // only when ≥2 doors exist; default all-coll
       if(open){r.exp.classList.add("show");r.row.classList.add("open");r.row.setAttribute("aria-expanded","true");}
       else{r.exp.classList.remove("show");r.row.classList.remove("open");r.row.setAttribute("aria-expanded","false");}
     });
-    pill.textContent=open?"\u25B8 Collapse all":"\u25BE Expand all";
+    pch.textContent=open?"▸":"▾";plb.textContent=open?"Collapse all":"Expand all";
   }));
   bar.appendChild(pill);card.appendChild(bar);
 }
