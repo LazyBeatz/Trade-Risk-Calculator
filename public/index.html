@@ -832,6 +832,14 @@
   @media (prefers-reduced-motion:reduce){.vb-chev{transition:none}}
   .vb-pill{margin-left:auto;font-family:var(--sans);font-weight:800;font-size:.72rem;color:var(--accent-deep,#2456C8);background:transparent;border:1.5px solid var(--accent);border-radius:999px;padding:7px 12px;cursor:pointer;min-height:32px}
   .vb-pill .vb-pillch{font-size:1.1rem;font-weight:800;line-height:1;margin-right:6px;vertical-align:-1px}
+
+  /* ═══ Ledger #4 · jump-to-latest + anti-yank ═══ */
+  .vb-msgswrap{position:relative}
+  .vb-jump{position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--accent);background:var(--card);color:var(--accent-deep,#2456C8);font-size:1.1rem;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:5;padding:0}
+  .vb-jump.show{display:flex}
+  .vb-jump.pulse{animation:vbJumpPulse 1.1s ease-in-out 2}
+  @keyframes vbJumpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  @media (prefers-reduced-motion:reduce){.vb-jump.pulse{animation:none}}
 </style>
 </head>
 <body data-theme="light">
@@ -1659,7 +1667,10 @@
       <span class="vb-conn" id="vbConnDot" title="Connection"></span>
       <button class="btn" id="vbLeave" type="button">Back</button>
     </div>
-    <div class="vb-msgs" id="vbMsgs" aria-live="polite"></div>
+    <div class="vb-msgswrap">
+      <div class="vb-msgs" id="vbMsgs" aria-live="polite"></div>
+      <button class="vb-jump" id="vbJumpLatest" type="button" aria-label="Jump to latest messages">▾</button>
+    </div>
     <div class="vb-sayrow">
       <input id="vbSay" type="text" class="vb-say" placeholder="ex. sup — first message travels the wire" maxlength="2000" autocomplete="off" aria-label="Message">
       <button class="btn primary" id="vbSend" type="button">Send</button>
@@ -4835,11 +4846,32 @@ const vbOpenRoom=vbSafe(async function(room,official){
 
 /* ── socket ── */
 let vbWS=null,vbWant=null,vbTries=0,vbTimer=null,vbRoster=new Set();
+
+/* ── Ledger #4 · anti-yank law: readers at rest are never moved ── */
+const VB_NEAR_BOTTOM=150;
+function vbAtBottom(m){return (m.scrollHeight-m.scrollTop-m.clientHeight)<=VB_NEAR_BOTTOM;}
+function vbScrollLatest(smooth){
+  const m=$("vbMsgs");if(!m)return;
+  const reduce=(typeof matchMedia!=="undefined")&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(smooth&&!reduce&&typeof m.scrollTo==="function"){m.scrollTo({top:m.scrollHeight,behavior:"smooth"});}
+  else{m.scrollTop=m.scrollHeight;}
+  vbUpdJump();
+}
+function vbUpdJump(){
+  const m=$("vbMsgs"),b=$("vbJumpLatest");if(!m||!b)return;
+  const at=vbAtBottom(m);
+  b.classList.toggle("show",!at);
+  if(at)b.classList.remove("pulse");
+}
+function vbAfterAppend(m,stick){
+  if(stick){vbScrollLatest(false);}
+  else{const b=$("vbJumpLatest");if(b){b.classList.add("show");b.classList.remove("pulse");void b.offsetWidth;b.classList.add("pulse");}}
+}
 function vbConnDot(on){const d=$("vbConnDot");if(d)d.classList.toggle("on",!!on);}
 function vbSys(text,held){
   const m=$("vbMsgs");if(!m)return;
   const div=document.createElement("div");div.className="vb-sys"+(held?" held":"");div.textContent=text;
-  m.appendChild(div);m.scrollTop=m.scrollHeight;
+  const stick=vbAtBottom(m);m.appendChild(div);vbAfterAppend(m,stick);
 }
 function vbMsgRow(o){
   const m=$("vbMsgs");if(!m)return;
@@ -4849,7 +4881,7 @@ function vbMsgRow(o){
   const b=document.createElement("span");b.className="vb-b";b.textContent=vbEsc(o.body);
   div.appendChild(t);div.appendChild(h);div.appendChild(b);
   try{vbRenderDrop(div,o.body);}catch(e){console.error("vibe drop render:",(e&&e.message)||e);div.appendChild(vbGray("couldn't render this drop"));}
-  m.appendChild(div);m.scrollTop=m.scrollHeight;
+  const stick=vbAtBottom(m);m.appendChild(div);vbAfterAppend(m,stick);
 }
 function vbRosterN(){const el=$("vbRosterN");if(el)el.textContent=vbRoster.size+" here";}
 const vbOnMsg=vbSafe(function(ev){
@@ -5242,6 +5274,8 @@ const vibeOnEnter=vbSafe(function(){
     on("vbJoin","click",vbJoin);
     on("vbLeave","click",vbLeave);
     on("vbSend","click",vbSend);
+    on("vbJumpLatest","click",vbSafe(function(){vbScrollLatest(true);}));
+    on("vbMsgs","scroll",vbSafe(vbUpdJump));
     on("vbSay","input",vbSafe(function(e){vbUpdSayCount((e.target.value||"").length);}));
     on("vbSay","keydown",vbSafe(function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();vbSend();}}));
     on("vbHandle","keydown",vbSafe(function(e){if(e.key==="Enter"){e.preventDefault();vbClaim();}}));
@@ -5260,7 +5294,7 @@ if(typeof switchWs==="function"){
     else vbDisconnect(false);            // leave panel = pause socket (resume on return)
   };
 }
-if(typeof window!=="undefined")window.__vibeTest={vibeOnEnter,vbUpdSayCount,vbSafe,vbHiccupShow};
+if(typeof window!=="undefined")window.__vibeTest={vibeOnEnter,vbUpdSayCount,vbSafe,vbHiccupShow,vbMsgRow,vbSys,vbAtBottom,vbUpdJump,vbScrollLatest};
 /* ═══ end vibe module ═══ */
 
   buildNav();
