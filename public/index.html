@@ -2278,9 +2278,11 @@ function restoreBackup(file){
       if(!known.some(k=>k in st))throw new Error("unrecognized");
       Object.keys(st).forEach(k=>{S[k]=st[k];});
       if(typeof wlEnsure==="function")wlEnsure();
-      persist();
-      [renderAll,glRender,pmRender,opRender,hgRender,wlRender].forEach(fn=>{if(typeof fn==="function"){try{fn();}catch(_){}}});
-      openSheet("Restored ✓","Your data is back — all workspaces and watchlists have been restored from the file.",null,[["Great",closeSheet,true]]);
+      if(typeof pmEnsure==="function")pmEnsure();
+      if(typeof vibeEnsure==="function")vibeEnsure();
+      clearTimeout(saveT);store(S);            // synchronous write — the 350ms debounce must NOT race the reload
+      openSheet("Restored ✓","Your data is back — refreshing the app so every workspace shows it…",null,[["Refreshing…",function(){},false]]);
+      setTimeout(function(){location.reload();},700);   // boot-from-storage renders everything, forever
     }catch(e){
       openSheet("Couldn't read that file","That doesn't look like a Trade Risk Calculator backup. Make sure you're picking the .json file this app downloaded.",null,[["OK",closeSheet,true]]);
     }
