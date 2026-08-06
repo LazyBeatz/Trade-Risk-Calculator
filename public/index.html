@@ -5006,26 +5006,30 @@ function vbWireExpand(row,exp,reg){ // no false doors: chevron only when content
     const open=!exp.classList.contains("show");
     if(open){exp.classList.add("show");row.classList.add("open");}else{exp.classList.remove("show");row.classList.remove("open");}
     row.setAttribute("aria-expanded",open?"true":"false");
+    if(reg&&reg._sync)reg._sync();
   };
   row.addEventListener("click",vbSafe(tg));
   row.addEventListener("keydown",vbSafe(function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();tg();}}));
   reg.push({row,exp});
 }
-function vbMasterPill(card,reg){ // only when ≥2 doors exist; default all-collapsed (ratified)
+function vbMasterPill(card,reg){ // DERIVED-STATE LAW: the pill reports the doors, never its memory
   if(reg.length<2)return;
   const bar=vbEl("div",null,"");bar.style.display="flex";bar.style.marginTop="6px";
   const pill=vbEl("button","vb-pill","");pill.type="button";
-  const pch=vbEl("span","vb-pillch","▾");const plb=vbEl("span",null,"Expand all");
+  const pch=vbEl("span","vb-pillch","\u25BE");const plb=vbEl("span",null,"Expand all");
   pill.appendChild(pch);pill.appendChild(plb);
-  let open=false;
+  function allOpen(){return reg.every(function(r){return r.exp.classList.contains("show");});}
+  function face(){const a=allOpen();pch.textContent=a?"\u25B8":"\u25BE";plb.textContent=a?"Collapse all":"Expand all";}
+  reg._sync=face;
   pill.addEventListener("click",vbSafe(function(){
-    open=!open;
+    const target=!allOpen();               // always the action that completes the set
     reg.forEach(function(r){
-      if(open){r.exp.classList.add("show");r.row.classList.add("open");r.row.setAttribute("aria-expanded","true");}
+      if(target){r.exp.classList.add("show");r.row.classList.add("open");r.row.setAttribute("aria-expanded","true");}
       else{r.exp.classList.remove("show");r.row.classList.remove("open");r.row.setAttribute("aria-expanded","false");}
     });
-    pch.textContent=open?"▸":"▾";plb.textContent=open?"Collapse all":"Expand all";
+    face();
   }));
+  face();
   bar.appendChild(pill);card.appendChild(bar);
 }
 function vbCasinoLink(){const a=vbEl("a","btn","Open in Casino 🎰");a.href=VB_CASINO_URL;a.target="_blank";a.rel="noopener";a.style.textDecoration="none";a.style.textAlign="center";return a;}
