@@ -1671,8 +1671,9 @@
       <div class="vb-msgs" id="vbMsgs" aria-live="polite"></div>
       <button class="vb-jump" id="vbJumpLatest" type="button" aria-label="Jump to latest messages">▾</button>
     </div>
-    <div class="vb-sayrow">
-      <input id="vbSay" type="text" class="vb-say" placeholder="ex. sup — first message travels the wire" maxlength="2000" autocomplete="off" aria-label="Message">
+    <label class="fl" for="vbSay" style="margin-top:10px">Message</label>
+    <div class="vb-sayrow" style="margin-top:6px">
+      <input id="vbSay" type="text" class="vb-say" placeholder="ex. what's up?! — type your message here" maxlength="2000" autocomplete="off" aria-label="Your chat message">
       <button class="btn primary" id="vbSend" type="button">Send</button>
     </div>
     <div class="wl-memo-count" id="vbSayCount"></div>
