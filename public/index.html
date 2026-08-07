@@ -840,6 +840,18 @@
   .vb-jump.pulse{animation:vbJumpPulse 1.1s ease-in-out 2}
   @keyframes vbJumpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
   @media (prefers-reduced-motion:reduce){.vb-jump.pulse{animation:none}}
+
+  /* ═══ SHIELD v1 · moderation UI ═══ */
+  .vb-dots{width:34px;height:34px;border-radius:50%;border:0;background:var(--chip);color:var(--ink);font-weight:800;font-size:1rem;line-height:1;cursor:pointer;flex:0 0 auto;margin-left:6px}
+  .vb-legal{margin-top:10px;font-family:var(--sans)}
+  .vb-legal summary{cursor:pointer;font-size:.78rem;color:var(--ink);opacity:.85;list-style:none}
+  .vb-legal summary::-webkit-details-marker{display:none}
+  .vb-legal .body{font-size:.78rem;color:var(--ink);opacity:.9;margin-top:8px}
+  .vb-legal .body p{margin:6px 0}
+  .vb-adm-row{background:var(--chip);border-radius:12px;padding:10px 12px;margin-top:8px;font-family:var(--sans)}
+  .vb-adm-row .who{font-weight:800;color:var(--ink)}
+  .vb-adm-row .meta{font-family:var(--mono);font-size:.68rem;color:var(--ink);opacity:.65}
+  .vb-adm-row .body{font-size:.8rem;color:var(--ink);margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
 </style>
 </head>
 <body data-theme="light">
@@ -1677,7 +1689,24 @@
       <button class="btn primary" id="vbSend" type="button">Send</button>
     </div>
     <div class="wl-memo-count" id="vbSayCount"></div>
-    <p class="op-detail-intro" style="margin-top:10px">Educational chat between traders — never investment advice. Be kind; report/block tools arrive in the Shield update.</p>
+    <details class="vb-legal"><summary>⚠️ Educational chat — never investment advice · scam basics ▾</summary>
+      <div class="body">
+        <p><strong>Nothing here is financial advice.</strong> Portfolio Vibe is educational conversation between traders — signals, theses, and vibes, never recommendations to buy or sell anything.</p>
+        <p><strong>Never trust unsolicited links or promises of guaranteed returns.</strong> Real traders don't guarantee. Anyone pushing "sure things," off-platform payments, or "exclusive groups" is running a play — use the ⋮ on their message to report, mute, or block.</p>
+        <p>Reports go to the founder's Shield console with a copy of the message. Mute/block hides a handle for you on every device you sign into.</p>
+      </div>
+    </details>
+  </section>
+
+  <section class="card" style="margin-top:12px" id="vbAdminCard" hidden>
+    <h2 class="pop">🛡️ Shield — Admin</h2>
+    <p class="op-detail-intro">Crown-only console. Reports arrive with a moderation-trail copy of the offending message.</p>
+    <div class="vb-row">
+      <button class="btn primary" id="vbAdmReports" type="button">Load reports</button>
+      <button class="btn" id="vbAdmBoom" type="button">Run boom canary</button>
+    </div>
+    <div class="vb-list" id="vbAdmList"></div>
+    <div class="vb-msg-line" id="vbAdmMsg" aria-live="polite"></div>
   </section>
 
   <div class="vb-hiccup" id="vbHiccup" hidden></div>
@@ -4701,6 +4730,8 @@ function vibeEnsure(){
   if(!S.vibe||typeof S.vibe!=="object")S.vibe={handle:"",syncCode:"",isAdmin:false,activeRoom:""};
   if(typeof S.vibe.handle!=="string")S.vibe.handle="";
   if(typeof S.vibe.syncCode!=="string")S.vibe.syncCode="";
+  if(!Array.isArray(S.vibe.muted))S.vibe.muted=[];
+  if(!Array.isArray(S.vibe.blocked))S.vibe.blocked=[];
 }
 function vbHiccupShow(e){
   try{console.error("vibe fence caught:",(e&&e.stack)||e);}catch(_){}
@@ -4730,6 +4761,7 @@ function vbRenderAuth(){
   const signed=!!(S.vibe.handle&&S.vibe.syncCode);
   if(out)out.hidden=signed; if(inn)inn.hidden=!signed;
   if(signed){const w=$("vbWho");if(w)w.textContent="@"+S.vibe.handle;const c=$("vbCrown");if(c)c.hidden=!S.vibe.isAdmin;}
+  const ac=$("vbAdminCard");if(ac)ac.hidden=!(signed&&S.vibe.isAdmin);
 }
 function vbCodeSheet(title,intro){
   openSheet(title,intro,S.vibe.syncCode,[
@@ -4876,11 +4908,19 @@ function vbSys(text,held){
 }
 function vbMsgRow(o){
   const m=$("vbMsgs");if(!m)return;
+  const h_lc=String(o.handle||"").toLowerCase();
+  if(S.vibe.muted.indexOf(h_lc)>=0||S.vibe.blocked.indexOf(h_lc)>=0)return;   // HIDDEN-HANDLE LAW
   const div=document.createElement("div");div.className="vb-m"+(o.handle===S.vibe.handle?" mine":"");
+  div.dataset.h=h_lc;
   const t=document.createElement("span");t.className="vb-t";t.textContent=vbTime(o.ts);
   const h=document.createElement("span");h.className="vb-h";h.textContent="@"+vbEsc(o.handle);
   const b=document.createElement("span");b.className="vb-b";b.textContent=vbEsc(o.body);
   div.appendChild(t);div.appendChild(h);div.appendChild(b);
+  if(h_lc && h_lc!==String(S.vibe.handle||"").toLowerCase()){
+    const dots=vbEl("button","vb-dots","\u22EE");dots.type="button";dots.setAttribute("aria-label","Message actions");
+    dots.addEventListener("click",vbSafe(function(){vbModMenu(o);}));
+    div.appendChild(dots);
+  }
   try{vbRenderDrop(div,o.body);}catch(e){console.error("vibe drop render:",(e&&e.message)||e);div.appendChild(vbGray("couldn't render this drop"));}
   const stick=vbAtBottom(m);m.appendChild(div);vbAfterAppend(m,stick);
 }
@@ -5263,6 +5303,81 @@ function vbRenderDrop(container,body){
   return false;
 }
 
+
+/* ── SHIELD v1 · report / mute / block (client) ── */
+function vbPurgeHandle(h_lc){
+  const m=$("vbMsgs");if(!m||!m.children)return;
+  const kids=Array.prototype.slice.call(m.children);
+  kids.forEach(function(k){if(k&&k.dataset&&k.dataset.h===h_lc&&k.remove)k.remove();});
+}
+const vbModAct=vbSafe(async function(kind,target){
+  closeSheet();
+  const lc=String(target||"").toLowerCase();
+  const key=(kind==="mute"||kind==="unmute")?"muted":"blocked";
+  const arr=S.vibe[key];
+  if(kind==="mute"||kind==="block"){ if(arr.indexOf(lc)<0)arr.push(lc); vbPurgeHandle(lc); vbSys("@"+target+" "+kind+"d — hidden for you."); }
+  else { const i=arr.indexOf(lc); if(i>=0)arr.splice(i,1); vbSys("@"+target+" un"+kind.slice(2)+"d."); }
+  persist();
+  const r=await vbApi("/api/vibe/mod",{op:kind,handle:S.vibe.handle,syncCode:S.vibe.syncCode,target:target});
+  if(!(r.status===200&&r.data&&r.data.ok))vbSys("Saved on this device — server sync will retry on your next visit.");
+});
+const vbReport=vbSafe(async function(o,reason){
+  closeSheet();
+  const r=await vbApi("/api/vibe/mod",{op:"report",handle:S.vibe.handle,syncCode:S.vibe.syncCode,
+    target:o.handle,roomId:S.vibe.activeRoom,msgId:o.id||"",body:String(o.body||"").slice(0,2000),reason:reason,ts:o.ts});
+  vbSys(r.status===200&&r.data&&r.data.ok ? "Report filed — thank you for keeping the Floor clean." : "Couldn't file the report — try again in a minute.");
+});
+const vbModMenu=vbSafe(function(o){
+  const lc=String(o.handle||"").toLowerCase();
+  const muted=S.vibe.muted.indexOf(lc)>=0, blocked=S.vibe.blocked.indexOf(lc)>=0;
+  openSheet("@"+o.handle,"Report sends a copy to the Shield console. Mute/block hides them for you.",null,[
+    ["\ud83d\udea9 Report scam/spam",function(){vbReport(o,"scam");},false],
+    ["\ud83d\udea9 Report abuse",function(){vbReport(o,"abuse");},false],
+    [muted?"\ud83d\udd0a Unmute @"+o.handle:"\ud83d\udd07 Mute @"+o.handle,function(){vbModAct(muted?"unmute":"mute",o.handle);},false],
+    [blocked?"\u2705 Unblock @"+o.handle:"\u26d4 Block @"+o.handle,function(){vbModAct(blocked?"unblock":"block",o.handle);},false],
+    ["Cancel",closeSheet,true]
+  ]);
+});
+const vbSyncModLists=vbSafe(async function(){
+  if(!(S.vibe.handle&&S.vibe.syncCode))return;
+  const r=await vbApi("/api/vibe/mod",{op:"lists",handle:S.vibe.handle,syncCode:S.vibe.syncCode});
+  if(r.status===200&&r.data&&r.data.ok){
+    (r.data.muted||[]).forEach(function(h){if(S.vibe.muted.indexOf(h)<0)S.vibe.muted.push(h);});
+    (r.data.blocked||[]).forEach(function(h){if(S.vibe.blocked.indexOf(h)<0)S.vibe.blocked.push(h);});
+    persist();
+  }
+});
+/* ── SHIELD v1 · crown console ── */
+const vbAdmLoad=vbSafe(async function(){
+  const msg=$("vbAdmMsg"),list=$("vbAdmList");
+  if(msg)msg.textContent="Loading\u2026";
+  const r=await vbApi("/api/vibe/admin",{op:"reports",handle:S.vibe.handle,syncCode:S.vibe.syncCode});
+  if(!(r.status===200&&r.data&&r.data.ok)){if(msg)msg.textContent=(r.data&&r.data.error)||"Couldn't load reports.";return;}
+  if(msg)msg.textContent=r.data.reports.length?"":"Queue is clean \u2014 no open reports.";
+  if(!list)return;
+  list.innerHTML="";
+  r.data.reports.forEach(function(rep){
+    const row=vbEl("div","vb-adm-row","");
+    row.appendChild(vbEl("div","who","@"+String(rep.offender||"unknown")+" \u00b7 "+String(rep.reason||"")));
+    row.appendChild(vbEl("div","meta",String(rep.roomId||"")+" \u00b7 "+String(rep.msgId||"")+" \u00b7 "+new Date(rep.ts||0).toLocaleString()));
+    row.appendChild(vbEl("div","body",String(rep.body||"")));
+    const b=vbEl("button","btn","Resolve");b.type="button";
+    b.addEventListener("click",vbSafe(async function(){
+      const rr=await vbApi("/api/vibe/admin",{op:"resolve",handle:S.vibe.handle,syncCode:S.vibe.syncCode,id:rep.id});
+      if(rr.status===200)vbAdmLoad();
+    }));
+    row.appendChild(b);
+    list.appendChild(row);
+  });
+});
+const vbAdmBoom=vbSafe(async function(){
+  const msg=$("vbAdmMsg");if(msg)msg.textContent="Booming\u2026";
+  const r=await vbApi("/api/vibe/ping",{boom:1,handle:S.vibe.handle,syncCode:S.vibe.syncCode});
+  if(msg)msg.textContent=(r.status===500&&r.data&&r.data.error==="vibe hiccup")
+    ? "Fence caught the boom \u2705 \u2014 crown canary green."
+    : ((r.data&&r.data.error)||"Unexpected canary result \u2014 check worker logs.");
+});
+
 /* ── lazy bind + enter hook (fenced) ── */
 let vbBound=false;
 const vibeOnEnter=vbSafe(function(){
@@ -5281,6 +5396,8 @@ const vibeOnEnter=vbSafe(function(){
     on("vbSend","click",vbSend);
     on("vbJumpLatest","click",vbSafe(function(){vbScrollLatest(true);}));
     on("vbMsgs","scroll",vbSafe(vbUpdJump));
+    on("vbAdmReports","click",vbAdmLoad);
+    on("vbAdmBoom","click",vbAdmBoom);
     on("vbSay","input",vbSafe(function(e){vbUpdSayCount((e.target.value||"").length);}));
     on("vbSay","keydown",vbSafe(function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();vbSend();}}));
     on("vbHandle","keydown",vbSafe(function(e){if(e.key==="Enter"){e.preventDefault();vbClaim();}}));
@@ -5290,6 +5407,7 @@ const vibeOnEnter=vbSafe(function(){
   }
   vbRenderAuth();
   vbLoadRooms();
+  vbSyncModLists();
 });
 if(typeof switchWs==="function"){
   const _vbOrigSwitch=switchWs;
