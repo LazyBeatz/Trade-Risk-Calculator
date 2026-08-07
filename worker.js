@@ -403,7 +403,24 @@ async function handleVibe(request, env, url) {
   //   ?boom=1 deliberately throws so the blast-radius fence can be verified
   //   LIVE: expect a vibe-scoped 500 here while /api/quote keeps serving.
   if (path === "/api/vibe/ping") {
+    if (request.method === "POST") {
+      // SHIELD v1: the fence canary is crown-gated. POST {boom:1, handle, syncCode};
+      // sync-codes never travel in URLs (POST-only law), and only isAdmin may throw.
+      let b = null; try { b = await request.json(); } catch (e) { b = null; }
+      if (b && b.boom === 1) {
+        if (!env.VIBE_DB) return json({ error: "vibe backend not configured" }, 503);
+        await vibeEnsureSchema(env);
+        const auth = await vibeAuth(env.VIBE_DB, b.handle, b.syncCode);
+        if (!auth.ok || !auth.isAdmin) return json({ error: "Not allowed." }, 403);
+        throw new Error("vibe boom (crown canary)");
+      }
+      return json({ error: "Unknown op." }, 400);
+    }
     if (url.searchParams.get("boom") === "1") {
+      return json({ ok: true, note: "boom is crown-gated - POST with admin credentials." }, 200);
+    }
+    if (false) {
+
       throw new Error("deliberate test throw — fence check");
     }
 
@@ -439,13 +456,15 @@ async function handleVibe(request, env, url) {
   }
 
   // ── Stage-2 routes (identity + rooms) — need D1; schema bootstraps lazily ──
-  if (path === "/api/vibe/handle" || path === "/api/vibe/rooms") {
+  if (path === "/api/vibe/handle" || path === "/api/vibe/rooms" || path === "/api/vibe/mod" || path === "/api/vibe/admin") {
     if (!env.VIBE_DB) {
       console.error("vibe: VIBE_DB binding missing");
       return json({ error: "vibe backend not configured" }, 503);
     }
     await vibeEnsureSchema(env);
     if (path === "/api/vibe/handle") return vibeHandleRoute(request, env, url);
+    if (path === "/api/vibe/mod")    return vibeModRoute(request, env);
+    if (path === "/api/vibe/admin")  return vibeAdminRoute(request, env);
     return vibeRoomsRoute(request, env, url);
   }
 
@@ -846,6 +865,81 @@ async function vibeAuth(db, handle, syncCode) {
 
 async function vibeReadJson(request) {
   try { return await request.json(); } catch (e) { return null; }
+}
+
+// ── SHIELD v1 · /api/vibe/mod — report / mute / unmute / block / unblock / lists
+//    Zero-PII: lists store lowercased handles only. Hygiene law: generic errors
+//    outward, verbatim internals to console.error → worker logs.
+async function vibeModRoute(request, env) {
+  if (request.method !== "POST") return json({ error: "POST only." }, 405);
+  let b = null; try { b = await request.json(); } catch (e) { return json({ error: "Bad request." }, 400); }
+  const db = env.VIBE_DB;
+  const auth = await vibeAuth(db, b.handle, b.syncCode);
+  if (!auth.ok) return json({ error: auth.status === 429 ? "Too many attempts — wait a minute." : "Handle and code don't match." }, auth.status);
+  const me = auth.lc;
+  const op = String(b.op || "");
+
+  if (op === "lists") {
+    const m = await db.prepare("SELECT muted_lc FROM mutes WHERE muter_lc=?").bind(me).all();
+    const k = await db.prepare("SELECT blocked_lc FROM blocks WHERE blocker_lc=?").bind(me).all();
+    return json({ ok: true,
+      muted:   (m.results || []).map(r => r.muted_lc),
+      blocked: (k.results || []).map(r => r.blocked_lc) }, 200);
+  }
+
+  if (op === "report") {
+    const target = String(b.target || "").toLowerCase();
+    if (!/^[a-z][a-z0-9_]{2,19}$/.test(target)) return json({ error: "Bad request." }, 400);
+    const REASONS = { scam: 1, spam: 1, abuse: 1, other: 1 };
+    const reason = REASONS[b.reason] ? b.reason : "other";
+    const body = String(b.body || "").slice(0, 2000);
+    const roomId = String(b.roomId || "").slice(0, 40);
+    const msgId  = String(b.msgId  || "").slice(0, 40);
+    const ts = Number(b.ts) || Date.now();
+    await db.prepare("INSERT INTO modtrail(msgId, roomId, handle, body, reason, ts) VALUES(?,?,?,?,?,?)")
+      .bind(msgId, roomId, target, body, "report:" + reason, ts).run();
+    const idRow = await db.prepare("SELECT last_insert_rowid() AS id").first();
+    await db.prepare("INSERT INTO reports(modtrailId, reporter_lc, roomId, msgId, reason, ts) VALUES(?,?,?,?,?,?)")
+      .bind(idRow ? idRow.id : null, me, roomId, msgId, reason, Date.now()).run();
+    return json({ ok: true }, 200);
+  }
+
+  const target = String(b.target || "").toLowerCase();
+  if (!/^[a-z][a-z0-9_]{2,19}$/.test(target)) return json({ error: "Bad request." }, 400);
+  if (target === me) return json({ error: "You can't moderate yourself." }, 400);
+  if (op === "mute")    { await db.prepare("INSERT OR IGNORE INTO mutes(muter_lc, muted_lc, ts) VALUES(?,?,?)").bind(me, target, Date.now()).run(); return json({ ok: true }, 200); }
+  if (op === "unmute")  { await db.prepare("DELETE FROM mutes WHERE muter_lc=? AND muted_lc=?").bind(me, target).run(); return json({ ok: true }, 200); }
+  if (op === "block")   { await db.prepare("INSERT OR IGNORE INTO blocks(blocker_lc, blocked_lc, ts) VALUES(?,?,?)").bind(me, target, Date.now()).run(); return json({ ok: true }, 200); }
+  if (op === "unblock") { await db.prepare("DELETE FROM blocks WHERE blocker_lc=? AND blocked_lc=?").bind(me, target).run(); return json({ ok: true }, 200); }
+  return json({ error: "Unknown op." }, 400);
+}
+
+// ── SHIELD v1 · /api/vibe/admin — crown-only reports queue ───────────────────
+let vibeAdminAltered = false;
+async function vibeAdminRoute(request, env) {
+  if (request.method !== "POST") return json({ error: "POST only." }, 405);
+  let b = null; try { b = await request.json(); } catch (e) { return json({ error: "Bad request." }, 400); }
+  const db = env.VIBE_DB;
+  const auth = await vibeAuth(db, b.handle, b.syncCode);
+  if (!auth.ok) return json({ error: auth.status === 429 ? "Too many attempts — wait a minute." : "Handle and code don't match." }, auth.status);
+  if (!auth.isAdmin) return json({ error: "Not allowed." }, 403);
+  if (!vibeAdminAltered) {
+    vibeAdminAltered = true;
+    try { await db.prepare("ALTER TABLE reports ADD COLUMN resolvedAt INTEGER").run(); } catch (e) { /* already there */ }
+  }
+  const op = String(b.op || "");
+  if (op === "reports") {
+    const rows = await db.prepare(
+      "SELECT r.id, r.reason, r.ts, r.roomId, r.msgId, m.handle AS offender, m.body FROM reports r LEFT JOIN modtrail m ON m.id = r.modtrailId WHERE r.resolvedAt IS NULL ORDER BY r.ts DESC LIMIT 50").all();
+    return json({ ok: true, reports: rows.results || [] }, 200);
+  }
+  if (op === "resolve") {
+    const id = Number(b.id);
+    if (!Number.isInteger(id)) return json({ error: "Bad request." }, 400);
+    await db.prepare("UPDATE reports SET resolvedAt=? WHERE id=?").bind(Date.now(), id).run();
+    return json({ ok: true }, 200);
+  }
+  return json({ error: "Unknown op." }, 400);
 }
 
 // ── /api/vibe/handle — claim & verify ────────────────────────────────────────
