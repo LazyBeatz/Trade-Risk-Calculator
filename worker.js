@@ -29,12 +29,38 @@ export default {
         return json({ error: "vibe hiccup" }, 500);                 // public surface stays generic
       }
     }
+    if (url.pathname === "/api/search") return handleSearch(url);
     if (url.pathname === "/api/quote") return handleQuote(url, env);
     if (url.pathname === "/api/options") return handleOptions(url);
     if (url.pathname === "/api/history") return handleHistory(url);
     return env.ASSETS.fetch(request);
   },
 };
+
+// ── /api/search — company-name → ticker candidates (Yahoo v1 finance search).
+//    Live-confirmed 05-Au-26 from the bench: no crumb needed, plain UA works.
+//    Safe match-list contract: we return candidates; the HUMAN picks. Hygiene
+//    law: generic errors out, internals to logs.
+async function handleSearch(url) {
+  const q = String(url.searchParams.get("q") || "").trim();
+  if (!q || q.length > 40) return json({ error: "Bad query." }, 400);
+  try {
+    const u = "https://query1.finance.yahoo.com/v1/finance/search?q=" + encodeURIComponent(q) +
+              "&quotesCount=8&newsCount=0&listsCount=0";
+    const r = await fetch(u, { headers: { "User-Agent": YUA, "Accept": "application/json" }, cf: { cacheTtl: 300 } });
+    if (!r.ok) throw new Error("yahoo search " + r.status);
+    const d = await r.json();
+    const matches = ((d && d.quotes) || [])
+      .filter(x => x && x.symbol && (x.quoteType === "EQUITY" || x.quoteType === "ETF"))
+      .slice(0, 8)
+      .map(x => ({ symbol: String(x.symbol), name: String(x.longname || x.shortname || x.symbol),
+                   exch: String(x.exchDisp || x.exchange || ""), type: String(x.quoteType) }));
+    return json({ ok: true, matches }, 200);
+  } catch (e) {
+    console.error("search:", (e && e.message) || e);
+    return json({ error: "search unavailable" }, 502);
+  }
+}
 
 async function handleQuote(url, env) {
   const raw = (url.searchParams.get("symbol") || "").trim().toUpperCase();
