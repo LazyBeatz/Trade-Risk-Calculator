@@ -4102,23 +4102,34 @@ function wlField(it,idx,key,label,isPre,ph){
 }
 
 // add a ticker (looks up an initial quote)
+function parseTickerList(raw){ // Ledger #8: the placeholder's promise, kept — split FIRST, clean each, batch-dedupe, skip blanks
+  return String(raw||"").split(",").map(function(s){return normTicker(s);}).filter(Boolean)
+    .filter(function(s,i,a){return a.indexOf(s)===i;});
+}
 function wlAdd(sym){
-  const raw=normTicker(sym!=null?sym:(($("wlAddInput")&&$("wlAddInput").value)||""));
+  const inp=$("wlAddInput");
   const setStat=(kind,html)=>{const e=$("wlAddStatus");if(!e)return;e.className="tickstatus show "+kind;e.innerHTML=html;if(!kind)e.className="tickstatus";};
-  if(!raw){setStat("err","Type a ticker to add (e.g. AAPL).");return;}
+  const list=parseTickerList(sym!=null?sym:((inp&&inp.value)||""));
+  if(!list.length){setStat("err","Type a ticker to add (e.g. AAPL).");return;}
   const items=wlItemsRef();
-  if(items.length>=WL_MAX_SYMBOLS){setStat("err","This list is full ("+WL_MAX_SYMBOLS+" max). Start a new watchlist for more.");return;}
-  if(items.some(x=>x.sym===raw)){setStat("err",raw+" is already on this watchlist.");return;}
-  const item={id:wlUID(),sym:raw,_open:false};
-  items.unshift(item);
-  // remember it in the recent list (survives a watchlist reset — it's a separate memory)
-  if(!Array.isArray(S.wlRecent))S.wlRecent=[];
-  S.wlRecent=[raw,...S.wlRecent.filter(x=>x!==raw)].slice(0,10);
+  let added=0,dups=0,capped=0;
+  list.forEach(function(raw){
+    if(items.length>=WL_MAX_SYMBOLS){capped++;return;}
+    if(items.some(x=>x.sym===raw)){dups++;return;}
+    items.unshift({id:wlUID(),sym:raw,_open:false});
+    if(!Array.isArray(S.wlRecent))S.wlRecent=[];
+    S.wlRecent=[raw,...S.wlRecent.filter(x=>x!==raw)].slice(0,10);
+    added++;
+  });
   persist();
-  if($("wlAddInput"))$("wlAddInput").value="";
+  if(inp){inp.value="";inp.focus();}   // rapid-fire: keyboard never closes, next symbol flows
   wlRender();
-  // fetch an initial quote for the new item (now at the top, index 0)
-  wlFetchQuote(0,null,setStat);
+  if(!added&&dups&&list.length===1){setStat("err",list[0]+" is already on this watchlist.");return;}
+  if(!added&&capped&&!dups){setStat("err","This list is full ("+WL_MAX_SYMBOLS+" max). Start a new watchlist for more.");return;}
+  const bits=[];if(added)bits.push("Added "+added);if(dups)bits.push("skipped "+dups+" duplicate"+(dups>1?"s":""));if(capped)bits.push("list full at "+WL_MAX_SYMBOLS);
+  setStat(added?"ok":"err",bits.join(" \u00b7 ")||"Nothing to add.");
+  if(added===1)wlFetchQuote(0,null,setStat);
+  else if(added>1)wlRefreshAll();
 }
 // render the "recently added" chips (tickers you've added before but aren't currently listed)
 function wlRenderRecent(){
@@ -4190,9 +4201,9 @@ async function wlRefreshAll(){
 }
 
 if($("wlAddBtn")){
-  $("wlAddInput").addEventListener("input",e=>{e.target.value=normTicker(e.target.value);});
-  $("wlAddInput").setAttribute("enterkeyhint","done");
-  $("wlAddInput").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();$("wlAddInput").blur();wlAdd();}});
+  $("wlAddInput").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9.\-, ]/g,"");});
+  $("wlAddInput").setAttribute("enterkeyhint","go");
+  $("wlAddInput").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();wlAdd();}});
   $("wlAddBtn").addEventListener("click",()=>wlAdd());
 }
 if($("wlRefreshAll"))$("wlRefreshAll").addEventListener("click",()=>wlRefreshAll());
@@ -4597,19 +4608,24 @@ function pmRenderResults(results){
 // ----- wiring -----
 function pmAddHolding(){
   const inp=$("pmirAddInput");if(!inp)return;
-  const sym=normTicker(inp.value||"");
   const setStat=(k,h)=>{const e=$("pmirAddStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
-  if(!sym){setStat("err","Type a ticker first.");return;}
+  const list=parseTickerList(inp.value||"");
+  if(!list.length){setStat("err","Type a ticker first.");return;}
   const H=pmHoldingsRef();
-  if(H.some(h=>normTicker(h.sym||"")===sym)){setStat("err",sym+" is already in your holdings.");inp.select();return;}
-  H.unshift({id:pmUID(),sym:sym,_open:false});
+  let added=0,dups=0;
+  list.forEach(function(sym){
+    if(H.some(h=>normTicker(h.sym||"")===sym)){dups++;return;}
+    H.unshift({id:pmUID(),sym:sym,_open:false});added++;
+  });
   persist();pmRenderHoldings();
-  setStat("ok",sym+" added.");
-  inp.value="";inp.focus(); // keep the keyboard open — bang, bang, bang
+  inp.value="";inp.focus();   // rapid-fire parity
+  if(!added&&dups&&list.length===1){setStat("err",list[0]+" is already in your holdings.");inp.select();return;}
+  const bits=[];if(added)bits.push("Added "+added);if(dups)bits.push("skipped "+dups+" duplicate"+(dups>1?"s":""));
+  setStat(added?"ok":"err",bits.join(" \u00b7 ")||"Nothing to add.");
 }
 if($("pmirAdd"))$("pmirAdd").addEventListener("click",()=>pmAddHolding());
 if($("pmirAddInput")){
-  $("pmirAddInput").addEventListener("input",e=>{e.target.value=normTicker(e.target.value);});
+  $("pmirAddInput").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9.\-, ]/g,"");});
   $("pmirAddInput").setAttribute("enterkeyhint","go");
   $("pmirAddInput").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();pmAddHolding();}});
 }
