@@ -844,14 +844,27 @@
   /* ═══ SHIELD v1 · moderation UI ═══ */
   .vb-dots{width:34px;height:34px;border-radius:50%;border:0;background:var(--chip);color:var(--ink);font-weight:800;font-size:1rem;line-height:1;cursor:pointer;flex:0 0 auto;margin-left:6px}
   .vb-legal{margin-top:10px;font-family:var(--sans)}
-  .vb-legal summary{cursor:pointer;font-size:.78rem;color:var(--ink);opacity:.85;list-style:none}
+  .vb-legal summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 12px;background:var(--chip);border:1px solid var(--line,#D7DBE4);border-radius:12px}
   .vb-legal summary::-webkit-details-marker{display:none}
+  .vb-legal .vb-legtx{font-size:.78rem;color:var(--ink);flex:1;min-width:0}
+  .vb-legal .vb-leghint{font-size:.7rem;font-weight:800;color:var(--accent-deep,#2456C8);flex:0 0 auto}
+  .vb-legal[open] .vb-leghint{display:none}
+  .vb-legal .vb-legch{font-size:1.1rem;font-weight:800;line-height:1;color:var(--accent-deep,#2456C8);flex:0 0 auto;transition:transform .15s}
+  .vb-legal[open] .vb-legch{transform:rotate(90deg)}
+  @media (prefers-reduced-motion:reduce){.vb-legal .vb-legch{transition:none}}
   .vb-legal .body{font-size:.78rem;color:var(--ink);opacity:.9;margin-top:8px}
   .vb-legal .body p{margin:6px 0}
   .vb-adm-row{background:var(--chip);border-radius:12px;padding:10px 12px;margin-top:8px;font-family:var(--sans)}
   .vb-adm-row .who{font-weight:800;color:var(--ink)}
   .vb-adm-row .meta{font-family:var(--mono);font-size:.68rem;color:var(--ink);opacity:.65}
   .vb-adm-row .body{font-size:.8rem;color:var(--ink);margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+
+  /* ═══ name→ticker match list (safe pick, house tokens) ═══ */
+  .lk-box{margin-top:8px}
+  .lk-hd{font-family:var(--sans);font-size:.74rem;font-weight:800;color:var(--ink);margin:2px 0 4px}
+  .lk-row{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;text-align:left;background:var(--chip);border:1px solid var(--line,#D7DBE4);border-radius:12px;padding:10px 12px;margin-top:6px;cursor:pointer;font-family:var(--sans);font-size:.85rem;color:var(--ink)}
+  .lk-row .nm{flex:1;min-width:0;overflow-wrap:anywhere}
+  .lk-row .sym{font-family:var(--mono);font-weight:700;font-size:.78rem;flex:0 0 auto}
 </style>
 </head>
 <body data-theme="light">
@@ -929,7 +942,7 @@
     <label class="fl" for="ticker">Ticker lookup <span class="opt">optional</span></label>
     <div class="tickrow">
       <div class="inrow hastick" id="tickWrap">
-        <input id="ticker" type="text" inputmode="text" placeholder="ex. AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <input id="ticker" type="text" inputmode="text" placeholder="ex. AAPL or Apple" autocomplete="off" autocapitalize="characters" spellcheck="false">
         <button class="lookbtn" id="btnLookup" type="button">Get price</button>
       </div>
     </div>
@@ -1015,7 +1028,7 @@
       <label class="fl" for="pmTicker">Ticker lookup <span class="opt">optional</span></label>
       <div class="tickrow">
         <div class="inrow hastick" id="pmTickWrap">
-          <input id="pmTicker" type="text" inputmode="text" placeholder="ex. AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="pmTicker" type="text" inputmode="text" placeholder="ex. AAPL or Apple" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="pmLookup" type="button">Get price</button>
         </div>
       </div>
@@ -1297,7 +1310,7 @@
       <label class="fl" for="opTicker" style="margin-top:14px">Ticker lookup <span class="opt">optional · adds context</span></label>
       <div class="tickrow">
         <div class="inrow hastick" id="opTickWrap">
-          <input id="opTicker" type="text" inputmode="text" placeholder="ex. AAPL or SHOP.TO" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="opTicker" type="text" inputmode="text" placeholder="ex. AAPL or Apple" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="opLookup" type="button">Get price</button>
         </div>
       </div>
@@ -1387,7 +1400,7 @@
       <label class="fl" for="hgTicker" style="margin-top:14px">Hedge ETF <span class="opt">default SPY · change if you like</span></label>
       <div class="tickrow">
         <div class="inrow hastick" id="hgTickWrap">
-          <input id="hgTicker" type="text" inputmode="text" placeholder="ex. SPY" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="hgTicker" type="text" inputmode="text" placeholder="ex. AAPL or Apple" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="hgLookup" type="button">Get price</button>
         </div>
       </div>
@@ -1689,7 +1702,7 @@
       <button class="btn primary" id="vbSend" type="button">Send</button>
     </div>
     <div class="wl-memo-count" id="vbSayCount"></div>
-    <details class="vb-legal"><summary>⚠️ Educational chat — never investment advice · scam basics ▾</summary>
+    <details class="vb-legal"><summary aria-expanded="false"><span aria-hidden="true">⚠️</span><span class="vb-legtx">Educational chat — never investment advice · scam basics</span><span class="vb-leghint">Tap to read</span><span class="vb-legch" aria-hidden="true">▸</span></summary>
       <div class="body">
         <p><strong>Nothing here is financial advice.</strong> Portfolio Vibe is educational conversation between traders — signals, theses, and vibes, never recommendations to buy or sell anything.</p>
         <p><strong>Never trust unsolicited links or promises of guaranteed returns.</strong> Real traders don't guarantee. Anyone pushing "sure things," off-platform payments, or "exclusive groups" is running a play — use the ⋮ on their message to report, mute, or block.</p>
@@ -2104,12 +2117,49 @@ function setTickStatus(kind,html){
   if(!kind)el.className="tickstatus";
 }
 function normTicker(v){return v.toUpperCase().replace(/[^A-Z0-9.\-]/g,"").slice(0,12)}
+/* ── name→ticker search (safe match-list; Yahoo endpoint live-confirmed 05-Au-26) ── */
+const SEARCH_ENDPOINT="/api/search";
+let lkBoxEl=null;
+function lkDismiss(){if(lkBoxEl&&lkBoxEl.remove)lkBoxEl.remove();lkBoxEl=null;}
+function lkShow(cfg,items,fallbackFor){
+  lkDismiss();
+  const st=$(cfg.statusId);if(!st)return;
+  const box=document.createElement("div");box.className="lk-box";
+  if(fallbackFor){const hd=document.createElement("div");hd.className="lk-hd";hd.textContent="No quote for "+fallbackFor+" \u2014 did you mean:";box.appendChild(hd);}
+  items.forEach(function(m){
+    const b=document.createElement("button");b.type="button";b.className="lk-row";
+    const nm=document.createElement("span");nm.className="nm";nm.textContent=String(m.name||m.symbol);
+    const sy=document.createElement("span");sy.className="sym";sy.textContent=String(m.symbol)+(m.exch?(" \u00b7 "+String(m.exch)):"");
+    b.appendChild(nm);b.appendChild(sy);
+    b.addEventListener("click",function(){lkDismiss();const inEl=$(cfg.inputId);if(inEl)inEl.value=m.symbol;runLookup(cfg);});
+    box.appendChild(b);
+  });
+  if(st.parentNode&&st.parentNode.insertBefore)st.parentNode.insertBefore(box,st.nextSibling);
+  else if(st.appendChild)st.appendChild(box);
+  lkBoxEl=box;
+}
+async function lkSearch(cfg,typed,fallbackFor){
+  const el=$(cfg.statusId);
+  const say=function(kind,msg){if(!el)return;el.className="tickstatus show "+kind;el.textContent=msg;};
+  say("busy","Searching \u201c"+typed+"\u201d\u2026");
+  try{
+    const r=await fetch(SEARCH_ENDPOINT+"?q="+encodeURIComponent(String(typed).slice(0,40)),{headers:{"accept":"application/json"}});
+    const d=r.ok?await r.json():null;
+    const items=(d&&d.ok&&Array.isArray(d.matches))?d.matches:[];
+    if(!items.length){lkDismiss();say("err","Couldn\u0027t find that name \u2014 try the ticker symbol.");return;}
+    say("ok","Pick the match you meant:");
+    lkShow(cfg,items,fallbackFor||"");
+  }catch(e){lkDismiss();say("err","Couldn\u0027t find that name \u2014 try the ticker symbol.");}
+}
 // Reusable lookup: cfg = {inputId, btnId, statusId, busyLabel, onPrice(price,symbol,delayed,asOf)}
 async function runLookup(cfg){
   const inEl=$(cfg.inputId);if(!inEl)return;
   const raw=normTicker(inEl.value||"");
   const setStat=(kind,html)=>{const e=$(cfg.statusId);if(!e)return;e.className="tickstatus show "+kind;e.innerHTML=html;if(!kind)e.className="tickstatus";};
   if(!raw){setStat("err","Type a ticker first (e.g. AAPL or SHOP.TO).");return;}
+  const typedRaw=(inEl.value||"").trim();
+  if(typedRaw.length>=2&&(/\s/.test(typedRaw)||/[^A-Za-z0-9.\-]/.test(typedRaw))){lkDismiss();return lkSearch(cfg,typedRaw);}
+  lkDismiss();
   const seq=++lookupSeq;
   const btn=$(cfg.btnId);
   if(btn){btn.disabled=true;btn.classList.add("spin");btn.dataset.label=btn.textContent;btn.textContent="…";}
@@ -2119,7 +2169,7 @@ async function runLookup(cfg){
     if(seq!==lookupSeq)return;
     if(!r.ok){
       if(r.status===429)setStat("err","Quote limit reached for now — please type the price manually.");
-      else if(r.status===404)setStat("err","No quote found for "+raw+". Check the symbol, or enter the price manually.");
+      else if(r.status===404){lkSearch(cfg,typedRaw||raw,raw);}
       else setStat("err","Lookup unavailable right now — enter the price manually.");
       return;
     }
@@ -5396,6 +5446,10 @@ const vibeOnEnter=vbSafe(function(){
     on("vbSend","click",vbSend);
     on("vbJumpLatest","click",vbSafe(function(){vbScrollLatest(true);}));
     on("vbMsgs","scroll",vbSafe(vbUpdJump));
+    const lg=document.querySelector(".vb-legal");
+    if(lg){const sm=lg.querySelector("summary");
+      const lgUpd=vbSafe(function(){if(sm)sm.setAttribute("aria-expanded",lg.open?"true":"false");});
+      lg.addEventListener("toggle",lgUpd);lgUpd();}
     on("vbAdmReports","click",vbAdmLoad);
     on("vbAdmBoom","click",vbAdmBoom);
     on("vbSay","input",vbSafe(function(e){vbUpdSayCount((e.target.value||"").length);}));
