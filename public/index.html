@@ -5164,6 +5164,27 @@ function vbQPump(){
 }
 
 /* ── species cards ── */
+function vbCardTrend(p){ // GFTS1 core card — Schedule A §C5. vd + w1..w5 QUARANTINED (decoded, never rendered) pending the casino legend.
+  const t=String(p.t||"");
+  const c=vbCard("\ud83d\udd2d","Green Flag Trend Spotter","Trend Spotter Drop");
+  if(t)c.appendChild(vbEl("div","vb-lo-big",t));
+  const VERDICT_WORDS={SW:["SIDEWAYS","\u27a1\ufe0f"]};   // one confirmed mapping; unknown = neutral, never a guessed arrow
+  const vword=String(p.verdict||"");
+  if(vword){
+    const row=vbEl("div","vb-lo-row");
+    const known=VERDICT_WORDS[vword];
+    row.appendChild(vbEl("span","vb-lo-sub",known?(known[0]+" "+known[1]):vword));
+    c.appendChild(row);
+  }
+  const sc=vbNum(p.score),dn=vbNum(p.den);
+  if(sc!=null&&dn!=null)c.appendChild(vbEl("div","vb-score","Score "+sc+" / "+dn));   // verbatim, never recomputed
+  if(p.anchor)c.appendChild(vbEl("div","vb-lo-sub","data anchor: "+String(p.anchor)));
+  if(p.m)c.appendChild(vbEl("div","vb-memo",String(p.m)));
+  const q=vbEl("div","vb-anchor","");c.appendChild(q);vbQuoteLine(t,q);   // best-effort; failure = absence
+  const btns=vbEl("div","vb-lo-btns");btns.appendChild(vbCasinoLink());c.appendChild(btns);
+  c.appendChild(vbEl("div","vb-foot",VB_FOOT_CASINO));
+  return c;
+}
 function vbCardSpin(p){
   const t=String(p.t||"");
   const c=vbCard("🎰",t||"Spin","Spin Drop");
@@ -5331,6 +5352,14 @@ function vbRenderDrop(container,body){
       if(p&&p.v===1&&Array.isArray(p.h)){container.appendChild(vbCardGFMirror(p));}
       else container.appendChild(vbGray("newer mirror format — open in Casino 🎰"));
     }catch(e){container.appendChild(vbGray("mirror code — couldn't read"));}
+    return true;
+  }
+  if((m=text.match(/GFTS1-([A-Za-z0-9_-]{8,})/))){
+    try{
+      const p=vbB64JsonUTF8(m[1]);
+      if(p&&p.v===1){container.appendChild(vbCardTrend(p));}
+      else container.appendChild(vbGray("newer trend format \u2014 open in Casino \ud83c\udfb0"));
+    }catch(e){container.appendChild(vbGray("trend code \u2014 couldn't read"));}
     return true;
   }
   if((m=text.match(/GFS1-([A-Za-z0-9_-]{8,})/))){
