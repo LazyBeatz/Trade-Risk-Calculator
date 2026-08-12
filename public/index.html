@@ -865,6 +865,16 @@
   .lk-row{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;text-align:left;background:var(--chip);border:1px solid var(--line,#D7DBE4);border-radius:12px;padding:10px 12px;margin-top:6px;cursor:pointer;font-family:var(--sans);font-size:.85rem;color:var(--ink)}
   .lk-row .nm{flex:1;min-width:0;overflow-wrap:anywhere}
   .lk-row .sym{font-family:var(--mono);font-weight:700;font-size:.78rem;flex:0 0 auto}
+
+  /* ═══ GFTS1 §C5 v2 · five wheels + day-one clock ═══ */
+  .gw-row{display:flex;flex-wrap:wrap;gap:8px 12px;margin-top:6px}
+  .gw{display:flex;align-items:center;gap:5px;font-family:var(--sans);font-size:.68rem;font-weight:800;letter-spacing:.04em;color:var(--ink)}
+  .gw-dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+  .gw-dot.g{background:var(--green)}
+  .gw-dot.r{background:var(--red)}
+  .gw-dot.x{background:var(--muted,#697080)}
+  .gw-dot.u{background:transparent;border:1.5px solid var(--muted,#697080)}
+  .gts-since{font-family:var(--sans);font-size:.7rem;color:var(--muted,#697080);font-weight:700;margin-left:8px}
 </style>
 </head>
 <body data-theme="light">
@@ -5180,23 +5190,51 @@ function vbQPump(){
 }
 
 /* ── species cards ── */
-function vbCardTrend(p){ // GFTS1 core card — Schedule A §C5. vd + w1..w5 QUARANTINED (decoded, never rendered) pending the casino legend.
+function vbCasinoDate(s){ // 2-letter-month casino date → comparable {y,mo,d} | null (parse for sanity only; DISPLAY stays verbatim)
+  const M={Ja:1,Fe:2,Mr:3,Ap:4,Ma:5,Ju:6,Jl:7,Au:8,Se:9,Oc:10,No:11,De:12};
+  const mm=/^(\d{1,2})-([A-Za-z]{2})-(\d{4})$/.exec(String(s||""));
+  if(!mm||!M[mm[2]])return null;
+  return {y:+mm[3],mo:M[mm[2]],d:+mm[1]};
+}
+function vbCardTrend(p){ // GFTS1 — §C5 v2, QUARANTINE LIFTED 06-Au-26 (legend carved, sha e93d6902…)
   const t=String(p.t||"");
   const c=vbCard("\ud83d\udd2d","Green Flag Trend Spotter","Trend Spotter Drop");
   if(t)c.appendChild(vbEl("div","vb-lo-big",t));
-  const VERDICT_WORDS={SW:["SIDEWAYS","\u27a1\ufe0f"]};   // one confirmed mapping; unknown = neutral, never a guessed arrow
+  // Complete verdict enum (code-confirmed). Word-then-glyph preserves the field-sampled live face.
+  const VERDICT_WORDS={PU:["PERFECT UP","\u2b50"],UP:["TRENDING UP","\ud83d\udcc8"],SW:["SIDEWAYS","\u27a1\ufe0f"],DN:["TRENDING DOWN","\ud83d\udcc9"],FB:["FULL BEAR","\ud83d\udc80"],RC:["RECOVERING","\ud83c\udf31"]};
   const vword=String(p.verdict||"");
   if(vword){
     const row=vbEl("div","vb-lo-row");
     const known=VERDICT_WORDS[vword];
     row.appendChild(vbEl("span","vb-lo-sub",known?(known[0]+" "+known[1]):vword));
+    // vd — THE DAY-ONE CLOCK: "since {vd}" beside the verdict, VERBATIM. Empty string → omit gracefully.
+    if(p.vd){
+      row.appendChild(vbEl("span","gts-since","since "+String(p.vd)));
+      const dv=vbCasinoDate(p.vd),da=vbCasinoDate(p.anchor);
+      if(dv&&da&&(dv.y*10000+dv.mo*100+dv.d)>(da.y*10000+da.mo*100+da.d))
+        console.error("GFTS1 mint-bug: vd after anchor",String(p.vd),String(p.anchor)); // render verbatim anyway — never silently resolve
+    }
     c.appendChild(row);
   }
   const sc=vbNum(p.score),dn=vbNum(p.den);
-  if(sc!=null&&dn!=null)c.appendChild(vbEl("div","vb-score","Score "+sc+" / "+dn));   // verbatim, never recomputed
+  if(sc!=null&&dn!=null)c.appendChild(vbEl("div","vb-score","Score "+sc+" / "+dn));   // WHEELS\u2260SCORE LAW: verbatim, never derived from wheels
+  // w1\u2013w5 — FIVE WHEELS, fixed positions, casino vocabulary verbatim. x = dark/no-data \u26ab, NEVER bearish. Unknown values → neutral outline, no color claim.
+  if(p.w&&typeof p.w==="object"){
+    const row=vbEl("div","gw-row");
+    [["w1","TREND"],["w2","MOMENTUM"],["w3","STRENGTH"],["w4","FUEL"],["w5","SECTOR"]].forEach(function(pair){
+      const v=String(p.w[pair[0]]||"");
+      const item=vbEl("span","gw");
+      const cls=(v==="g"||v==="r")?v:(v==="x"?"x":"u");
+      item.appendChild(vbEl("span","gw-dot "+cls,""));
+      item.appendChild(vbEl("span",null,pair[1]));
+      if(cls==="x"){item.setAttribute("title","no data");item.setAttribute("aria-label",pair[1]+": no data");}
+      row.appendChild(item);
+    });
+    c.appendChild(row);
+  }
   if(p.anchor)c.appendChild(vbEl("div","vb-lo-sub","data anchor: "+String(p.anchor)));
   if(p.m)c.appendChild(vbEl("div","vb-memo",String(p.m)));
-  const q=vbEl("div","vb-anchor","");c.appendChild(q);vbQuoteLine(t,q);   // best-effort; failure = absence
+  const q=vbEl("div","vb-anchor","");c.appendChild(q);vbQuoteLine(t,q);
   const btns=vbEl("div","vb-lo-btns");btns.appendChild(vbCasinoLink());c.appendChild(btns);
   c.appendChild(vbEl("div","vb-foot",VB_FOOT_CASINO));
   return c;
