@@ -765,7 +765,7 @@
   .vb-conn{width:10px;height:10px;border-radius:50%;background:var(--red);flex:0 0 auto}
   .vb-conn.on{background:var(--green)}
   .vb-roster{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
-  .vb-msgs{margin-top:10px;max-height:52vh;overflow-y:auto;padding:2px 2px 6px;-webkit-overflow-scrolling:touch}
+  .vb-msgs{margin-top:10px;max-height:52vh;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch;background:var(--bg);border:1px solid var(--line,#D7DBE4);border-radius:14px;box-shadow:inset 0 2px 6px rgba(0,0,0,.07);overscroll-behavior:contain}
   .vb-m{background:var(--chip);border-radius:12px;padding:8px 10px;margin:8px 0;font-family:var(--sans)}
   .vb-m .vb-h{font-weight:800;color:var(--accent-deep,#2456C8);margin-right:6px}
   .vb-m .vb-t{float:right;font-family:var(--mono);font-size:.68rem;color:var(--ink);opacity:.62;margin-left:8px}
@@ -779,7 +779,7 @@
   .vb-code{font-family:var(--mono);letter-spacing:.04em;word-break:break-all}
 
   /* ═══ WS9 · Live Objects (stage 4b) ═══ */
-  .vb-lo{border:1.5px dashed var(--accent);border-radius:14px;background:var(--card);padding:10px 12px;margin-top:8px;font-family:var(--sans)}
+  .vb-lo{border:1.5px solid var(--accent);border-radius:14px;background:var(--card);padding:10px 12px;margin-top:8px;font-family:var(--sans)}
   .vb-lo.gray{border-color:var(--muted)}
   .vb-lo-hd{display:flex;align-items:center;gap:8px}
   .vb-lo-hd .ic{font-size:1.05rem}
@@ -875,6 +875,30 @@
   .gw-dot.x{background:var(--muted,#697080)}
   .gw-dot.u{background:transparent;border:1.5px solid var(--muted,#697080)}
   .gts-since{font-family:var(--sans);font-size:.7rem;color:var(--muted,#697080);font-weight:700;margin-left:8px}
+
+  /* ═══🎨 THE MATERIAL LAW — carved 07-Au-26 (Ledger #9 + D-1 WS9 pilot) ═══
+     bedrock=--bg matte · cards elevated (shadow+top edge-light) · recessed=debossed
+     · pressable=convex+yield (~120ms, transform/shadow only) · static=flush.
+     Three elevations only: basin(inset) / card(low) / floating(high). Tokens,
+     tier colors, and every certified behavior UNTOUCHED — additive physics only. */
+  [data-theme="dark"] .vb-msgs{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);border-color:var(--line,#2A3040)}
+  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:14px;pointer-events:none;z-index:4}
+  .vb-msgswrap::before{top:11px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg),rgba(0,0,0,0))}
+  .vb-msgswrap::after{bottom:1px;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg))}
+  .vb-m{box-shadow:0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.55)}
+  [data-theme="dark"] .vb-m{box-shadow:0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05)}
+  .vb-sayrow{background:var(--card);border:1px solid var(--line,#D7DBE4);border-radius:12px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.6)}
+  [data-theme="dark"] .vb-sayrow{box-shadow:0 1px 3px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);border-color:var(--line,#2A3040)}
+  .card{box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.65)}
+  [data-theme="dark"] .card{box-shadow:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05)}
+  .vb-lo{box-shadow:0 2px 8px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.5)}
+  [data-theme="dark"] .vb-lo{box-shadow:0 2px 8px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+  #vbAdminCard{background:var(--chip);box-shadow:0 3px 12px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.4)}
+  [data-theme="dark"] #vbAdminCard{box-shadow:0 3px 12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+  .btn,.vb-pill,.vb-dots,.vb-jump,.lk-row,.vb-legal summary{box-shadow:0 1px 2px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.5);transition:transform .12s ease,box-shadow .12s ease}
+  [data-theme="dark"] .btn,[data-theme="dark"] .vb-pill,[data-theme="dark"] .vb-dots,[data-theme="dark"] .vb-jump,[data-theme="dark"] .lk-row,[data-theme="dark"] .vb-legal summary{box-shadow:0 1px 2px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)}
+  .btn:active,.vb-pill:active,.vb-dots:active,.vb-jump:active,.lk-row:active,.vb-legal summary:active{transform:translateY(1px) scale(.985);box-shadow:0 0 1px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.3)}
+  @media (prefers-reduced-motion:reduce){.btn,.vb-pill,.vb-dots,.vb-jump,.lk-row,.vb-legal summary{transition:none}}
 </style>
 </head>
 <body data-theme="light">
@@ -4316,6 +4340,19 @@ function pmRenderPicker(){
   if($("pmirNewPort"))$("pmirNewPort").disabled=S.pmirPortfolios.length>=PMIR_MAX_PORTFOLIOS;
 }
 // import a shared mirror as a NEW portfolio (non-destructive); shared alerts merge in without duplicates
+function pmCasinoMirrorToPmir(gm){ // \ud83e\ude9e MIRROR PORTAL (doctrine-amended 07-Au-26): names/memos/dates walk through; SNAP CODES STAY CASINO-SIDE — the live lab recomputes fresh (two-mirrors doctrine).
+  const holdings=(Array.isArray(gm.h)?gm.h:[]).map(function(x){
+    x=x||{};
+    // GFSM1 dates ride a 2-DIGIT year (Rosetta-documented); widen to 20yy before the shared parser (documented century inference).
+    const addedNorm=String(x.added||"").replace(/^(\d{1,2}-[A-Za-z]{2}-)(\d{2})$/,"$120$2");
+    const d=(typeof vbCasinoDate==="function")?vbCasinoDate(addedNorm):null;
+    const iso=d?(d.y+"-"+("0"+d.mo).slice(-2)+"-"+("0"+d.d).slice(-2)):"";
+    let memo=(typeof x.memo==="string")?x.memo:"";
+    if(x.added&&!iso)memo=("added "+String(x.added)+(memo?" \u00b7 ":""))+memo;
+    return {id:pmUID(),sym:normTicker(x.t||""),qty:(x.qty!=null&&x.qty!=="")?x.qty:"",cost:(x.avg!=null&&x.avg!=="")?x.avg:"",date:iso,memo:memo,_open:false};
+  }).filter(function(h){return !!h.sym;});
+  return {pmirName:"Casino Mirror \ud83c\udfb0\u2192\ud83e\ude9e",pmirHoldings:holdings,pmirMemo:(typeof gm.pm==="string")?gm.pm:""};
+}
 function pmImportPortfolio(p){
   pmEnsure();
   if(S.pmirPortfolios.length<PMIR_MAX_PORTFOLIOS){
@@ -4674,7 +4711,16 @@ if($("pmirImport"))$("pmirImport").addEventListener("click",()=>{
   openSheet("Import","Paste a Portfolio Mirror share code (or full message).","",[
     ["Load",function(){
       try{
-        const raw=$("mText").value.trim();const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
+        const raw=$("mText").value.trim();
+        const gmm=raw.match(/GFSM1:([A-Za-z0-9_-]{8,})/);   // \ud83e\ude9e portal lane: casino mirror pastes bloom here
+        if(gmm){
+          const gm=vbB64JsonUTF8(gmm[1]);
+          if(!gm||gm.v!==1){$("mBody").textContent="Newer casino-mirror format \u2014 open it in the Casino \ud83c\udfb0.";return;}
+          pmImportPortfolio(pmCasinoMirrorToPmir(gm));
+          closeSheet();persist();pmClearResults();pmRenderAll();renderAll();
+          return;
+        }
+        const code=raw.split(/\s+/).pop().replace(/^.*#d=/,"");
         const p=decodeState(code);
         if(p.t==="pmir"){pmImportPortfolio(p);}
         closeSheet();persist();pmClearResults();pmRenderAll();renderAll();
