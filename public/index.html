@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap">
 <style>
   :root{
-    color-scheme:light;
+    color-scheme:light dark;
     --bg:#F2F3F6; --card:#FFFFFF; --ink:#15171C; --muted:#697080; --ph:#ABB2BF;
     --line:#E2E5EB; --accent:#2F6FED; --accent-ink:#FFFFFF;
     --green:#15803D; --green-bg:#EAF7EF; --red:#DC2626; --red-bg:#FCEDED;
@@ -17,7 +17,7 @@
     --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
     --sans:"Futura PT","Jost",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  [data-theme="light"]{color-scheme:light}
+  [data-theme="light"]{color-scheme:light;--bg:#F2F3F6;--card:#FFFFFF;--ink:#15171C;--muted:#697080;--ph:#ABB2BF;--line:#E2E5EB;--accent:#2F6FED;--accent-ink:#FFFFFF;--green:#15803D;--green-bg:#EAF7EF;--red:#DC2626;--red-bg:#FCEDED;--amber:#B45309;--amber-bg:#FFF4E0;--chip:#EEF1F6;--ticket:#FBFBF9;--focus:#2F6FED;--accent-ring:rgba(47,111,237,.22);--mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;--sans:"Futura PT","Jost",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   [data-theme="dark"]{
     color-scheme:dark;
     --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1; --ph:#5E677B;
@@ -899,6 +899,19 @@
   [data-theme="dark"] .btn,[data-theme="dark"] .vb-pill,[data-theme="dark"] .vb-dots,[data-theme="dark"] .vb-jump,[data-theme="dark"] .lk-row,[data-theme="dark"] .vb-legal summary{box-shadow:0 1px 2px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.07)}
   .btn:active,.vb-pill:active,.vb-dots:active,.vb-jump:active,.lk-row:active,.vb-legal summary:active{transform:translateY(1px) scale(.985);box-shadow:0 0 1px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.3)}
   @media (prefers-reduced-motion:reduce){.btn,.vb-pill,.vb-dots,.vb-jump,.lk-row,.vb-legal summary{transition:none}}
+
+  /* ═══🎨 SEMANTIC PRESS-GLOW (Material Law press-physics, 07-Au-26) ═══
+     Squares die; glows rise ~140ms and ease back ~200ms. Ring 85% token
+     (carries the ≥3:1 duty) + 30% halo (decorative). :focus-visible keeps
+     keyboard users a visible ring (WCAG 2.4.7) — never removed outright. */
+  button,[role="button"],input,textarea,select,summary{-webkit-tap-highlight-color:transparent}
+  .btn,.wsdot,.vb-pill,.vb-dots,.vb-jump,.lk-row,.vb-legal summary{--glow:var(--accent);transition:transform .12s ease,box-shadow .2s ease}
+  .glow-pos{--glow:var(--green)} .glow-neg{--glow:var(--red)} .glow-warn{--glow:var(--amber,#B45309)}
+  .btn:focus,.wsdot:focus,.vb-pill:focus,.vb-dots:focus,.vb-jump:focus,.lk-row:focus,.vb-legal summary:focus{outline:none}
+  .btn:focus-visible,.wsdot:focus-visible,.vb-pill:focus-visible,.vb-dots:focus-visible,.vb-jump:focus-visible,.lk-row:focus-visible,.vb-legal summary:focus-visible{box-shadow:0 1px 2px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.5),0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent),0 0 12px color-mix(in srgb,var(--glow) 30%,transparent)}
+  .btn:active,.wsdot:active,.vb-pill:active,.vb-dots:active,.vb-jump:active,.lk-row:active,.vb-legal summary:active{transition:transform .12s ease,box-shadow .14s ease;transform:translateY(1px) scale(.985);box-shadow:0 0 1px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.3),0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent),0 0 14px color-mix(in srgb,var(--glow) 30%,transparent)}
+  @supports not (background: color-mix(in srgb,#000,#fff)){.btn:focus-visible,.wsdot:focus-visible,.vb-pill:focus-visible,.vb-dots:focus-visible,.vb-jump:focus-visible,.lk-row:focus-visible,.vb-legal summary:focus-visible{outline:2px solid var(--glow);outline-offset:2px}}
+  @media (prefers-reduced-motion:reduce){.btn,.wsdot,.vb-pill,.vb-dots,.vb-jump,.lk-row,.vb-legal summary{transition:none}}
 </style>
 </head>
 <body data-theme="light">
@@ -1733,7 +1746,7 @@
     <label class="fl" for="vbSay" style="margin-top:10px">Message</label>
     <div class="vb-sayrow" style="margin-top:6px">
       <input id="vbSay" type="text" class="vb-say" placeholder="ex. what's up?! — type your message here" maxlength="2000" autocomplete="off" aria-label="Your chat message">
-      <button class="btn primary" id="vbSend" type="button">Send</button>
+      <button class="btn primary glow-pos" id="vbSend" type="button">Send</button>
     </div>
     <div class="wl-memo-count" id="vbSayCount"></div>
     <details class="vb-legal"><summary aria-expanded="false"><span aria-hidden="true">⚠️</span><span class="vb-legtx">Educational chat — never investment advice · scam basics</span><span class="vb-leghint">Tap to read</span><span class="vb-legch" aria-hidden="true">▸</span></summary>
@@ -1750,7 +1763,7 @@
     <p class="op-detail-intro">Crown-only console. Reports arrive with a moderation-trail copy of the offending message.</p>
     <div class="vb-row">
       <button class="btn primary" id="vbAdmReports" type="button">Load reports</button>
-      <button class="btn" id="vbAdmBoom" type="button">Run boom canary</button>
+      <button class="btn glow-warn" id="vbAdmBoom" type="button">Run boom canary</button>
     </div>
     <div class="vb-list" id="vbAdmList"></div>
     <div class="vb-msg-line" id="vbAdmMsg" aria-live="polite"></div>
@@ -1926,7 +1939,8 @@ const THEME_ICON={auto:"🌓",light:"☀️",dark:"🌙"};
 const THEME_LABEL={auto:"Auto",light:"Light",dark:"Dark"};
 function applyTheme(){
   const t=S.theme==="auto"?(mq.matches?"dark":"light"):S.theme;
-  document.body.setAttribute("data-theme",t);
+  document.documentElement.setAttribute("data-theme",t);   // html = single source of truth (readers + color-scheme + UA backdrop)
+  document.body.setAttribute("data-theme",t);                // belt for any body-scoped legacy selectors
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeOpt===S.theme)));
   const tb=$("btnTheme");
   if(tb){
