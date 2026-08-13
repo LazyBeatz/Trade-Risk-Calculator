@@ -882,11 +882,28 @@
      Three elevations only: basin(inset) / card(low) / floating(high). Tokens,
      tier colors, and every certified behavior UNTOUCHED — additive physics only. */
   [data-theme="dark"] .vb-msgs{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);border-color:var(--line,#2A3040)}
-  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:14px;pointer-events:none;z-index:4}
-  .vb-msgswrap::before{top:11px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg),rgba(0,0,0,0))}
-  .vb-msgswrap::after{bottom:1px;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg))}
+  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:26px;pointer-events:none;z-index:4}
+  /* GRACEFUL DEFAULT (perf over polish): the certified gradient fade. Frost is opt-in below. */
+  .vb-msgswrap::before{top:11px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 30%,rgba(0,0,0,0))}
+  .vb-msgswrap::after{bottom:1px;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 70%)}
+  /* 🧊 FROSTED LIP — glossy front-door glass. Blur intensifies toward the very edge via
+     mask-gradient; only where the browser supports it AND the user hasn't asked for
+     reduced transparency. Any stutter on a target phone → delete this @supports block
+     and the gradient default above still stands (founder's fallback, pre-wired). */
+  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    @media (prefers-reduced-transparency:no-preference){
+      .vb-msgswrap::before,.vb-msgswrap::after{-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);will-change:backdrop-filter}
+      .vb-msgswrap::before{background:linear-gradient(var(--bg) 12%,rgba(0,0,0,0));-webkit-mask-image:linear-gradient(#000,rgba(0,0,0,.35) 55%,transparent);mask-image:linear-gradient(#000,rgba(0,0,0,.35) 55%,transparent)}
+      .vb-msgswrap::after{background:linear-gradient(rgba(0,0,0,0),var(--bg) 88%);-webkit-mask-image:linear-gradient(transparent,rgba(0,0,0,.35) 45%,#000);mask-image:linear-gradient(transparent,rgba(0,0,0,.35) 45%,#000)}
+    }
+  }
   .vb-m{box-shadow:0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.55)}
-  [data-theme="dark"] .vb-m{box-shadow:0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05)}
+  [data-theme="dark"] .vb-m{box-shadow:0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04),0 0 14px 2px rgba(52,199,123,.09)}
+  /* 🟢 AMBIENT SEPARATION GLOW (dark only): the quiet cousin of the semantic press-glow —
+     same green token, far lower alpha, large radius, living in the GAP between chips.
+     Spatial separation + brand signature, never a positive-signal claim. The blue
+     edge-light is SOFTENED here (.05→.04) so green leads in dark and the two never clash. */
+  [data-theme="dark"] .vb-m.mine{box-shadow:0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04),0 0 14px 2px rgba(91,140,255,.10)}
   .vb-sayrow{background:var(--card);border:1px solid var(--line,#D7DBE4);border-radius:12px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.6)}
   [data-theme="dark"] .vb-sayrow{box-shadow:0 1px 3px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);border-color:var(--line,#2A3040)}
   .card{box-shadow:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.65)}
