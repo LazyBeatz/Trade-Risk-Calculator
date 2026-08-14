@@ -766,7 +766,7 @@
   .vb-conn{width:10px;height:10px;border-radius:50%;background:var(--red);flex:0 0 auto}
   .vb-conn.on{background:var(--green)}
   .vb-roster{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
-  .vb-msgs{margin-top:10px;max-height:52vh;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch;background:var(--bg);border:1px solid var(--line,#D7DBE4);border-radius:14px;box-shadow:inset 0 2px 6px rgba(0,0,0,.07);overscroll-behavior:contain}
+  .vb-msgs{margin-top:0;max-height:52vh;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch;background:var(--bg);border:1px solid var(--line,#D7DBE4);border-radius:14px;box-shadow:inset 0 2px 6px rgba(0,0,0,.07);overscroll-behavior:contain}
   .vb-m{background:var(--chip);border-radius:12px;padding:8px 10px;margin:8px 0;font-family:var(--sans)}
   .vb-m .vb-h{font-weight:800;color:var(--accent-deep,#2456C8);margin-right:6px}
   .vb-m .vb-t{float:right;font-family:var(--mono);font-size:.68rem;color:var(--ink);opacity:.62;margin-left:8px}
@@ -836,7 +836,7 @@
   .vb-pill .vb-pillch{font-size:1.1rem;font-weight:800;line-height:1;margin-right:6px;vertical-align:-1px}
 
   /* ═══ Ledger #4 · jump-to-latest + anti-yank ═══ */
-  .vb-msgswrap{position:relative}
+  .vb-msgswrap{position:relative;margin-top:10px}   /* margin moved OFF the basin: collapse was pushing the lips 10px low */
   .vb-jump{position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--accent);background:var(--card);color:var(--accent-deep,#2456C8);font-size:1.1rem;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:5;padding:0}
   .vb-jump.show{display:flex}
   .vb-jump.pulse{animation:vbJumpPulse 1.1s ease-in-out 2}
@@ -886,8 +886,8 @@
   [data-theme="dark"] .vb-msgs{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);border-color:var(--line,#2A3040)}
   .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:16px;pointer-events:none;z-index:4}
   /* GRACEFUL DEFAULT (perf over polish): the certified gradient fade. Frost is opt-in below. */
-  .vb-msgswrap::before{top:11px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 10%,rgba(0,0,0,0))}
-  .vb-msgswrap::after{bottom:1px;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 90%)}
+  .vb-msgswrap::before{top:1px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 10%,rgba(0,0,0,0))}
+  .vb-msgswrap::after{bottom:0;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 90%)}
   /* 🧊 FROSTED LIP — glossy front-door glass. Blur intensifies toward the very edge via
      mask-gradient; only where the browser supports it AND the user hasn't asked for
      reduced transparency. Any stutter on a target phone → delete this @supports block
@@ -951,12 +951,18 @@
   html[data-vibe="circuit"]{background-image:url("vibe-circuit-blue.webp");background-size:cover;background-position:center top;background-attachment:fixed;background-repeat:no-repeat}
   html[data-vibe="circuit"] body{background:transparent}
   @supports (background: color-mix(in srgb,#000,#fff)){
-    html[data-vibe="circuit"] .card{background:color-mix(in srgb,var(--card) 88%,transparent)}
-    html[data-vibe="circuit"] .vb-msgs{background:color-mix(in srgb,var(--bg) 82%,transparent)}
+    /* 🪟 THE GLASS — computed against the real artwork: 62% is the most transparent
+       these surfaces can go while every text pair still clears 5:1 in BOTH themes. */
+    html[data-vibe="circuit"] .card{background:color-mix(in srgb,var(--card) 62%,transparent)}
+    html[data-vibe="circuit"] .vb-msgs{background:color-mix(in srgb,var(--bg) 62%,transparent)}
+    html[data-vibe="circuit"] .vb-sayrow,html[data-vibe="circuit"] .vb-lo{background:color-mix(in srgb,var(--card) 62%,transparent)}
+    html[data-vibe="circuit"] .vb-m{background:color-mix(in srgb,var(--chip) 70%,transparent)}
+    html[data-vibe="circuit"] .wsdot,html[data-vibe="circuit"] .iconbtn,html[data-vibe="circuit"] .curpill,html[data-vibe="circuit"] .btn{background:color-mix(in srgb,var(--card) 72%,transparent)}
+    html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo,html[data-vibe="circuit"] .wsdot,html[data-vibe="circuit"] .iconbtn{border-color:color-mix(in srgb,#FFFFFF 30%,var(--line))}
   }
   @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     @media (prefers-reduced-transparency:no-preference){
-      html[data-vibe="circuit"] .card{-webkit-backdrop-filter:blur(10px) saturate(115%);backdrop-filter:blur(10px) saturate(115%)}
+      html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo,html[data-vibe="circuit"] .vb-sayrow,html[data-vibe="circuit"] .wsdot,html[data-vibe="circuit"] .iconbtn,html[data-vibe="circuit"] .curpill{-webkit-backdrop-filter:blur(10px) saturate(115%);backdrop-filter:blur(10px) saturate(115%)}
     }
   }
 </style>
