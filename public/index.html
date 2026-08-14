@@ -951,7 +951,7 @@
   /* 🌗 PER-THEME ARTWORK — the app follows your phone: light board by day, blue board by
      night. Each plate matches its own theme, so no veil has to fight the picture. */
   html[data-vibe="circuit"]{background-image:url("vibe-circuit-light.webp");background-size:cover;background-position:center top;background-attachment:fixed;background-repeat:no-repeat}
-  html[data-vibe="circuit"][data-theme="dark"]{background-image:url("vibe-circuit-blue.webp")}
+  html[data-vibe="circuit"][data-theme="dark"]{background-image:url("vibe-circuit-night.webp")}
   html[data-vibe="circuit"] body{background:transparent}
   /* 📛 HEADER LEGIBILITY — title + tagline sit on BARE artwork (no card beneath), where
      ink-on-plate measures as low as 1.08:1. Bold alone can't save that; they get their own
@@ -963,7 +963,7 @@
      what the theme says. The veil sits between artwork and app: heavy in Light (the board
      becomes a faint texture, the day reads like day), light in Dark (full glory). */
   html[data-vibe="circuit"]::before{content:"";position:fixed;inset:0;background:var(--bg);opacity:.12;z-index:-1;pointer-events:none}
-  html[data-vibe="circuit"][data-theme="dark"]::before{opacity:.22}
+  html[data-vibe="circuit"][data-theme="dark"]::before{opacity:.36}   /* night plate carries pure-white highlights — needs a touch more veil than the old board */
   @supports (background: color-mix(in srgb,#000,#fff)){
     /* 🪟 THE GLASS — computed against the real artwork: 62% is the most transparent
        these surfaces can go while every text pair still clears 5:1 in BOTH themes. */
@@ -2009,15 +2009,19 @@ const mq=window.matchMedia("(prefers-color-scheme: dark)");
 const THEME_ICON={auto:"🌓",light:"☀️",dark:"🌙"};
 const THEME_LABEL={auto:"Auto",light:"Light",dark:"Dark"};
 function applyTheme(){
-  const t=S.theme==="auto"?(mq.matches?"dark":"light"):S.theme;
+  // DERIVED-STATE LAW applied to the theme: only an EXPLICIT light/dark counts as a choice.
+  // Anything else (missing, stale, corrupted) resolves as auto → follows the OS, never
+  // silently falls through to the light defaults while the button still reads 🌓.
+  const pref=(S.theme==="light"||S.theme==="dark")?S.theme:"auto";
+  const t=pref==="auto"?(mq.matches?"dark":"light"):pref;
   document.documentElement.setAttribute("data-theme",t);   // html = single source of truth (readers + color-scheme + UA backdrop)
   document.body.setAttribute("data-theme",t);                // belt for any body-scoped legacy selectors
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.themeOpt===S.theme)));
   const tb=$("btnTheme");
   if(tb){
-    tb.textContent=THEME_ICON[S.theme]||"🌓";
-    tb.setAttribute("aria-label","Theme: "+(THEME_LABEL[S.theme]||"Auto")+" (tap to change)");
-    tb.title="Theme: "+(THEME_LABEL[S.theme]||"Auto");
+    tb.textContent=THEME_ICON[pref]||"🌓";   // face reports the RESOLVED preference, not a stale value
+    tb.setAttribute("aria-label","Theme: "+(THEME_LABEL[pref]||"Auto")+" (tap to change)");
+    tb.title="Theme: "+(THEME_LABEL[pref]||"Auto");
   }
 }
 mq.addEventListener?mq.addEventListener("change",applyTheme):mq.addListener(applyTheme);
@@ -2036,7 +2040,7 @@ function openVibePicker(){
   openSheet("\ud83c\udfa8 Choose your vibe","Artwork sits behind the app; your cards stay readable on top. Your choice is saved and rides your \ud83d\udcbe backup.",null,acts);
 }
 function cycleTheme(){
-  const i=THEME_CYCLE.indexOf(S.theme);
+  const i=THEME_CYCLE.indexOf((S.theme==="light"||S.theme==="dark"||S.theme==="auto")?S.theme:"auto");
   S.theme=THEME_CYCLE[(i+1)%THEME_CYCLE.length];
   applyTheme();applyVibeSkin();persist();
 }
@@ -5670,6 +5674,8 @@ const vbAdmThemeProbe=vbSafe(function(){
   const attr=document.documentElement.getAttribute("data-theme")||"(none)";
   const box=vbEl("div","vb-probe","");
   box.appendChild(vbEl("div",null,"<html data-theme> = "+attr));
+  box.appendChild(vbEl("div",null,"S.theme (your saved choice) = "+String(S.theme)));
+  box.appendChild(vbEl("div",null,"phone reports dark mode = "+String((typeof mq!=="undefined")&&mq.matches)));
   box.appendChild(vbEl("div",null,"body paints = "+String(getComputedStyle(document.body).backgroundColor)));
   [["--bg","page background"],["--card","card surface"],["--ink","text"]].forEach(function(p){
     const val=String(cs.getPropertyValue(p[0])||"").trim();
