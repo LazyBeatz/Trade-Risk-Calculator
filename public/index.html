@@ -884,10 +884,10 @@
      Three elevations only: basin(inset) / card(low) / floating(high). Tokens,
      tier colors, and every certified behavior UNTOUCHED — additive physics only. */
   [data-theme="dark"] .vb-msgs{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);border-color:var(--line,#2A3040)}
-  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:30px;pointer-events:none;z-index:4}
+  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:16px;pointer-events:none;z-index:4}
   /* GRACEFUL DEFAULT (perf over polish): the certified gradient fade. Frost is opt-in below. */
-  .vb-msgswrap::before{top:11px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 30%,rgba(0,0,0,0))}
-  .vb-msgswrap::after{bottom:1px;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 70%)}
+  .vb-msgswrap::before{top:11px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 10%,rgba(0,0,0,0))}
+  .vb-msgswrap::after{bottom:1px;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 90%)}
   /* 🧊 FROSTED LIP — glossy front-door glass. Blur intensifies toward the very edge via
      mask-gradient; only where the browser supports it AND the user hasn't asked for
      reduced transparency. Any stutter on a target phone → delete this @supports block
@@ -897,12 +897,12 @@
      and (b) is a known backdrop-filter killer in Chromium. Both retired. The scrim
      now ramps opacity toward the edge so it reads as frost even where blur fails. */
   @supports (background: color-mix(in srgb,#000,#fff)){
-    .vb-msgswrap::before{background:linear-gradient(to bottom,var(--bg) 0%,color-mix(in srgb,var(--bg) 88%,transparent) 42%,color-mix(in srgb,var(--bg) 52%,transparent) 72%,transparent 100%)}
-    .vb-msgswrap::after{background:linear-gradient(to top,var(--bg) 0%,color-mix(in srgb,var(--bg) 88%,transparent) 42%,color-mix(in srgb,var(--bg) 52%,transparent) 72%,transparent 100%)}
+    .vb-msgswrap::before{background:linear-gradient(to bottom,var(--bg) 0%,color-mix(in srgb,var(--bg) 74%,transparent) 22%,color-mix(in srgb,var(--bg) 32%,transparent) 58%,transparent 100%)}
+    .vb-msgswrap::after{background:linear-gradient(to top,var(--bg) 0%,color-mix(in srgb,var(--bg) 74%,transparent) 22%,color-mix(in srgb,var(--bg) 32%,transparent) 58%,transparent 100%)}
   }
   @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     @media (prefers-reduced-transparency:no-preference){
-      .vb-msgswrap::before,.vb-msgswrap::after{-webkit-backdrop-filter:blur(9px) saturate(115%);backdrop-filter:blur(9px) saturate(115%)}
+      .vb-msgswrap::before,.vb-msgswrap::after{-webkit-backdrop-filter:blur(6px) saturate(112%);backdrop-filter:blur(6px) saturate(112%)}
     }
   }
   .vb-m{box-shadow:0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.55)}
