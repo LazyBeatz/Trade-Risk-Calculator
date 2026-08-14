@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
 <title>Trade Risk Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,9 +18,9 @@
     --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
     --sans:"Futura PT","Jost",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  [data-theme="light"]{color-scheme:light;--bg:#F2F3F6;--card:#FFFFFF;--ink:#15171C;--muted:#697080;--ph:#ABB2BF;--line:#E2E5EB;--accent:#2F6FED;--accent-ink:#FFFFFF;--green:#15803D;--green-bg:#EAF7EF;--red:#DC2626;--red-bg:#FCEDED;--amber:#B45309;--amber-bg:#FFF4E0;--chip:#EEF1F6;--ticket:#FBFBF9;--focus:#2F6FED;--accent-ring:rgba(47,111,237,.22);--mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;--sans:"Futura PT","Jost",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  [data-theme="light"]{color-scheme:only light;--bg:#F2F3F6;--card:#FFFFFF;--ink:#15171C;--muted:#697080;--ph:#ABB2BF;--line:#E2E5EB;--accent:#2F6FED;--accent-ink:#FFFFFF;--green:#15803D;--green-bg:#EAF7EF;--red:#DC2626;--red-bg:#FCEDED;--amber:#B45309;--amber-bg:#FFF4E0;--chip:#EEF1F6;--ticket:#FBFBF9;--focus:#2F6FED;--accent-ring:rgba(47,111,237,.22);--mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;--sans:"Futura PT","Jost",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   [data-theme="dark"]{
-    color-scheme:dark;
+    color-scheme:only dark;
     --bg:#0F1116; --card:#171A21; --ink:#E8EAF0; --muted:#9AA2B1; --ph:#5E677B;
     --line:#272C38; --accent:#5B8CFF; --accent-ink:#0F1116;
     --green:#34C77B; --green-bg:#12251A; --red:#F06A6A; --red-bg:#2A1517;
@@ -812,6 +813,7 @@
      the widest species in app history. Every carrier armored; body-level
      symptom guard as last line (causes fixed, symptom impossible). */
   html,body{overflow-x:clip}
+  html{background:var(--bg)}   /* we paint the canvas ourselves — never inherit a UA guess */
   #ws-9{min-width:0;max-width:100%}
   #ws-9 .card{min-width:0;max-width:100%}
   .vb-m{overflow-wrap:anywhere;max-width:100%}
@@ -882,7 +884,7 @@
      Three elevations only: basin(inset) / card(low) / floating(high). Tokens,
      tier colors, and every certified behavior UNTOUCHED — additive physics only. */
   [data-theme="dark"] .vb-msgs{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);border-color:var(--line,#2A3040)}
-  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:26px;pointer-events:none;z-index:4}
+  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:30px;pointer-events:none;z-index:4}
   /* GRACEFUL DEFAULT (perf over polish): the certified gradient fade. Frost is opt-in below. */
   .vb-msgswrap::before{top:11px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 30%,rgba(0,0,0,0))}
   .vb-msgswrap::after{bottom:1px;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 70%)}
@@ -890,11 +892,17 @@
      mask-gradient; only where the browser supports it AND the user hasn't asked for
      reduced transparency. Any stutter on a target phone → delete this @supports block
      and the gradient default above still stands (founder's fallback, pre-wired). */
+  /* 🧊 FROSTED LIP v2 — the milky scrim does the frosting, blur adds the depth.
+     v1 used mask-image, which (a) made the scrim ~35% transparent = "clear as day"
+     and (b) is a known backdrop-filter killer in Chromium. Both retired. The scrim
+     now ramps opacity toward the edge so it reads as frost even where blur fails. */
+  @supports (background: color-mix(in srgb,#000,#fff)){
+    .vb-msgswrap::before{background:linear-gradient(to bottom,var(--bg) 0%,color-mix(in srgb,var(--bg) 88%,transparent) 42%,color-mix(in srgb,var(--bg) 52%,transparent) 72%,transparent 100%)}
+    .vb-msgswrap::after{background:linear-gradient(to top,var(--bg) 0%,color-mix(in srgb,var(--bg) 88%,transparent) 42%,color-mix(in srgb,var(--bg) 52%,transparent) 72%,transparent 100%)}
+  }
   @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     @media (prefers-reduced-transparency:no-preference){
-      .vb-msgswrap::before,.vb-msgswrap::after{-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);will-change:backdrop-filter}
-      .vb-msgswrap::before{background:linear-gradient(var(--bg) 12%,rgba(0,0,0,0));-webkit-mask-image:linear-gradient(#000,rgba(0,0,0,.35) 55%,transparent);mask-image:linear-gradient(#000,rgba(0,0,0,.35) 55%,transparent)}
-      .vb-msgswrap::after{background:linear-gradient(rgba(0,0,0,0),var(--bg) 88%);-webkit-mask-image:linear-gradient(transparent,rgba(0,0,0,.35) 45%,#000);mask-image:linear-gradient(transparent,rgba(0,0,0,.35) 45%,#000)}
+      .vb-msgswrap::before,.vb-msgswrap::after{-webkit-backdrop-filter:blur(9px) saturate(115%);backdrop-filter:blur(9px) saturate(115%)}
     }
   }
   .vb-m{box-shadow:0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.55)}
@@ -929,6 +937,11 @@
   .btn:active,.wsdot:active,.vb-pill:active,.vb-dots:active,.vb-jump:active,.lk-row:active,.vb-legal summary:active{transition:transform .12s ease,box-shadow .14s ease;transform:translateY(1px) scale(.985);box-shadow:0 0 1px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.3),0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent),0 0 14px color-mix(in srgb,var(--glow) 30%,transparent)}
   @supports not (background: color-mix(in srgb,#000,#fff)){.btn:focus-visible,.wsdot:focus-visible,.vb-pill:focus-visible,.vb-dots:focus-visible,.vb-jump:focus-visible,.lk-row:focus-visible,.vb-legal summary:focus-visible{outline:2px solid var(--glow);outline-offset:2px}}
   @media (prefers-reduced-motion:reduce){.btn,.wsdot,.vb-pill,.vb-dots,.vb-jump,.lk-row,.vb-legal summary{transition:none}}
+
+  .vb-probe{margin-top:10px;font-family:var(--sans);font-size:.78rem;color:var(--ink)}
+  .vb-probe .pr{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .vb-probe .sw{width:46px;height:34px;border-radius:8px;border:1px solid var(--line);flex:0 0 auto}
+  .vb-probe .lb{font-family:var(--mono);font-size:.72rem;min-width:0;overflow-wrap:anywhere}
 </style>
 </head>
 <body data-theme="light">
@@ -1781,6 +1794,7 @@
     <div class="vb-row">
       <button class="btn primary" id="vbAdmReports" type="button">Load reports</button>
       <button class="btn glow-warn" id="vbAdmBoom" type="button">Run boom canary</button>
+      <button class="btn" id="vbAdmTheme" type="button">🎨 Theme probe</button>
     </div>
     <div class="vb-list" id="vbAdmList"></div>
     <div class="vb-msg-line" id="vbAdmMsg" aria-live="polite"></div>
@@ -5588,6 +5602,33 @@ const vbAdmBoom=vbSafe(async function(){
     : ((r.data&&r.data.error)||"Unexpected canary result \u2014 check worker logs.");
 });
 
+
+/* 🎨 THEME PROBE (crown-only diagnostic) — HATCH/SHIELD-safe: reads computed style,
+   holds no secrets. Chrome's auto-dark repaints WITHOUT touching computed values, so a
+   swatch labelled with its own hex turns the founder's eye into the instrument:
+   label says near-white + swatch looks gray  →  the BROWSER is repainting us. */
+const vbAdmThemeProbe=vbSafe(function(){
+  const list=$("vbAdmList"),msg=$("vbAdmMsg");
+  if(!list)return;
+  list.innerHTML="";
+  if(msg)msg.textContent="";
+  const cs=getComputedStyle(document.documentElement);
+  const attr=document.documentElement.getAttribute("data-theme")||"(none)";
+  const box=vbEl("div","vb-probe","");
+  box.appendChild(vbEl("div",null,"<html data-theme> = "+attr));
+  box.appendChild(vbEl("div",null,"body paints = "+String(getComputedStyle(document.body).backgroundColor)));
+  [["--bg","page background"],["--card","card surface"],["--ink","text"]].forEach(function(p){
+    const val=String(cs.getPropertyValue(p[0])||"").trim();
+    const row=vbEl("div","pr","");
+    const sw=vbEl("span","sw","");sw.style.background=val;
+    row.appendChild(sw);
+    row.appendChild(vbEl("span","lb",p[0]+" = "+val+"  ("+p[1]+")"));
+    box.appendChild(row);
+  });
+  box.appendChild(vbEl("div",null,"\u2193 THE TEST: in Light, --bg should read #F2F3F6 and its swatch should look ALMOST WHITE. If the hex says near-white but the swatch looks GRAY, your browser is repainting the page \u2014 not our CSS."));
+  list.appendChild(box);
+});
+
 /* ── lazy bind + enter hook (fenced) ── */
 let vbBound=false;
 const vibeOnEnter=vbSafe(function(){
@@ -5612,6 +5653,7 @@ const vibeOnEnter=vbSafe(function(){
       lg.addEventListener("toggle",lgUpd);lgUpd();}
     on("vbAdmReports","click",vbAdmLoad);
     on("vbAdmBoom","click",vbAdmBoom);
+    on("vbAdmTheme","click",vbAdmThemeProbe);
     on("vbSay","input",vbSafe(function(e){vbUpdSayCount((e.target.value||"").length);}));
     on("vbSay","keydown",vbSafe(function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();vbSend();}}));
     on("vbHandle","keydown",vbSafe(function(e){if(e.key==="Enter"){e.preventDefault();vbClaim();}}));
