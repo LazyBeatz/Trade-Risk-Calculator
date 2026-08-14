@@ -948,8 +948,16 @@
      card @88% opacity → text contrast 14.50 dark / 14.04 light. Both far past
      4.5:1, so the skin NEVER costs readability. Cards stay solid where
      color-mix is unsupported (graceful, certified default). */
-  html[data-vibe="circuit"]{background-image:url("vibe-circuit-blue.webp");background-size:cover;background-position:center top;background-attachment:fixed;background-repeat:no-repeat}
+  /* 🌗 PER-THEME ARTWORK — the app follows your phone: light board by day, blue board by
+     night. Each plate matches its own theme, so no veil has to fight the picture. */
+  html[data-vibe="circuit"]{background-image:url("vibe-circuit-light.webp");background-size:cover;background-position:center top;background-attachment:fixed;background-repeat:no-repeat}
+  html[data-vibe="circuit"][data-theme="dark"]{background-image:url("vibe-circuit-blue.webp")}
   html[data-vibe="circuit"] body{background:transparent}
+  /* 🎚 THEME-AWARE VEIL — a dark plate would otherwise drown Light mode in gray no matter
+     what the theme says. The veil sits between artwork and app: heavy in Light (the board
+     becomes a faint texture, the day reads like day), light in Dark (full glory). */
+  html[data-vibe="circuit"]::before{content:"";position:fixed;inset:0;background:var(--bg);opacity:.12;z-index:-1;pointer-events:none}
+  html[data-vibe="circuit"][data-theme="dark"]::before{opacity:.22}
   @supports (background: color-mix(in srgb,#000,#fff)){
     /* 🪟 THE GLASS — computed against the real artwork: 62% is the most transparent
        these surfaces can go while every text pair still clears 5:1 in BOTH themes. */
@@ -957,12 +965,13 @@
     html[data-vibe="circuit"] .vb-msgs{background:color-mix(in srgb,var(--bg) 62%,transparent)}
     html[data-vibe="circuit"] .vb-sayrow,html[data-vibe="circuit"] .vb-lo{background:color-mix(in srgb,var(--card) 62%,transparent)}
     html[data-vibe="circuit"] .vb-m{background:color-mix(in srgb,var(--chip) 70%,transparent)}
-    html[data-vibe="circuit"] .wsdot,html[data-vibe="circuit"] .iconbtn,html[data-vibe="circuit"] .curpill,html[data-vibe="circuit"] .btn{background:color-mix(in srgb,var(--card) 72%,transparent)}
-    html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo,html[data-vibe="circuit"] .wsdot,html[data-vibe="circuit"] .iconbtn{border-color:color-mix(in srgb,#FFFFFF 30%,var(--line))}
+    /* CONTROLS STAY SOLID — glass on a .btn overrode .btn.primary's accent fill and left
+       its white text on near-white. Buttons keep their own fills, forever. */
+    html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo{border-color:color-mix(in srgb,#FFFFFF 30%,var(--line))}
   }
   @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
     @media (prefers-reduced-transparency:no-preference){
-      html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo,html[data-vibe="circuit"] .vb-sayrow,html[data-vibe="circuit"] .wsdot,html[data-vibe="circuit"] .iconbtn,html[data-vibe="circuit"] .curpill{-webkit-backdrop-filter:blur(10px) saturate(115%);backdrop-filter:blur(10px) saturate(115%)}
+      html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo,html[data-vibe="circuit"] .vb-sayrow{-webkit-backdrop-filter:blur(10px) saturate(115%);backdrop-filter:blur(10px) saturate(115%)}
     }
   }
 </style>
