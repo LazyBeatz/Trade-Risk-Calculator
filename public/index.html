@@ -942,6 +942,23 @@
   .vb-probe .pr{display:flex;align-items:center;gap:10px;margin-top:6px}
   .vb-probe .sw{width:46px;height:34px;border-radius:8px;border:1px solid var(--line);flex:0 0 auto}
   .vb-probe .lb{font-family:var(--mono);font-size:.72rem;min-width:0;overflow-wrap:anywhere}
+
+  /* ═══🔌 VIBE SKINS — artwork bedrock, glass chrome above it ═══
+     Measured against the shipped plate (centre corridor mean rgb(9,27,46)):
+     card @88% opacity → text contrast 14.50 dark / 14.04 light. Both far past
+     4.5:1, so the skin NEVER costs readability. Cards stay solid where
+     color-mix is unsupported (graceful, certified default). */
+  html[data-vibe="circuit"]{background-image:url("vibe-circuit-blue.webp");background-size:cover;background-position:center top;background-attachment:fixed;background-repeat:no-repeat}
+  html[data-vibe="circuit"] body{background:transparent}
+  @supports (background: color-mix(in srgb,#000,#fff)){
+    html[data-vibe="circuit"] .card{background:color-mix(in srgb,var(--card) 88%,transparent)}
+    html[data-vibe="circuit"] .vb-msgs{background:color-mix(in srgb,var(--bg) 82%,transparent)}
+  }
+  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    @media (prefers-reduced-transparency:no-preference){
+      html[data-vibe="circuit"] .card{-webkit-backdrop-filter:blur(10px) saturate(115%);backdrop-filter:blur(10px) saturate(115%)}
+    }
+  }
 </style>
 </head>
 <body data-theme="light">
@@ -963,6 +980,7 @@
           </select>
         </span>
         <button id="btnTheme" class="iconbtn" type="button" aria-label="Theme: Auto" title="Theme">🌓</button>
+        <button id="btnVibe" class="iconbtn" type="button" aria-label="Choose your vibe" title="Choose your vibe">🎨</button>
         <button id="btnData" class="iconbtn" type="button" aria-label="Back up or restore your data" title="Back up / restore data">💾</button>
         <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
       </div>
@@ -1816,7 +1834,8 @@
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const DEFAULTS={
+const VIBE_SKINS=[{id:"circuit",name:"Circuit Board",emoji:"\ud83d\udd0c"},{id:"none",name:"Plain (no artwork)",emoji:"\u2b1c"}];
+const DEFAULTS={vibeSkin:"circuit",
   portfolio:"",riskPct:"",riskAmt:"",editOrder:["pct","port"],portLock:false,
   entry:"",stopPct:"",direction:"long",memo:"",
   presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
@@ -1982,10 +2001,23 @@ function applyTheme(){
 }
 mq.addEventListener?mq.addEventListener("change",applyTheme):mq.addListener(applyTheme);
 const THEME_CYCLE=["auto","light","dark"];
+function applyVibeSkin(){
+  const id=(S.vibeSkin&&VIBE_SKINS.some(v=>v.id===S.vibeSkin))?S.vibeSkin:"circuit";
+  if(id==="none")document.documentElement.removeAttribute("data-vibe");
+  else document.documentElement.setAttribute("data-vibe",id);
+  const b=$("btnVibe");if(b){const v=VIBE_SKINS.find(x=>x.id===id);if(v){b.textContent=v.emoji;b.setAttribute("aria-label","Vibe: "+v.name);}}
+}
+function openVibePicker(){
+  const acts=VIBE_SKINS.map(function(v){
+    return [(S.vibeSkin===v.id?"\u2713 ":"")+v.emoji+" "+v.name,function(){S.vibeSkin=v.id;persist();applyVibeSkin();closeSheet();},false];
+  });
+  acts.push(["Cancel",closeSheet,true]);
+  openSheet("\ud83c\udfa8 Choose your vibe","Artwork sits behind the app; your cards stay readable on top. Your choice is saved and rides your \ud83d\udcbe backup.",null,acts);
+}
 function cycleTheme(){
   const i=THEME_CYCLE.indexOf(S.theme);
   S.theme=THEME_CYCLE[(i+1)%THEME_CYCLE.length];
-  applyTheme();persist();
+  applyTheme();applyVibeSkin();persist();
 }
 
 /* ---------- presets ---------- */
@@ -2078,7 +2110,7 @@ function compute(){
 /* ---------- render ---------- */
 function renderAll(){
   const c=compute(); // run sync + math first so inputs/outputs render fresh values
-  applyTheme();
+  applyTheme();applyVibeSkin();   // skin must land at BOOT, not only on a theme cycle
   if(typeof refreshMemoCounters==="function")refreshMemoCounters();
   document.querySelectorAll(".cur").forEach(e=>e.textContent=S.curSym);
   // wide symbols (C$, A$, CHF…) need more room — pad each input to its symbol's width
@@ -2284,6 +2316,7 @@ $("ticker").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefau
 $("btnLookup").addEventListener("click",()=>lookupTicker());
 document.querySelectorAll("[data-theme-opt]").forEach(b=>b.addEventListener("click",()=>{S.theme=b.dataset.themeOpt;onChange()}));
 $("btnTheme").addEventListener("click",cycleTheme);
+$("btnVibe").addEventListener("click",openVibePicker);
 document.querySelectorAll("[data-dec]").forEach(b=>b.addEventListener("click",()=>{S.decimals=+b.dataset.dec;onChange()}));
 $("currency").addEventListener("change",e=>{
   if(e.target.value==="custom"){
@@ -2444,7 +2477,7 @@ function restoreBackup(file){
       const parsed=JSON.parse(reader.result);
       const st=(parsed&&parsed.state&&typeof parsed.state==="object")?parsed.state:parsed;
       if(!st||typeof st!=="object"||Array.isArray(st))throw new Error("bad");
-      const known=["watchlists","opScenarios","hgPort","curSym","memo","wlItems","vibe"];
+      const known=["watchlists","opScenarios","hgPort","curSym","memo","wlItems","vibe","vibeSkin"];
       if(!known.some(k=>k in st))throw new Error("unrecognized");
       Object.keys(st).forEach(k=>{S[k]=st[k];});
       if(typeof wlEnsure==="function")wlEnsure();
