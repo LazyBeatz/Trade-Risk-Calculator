@@ -884,7 +884,7 @@
      Three elevations only: basin(inset) / card(low) / floating(high). Tokens,
      tier colors, and every certified behavior UNTOUCHED — additive physics only. */
   [data-theme="dark"] .vb-msgs{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);border-color:var(--line,#2A3040)}
-  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:16px;pointer-events:none;z-index:4}
+  .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:8px;pointer-events:none;z-index:4}
   /* GRACEFUL DEFAULT (perf over polish): the certified gradient fade. Frost is opt-in below. */
   .vb-msgswrap::before{top:1px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 10%,rgba(0,0,0,0))}
   .vb-msgswrap::after{bottom:0;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 90%)}
@@ -953,6 +953,12 @@
   html[data-vibe="circuit"]{background-image:url("vibe-circuit-light.webp");background-size:cover;background-position:center top;background-attachment:fixed;background-repeat:no-repeat}
   html[data-vibe="circuit"][data-theme="dark"]{background-image:url("vibe-circuit-blue.webp")}
   html[data-vibe="circuit"] body{background:transparent}
+  /* 📛 HEADER LEGIBILITY — title + tagline sit on BARE artwork (no card beneath), where
+     ink-on-plate measures as low as 1.08:1. Bold alone can't save that; they get their own
+     shaded plate plus a matching halo, so they read on any pixel of any board. */
+  html[data-vibe] .apptop>div:first-child{background:color-mix(in srgb,var(--bg) 70%,transparent);border-radius:14px;padding:8px 12px;margin:-4px -4px 0 -4px}
+  html[data-vibe] #appTitle,html[data-vibe] #appTagline{text-shadow:0 1px 2px var(--bg),0 0 10px var(--bg)}
+  html[data-vibe] #appTagline{color:var(--ink);font-weight:700;opacity:.92}
   /* 🎚 THEME-AWARE VEIL — a dark plate would otherwise drown Light mode in gray no matter
      what the theme says. The veil sits between artwork and app: heavy in Light (the board
      becomes a faint texture, the day reads like day), light in Dark (full glory). */
@@ -961,10 +967,10 @@
   @supports (background: color-mix(in srgb,#000,#fff)){
     /* 🪟 THE GLASS — computed against the real artwork: 62% is the most transparent
        these surfaces can go while every text pair still clears 5:1 in BOTH themes. */
-    html[data-vibe="circuit"] .card{background:color-mix(in srgb,var(--card) 62%,transparent)}
-    html[data-vibe="circuit"] .vb-msgs{background:color-mix(in srgb,var(--bg) 62%,transparent)}
-    html[data-vibe="circuit"] .vb-sayrow,html[data-vibe="circuit"] .vb-lo{background:color-mix(in srgb,var(--card) 62%,transparent)}
-    html[data-vibe="circuit"] .vb-m{background:color-mix(in srgb,var(--chip) 70%,transparent)}
+    html[data-vibe="circuit"] .card{background:color-mix(in srgb,var(--card) 50%,transparent)}
+    html[data-vibe="circuit"] .vb-msgs{background:color-mix(in srgb,var(--bg) 50%,transparent)}
+    html[data-vibe="circuit"] .vb-sayrow,html[data-vibe="circuit"] .vb-lo{background:color-mix(in srgb,var(--card) 50%,transparent)}
+    html[data-vibe="circuit"] .vb-m{background:color-mix(in srgb,var(--chip) 58%,transparent)}
     /* CONTROLS STAY SOLID — glass on a .btn overrode .btn.primary's accent fill and left
        its white text on near-white. Buttons keep their own fills, forever. */
     html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo{border-color:color-mix(in srgb,#FFFFFF 30%,var(--line))}
