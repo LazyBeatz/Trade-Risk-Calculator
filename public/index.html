@@ -5350,7 +5350,7 @@ function vbCardTrend(p){ // GFTS1 — §C5 v2, QUARANTINE LIFTED 06-Au-26 (legen
   const c=vbCard("\ud83d\udd2d","Green Flag Trend Spotter","Trend Spotter Drop");
   if(t)c.appendChild(vbEl("div","vb-lo-big",t));
   // Complete verdict enum (code-confirmed). Word-then-glyph preserves the field-sampled live face.
-  const VERDICT_WORDS={PU:["PERFECT UP","\u2b50"],UP:["TRENDING UP","\ud83d\udcc8"],SW:["SIDEWAYS","\u27a1\ufe0f"],DN:["TRENDING DOWN","\ud83d\udcc9"],FB:["FULL BEAR","\ud83d\udc80"],RC:["RECOVERING","\ud83c\udf31"]};
+  const VERDICT_WORDS={PU:["PERFECT UP","\u2b50"],UP:["TRENDING UP","\ud83d\udcc8"],SW:["SIDEWAYS","\u27a1\ufe0f"],DN:["TRENDING DOWN","\ud83d\udcc9"],FB:["FULL BEAR","\ud83d\udc80"],RC:["RECOVERING","\ud83c\udf31"],ND:["NOT ENOUGH HISTORY YET","\u23f3"]};
   const vword=String(p.verdict||"");
   if(vword){
     const row=vbEl("div","vb-lo-row");
@@ -5406,6 +5406,10 @@ function vbCardSpin(p){
   const tv=vbInt(r.tier,1,4);
   tierRow.appendChild(vbEl("span","vb-lo-sub",tv?PM_TIER_LABEL[tv]:"tier —"));
   c.appendChild(tierRow);
+  // SEQUENCING LAW (15-Au-26): renderers learn before encoders speak. anchor is ADDITIVE at
+  // v:1 — present → shown VERBATIM (anchor-per-payload law, never reformatted); absent →
+  // absent, exactly as today. No version gate, so no gray-card window when Phase 1 lands.
+  if(p.anchor)c.appendChild(vbEl("div","vb-anchor","anchor "+String(p.anchor)));
   if(p.m)c.appendChild(vbEl("div","vb-memo",String(p.m)));
   const q=vbEl("div","vb-anchor","");c.appendChild(q);vbQuoteLine(t,q);   // enrichment
   const btns=vbEl("div","vb-lo-btns");btns.appendChild(vbCasinoLink());c.appendChild(btns);
@@ -5444,6 +5448,7 @@ function vbCardGFMirror(p){
     vbWireExpand(row,exp,expReg);
   });
   vbMasterPill(c,expReg);
+  if(p.anchor)c.appendChild(vbEl("div","vb-anchor","anchor "+String(p.anchor)));   // additive at v:1 — see Sequencing Law note on the spin card
   if(p.pm)c.appendChild(vbEl("div","vb-memo",String(p.pm)));
   const btns=vbEl("div","vb-lo-btns");btns.appendChild(vbCasinoLink());c.appendChild(btns);
   c.appendChild(vbEl("div","vb-foot",VB_FOOT_CASINO));
