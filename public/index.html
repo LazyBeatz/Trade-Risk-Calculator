@@ -5366,7 +5366,12 @@ function vbCardTrend(p){ // GFTS1 — §C5 v2, QUARANTINE LIFTED 06-Au-26 (legen
     c.appendChild(row);
   }
   const sc=vbNum(p.score),dn=vbNum(p.den);
-  if(sc!=null&&dn!=null)c.appendChild(vbEl("div","vb-score","Score "+sc+" / "+dn));   // WHEELS\u2260SCORE LAW: verbatim, never derived from wheels
+  // A ZERO DENOMINATOR IS NOT A MEASUREMENT. The mint omits score/den when no wheel could
+  // be measured (den is BUILT from measurable wheels, 200 each) — but renderers learn
+  // before encoders speak, so this covers the window before that deploy lands, and any
+  // stale build that still emits 0/0. Not an ND display rule: arithmetic, true for every
+  // verdict. A den>0 renders VERBATIM, untouched.
+  if(sc!=null&&dn!=null&&dn>0)c.appendChild(vbEl("div","vb-score","Score "+sc+" / "+dn));   // WHEELS\u2260SCORE LAW: verbatim, never derived from wheels
   // w1\u2013w5 — FIVE WHEELS, fixed positions, casino vocabulary verbatim. x = dark/no-data \u26ab, NEVER bearish. Unknown values → neutral outline, no color claim.
   if(p.w&&typeof p.w==="object"){
     const row=vbEl("div","gw-row");
