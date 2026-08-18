@@ -379,12 +379,19 @@ async function handleHistory(url) {
     const m = res && res.meta;
     if (!res || !q || !m) return json({ error: "No history for " + raw + "." }, 404);
 
-    // strip nulls, keeping the three series index-aligned
-    const closes = [], highs = [], lows = [];
-    const C = q.close || [], H = q.high || [], L = q.low || [];
+    // strip nulls, keeping the series index-aligned.
+    // VOLUME UNLOCK (17-Au-26): volume + open ride the SAME rows the price series keep.
+    // Two deliberate choices: (1) the skip condition is UNCHANGED — only C/H/L can drop a
+    // bar, so every existing caller sees byte-identical closes/highs/lows; (2) a missing
+    // volume or open is pushed as NULL, never coerced to 0 — a zero volume is a real,
+    // different fact from an unreported one (the None→0 coercion defect, by name).
+    const closes = [], highs = [], lows = [], volumes = [], opens = [];
+    const C = q.close || [], H = q.high || [], L = q.low || [], V = q.volume || [], O = q.open || [];
     for (let i = 0; i < C.length; i++) {
       if (C[i] == null || H[i] == null || L[i] == null) continue;
       closes.push(round2(C[i])); highs.push(round2(H[i])); lows.push(round2(L[i]));
+      volumes.push(V[i] == null ? null : Math.round(V[i]));
+      opens.push(O[i] == null ? null : round2(O[i]));
     }
     if (closes.length < 60) return json({ error: "Not enough history for " + raw + "." }, 404);
 
@@ -394,6 +401,8 @@ async function handleHistory(url) {
       price: round2(m.regularMarketPrice),
       currency: m.currency || null,
       closes, highs, lows,
+      volumes,
+      opens,
       delayed: true,
       source: "Yahoo",
     }, 200, 120);
