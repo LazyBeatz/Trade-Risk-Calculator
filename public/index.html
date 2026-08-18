@@ -1023,6 +1023,109 @@
   .dq-msg{font-family:var(--sans);font-size:.86rem;color:var(--muted);padding:18px 4px;text-align:center}
   .dq-chip{display:inline-flex;align-items:center;gap:5px;min-height:34px;margin-top:8px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--accent);background:var(--chip);color:var(--accent-deep,#2456C8);font-family:var(--sans);font-size:.8rem;font-weight:800;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.5)}
   .dq-chip:active{transform:translateY(1px) scale(.985)}
+
+  /* ═══🪟 GLASS SWEEP — every rgba() TINT needs an opaque base under it.
+     Those tints were authored against a solid page; over artwork there is nothing
+     to tint, so the surface reads as clear glass with text floating on circuitry.
+     Fix preserves MEANING: the tint moves to background-image (green = win, red =
+     loss, accent = active) and a translucent card base goes underneath it.
+     Swept MECHANICALLY from the stylesheet, not by eye — 68 surfaces. ═══ */
+  html[data-vibe="circuit"] .ci-summary{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.035),rgba(21,128,61,.035))}
+  html[data-vibe="circuit"][data-theme="dark"] .ci-summary{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.08),rgba(52,199,123,.08))}
+  html[data-vibe="circuit"] .ci-row{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.035),rgba(21,128,61,.035))}
+  html[data-vibe="circuit"] .ci-row.mile{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.05),rgba(47,111,237,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .ci-row{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.07),rgba(52,199,123,.07))}
+  html[data-vibe="circuit"][data-theme="dark"] .ci-row.mile{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.10),rgba(91,140,255,.10))}
+  html[data-vibe="circuit"] .pm-row.up{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.06),rgba(21,128,61,.06))}
+  html[data-vibe="circuit"] .pm-row.down{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(200,30,30,.05),rgba(200,30,30,.05))}
+  html[data-vibe="circuit"] .pm-row.entry{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.07),rgba(47,111,237,.07))}
+  html[data-vibe="circuit"][data-theme="dark"] .pm-row.up{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.08),rgba(52,199,123,.08))}
+  html[data-vibe="circuit"][data-theme="dark"] .pm-row.down{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(240,106,106,.08),rgba(240,106,106,.08))}
+  html[data-vibe="circuit"][data-theme="dark"] .pm-row.entry{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.10),rgba(91,140,255,.10))}
+  html[data-vibe="circuit"] .pm-sec.tgt{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.12),rgba(21,128,61,.12))}
+  html[data-vibe="circuit"] .pm-sec.stp{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(200,30,30,.10),rgba(200,30,30,.10))}
+  html[data-vibe="circuit"][data-theme="dark"] .pm-sec.tgt{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.14),rgba(52,199,123,.14))}
+  html[data-vibe="circuit"][data-theme="dark"] .pm-sec.stp{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(240,106,106,.13),rgba(240,106,106,.13))}
+  html[data-vibe="circuit"] .op-row{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.035),rgba(21,128,61,.035))}
+  html[data-vibe="circuit"] .op-row.shares{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.06),rgba(47,111,237,.06))}
+  html[data-vibe="circuit"][data-theme="dark"] .op-row{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.07),rgba(52,199,123,.07))}
+  html[data-vibe="circuit"][data-theme="dark"] .op-row.shares{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.10),rgba(91,140,255,.10))}
+  html[data-vibe="circuit"] .op-hdprice{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.10),rgba(47,111,237,.10))}
+  html[data-vibe="circuit"][data-theme="dark"] .op-hdprice{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.14),rgba(91,140,255,.14))}
+  html[data-vibe="circuit"] .op-collapse-hd:active{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.10),rgba(47,111,237,.10))}
+  html[data-vibe="circuit"][data-theme="dark"] .op-collapse-hd:active{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.14),rgba(91,140,255,.14))}
+  html[data-vibe="circuit"] .op-autofill{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.06),rgba(47,111,237,.06))}
+  html[data-vibe="circuit"][data-theme="dark"] .op-autofill{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.12),rgba(91,140,255,.12))}
+  html[data-vibe="circuit"] .op-greek{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.05),rgba(47,111,237,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .op-greek{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.10),rgba(91,140,255,.10))}
+  html[data-vibe="circuit"] .op-detail-badge{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.10),rgba(47,111,237,.10))}
+  html[data-vibe="circuit"][data-theme="dark"] .op-detail-badge{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.14),rgba(91,140,255,.14))}
+  html[data-vibe="circuit"] .hg-band-row.up{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.035),rgba(21,128,61,.035))}
+  html[data-vibe="circuit"] .hg-band-row.down{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(200,30,30,.05),rgba(200,30,30,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .hg-band-row.up{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.07),rgba(52,199,123,.07))}
+  html[data-vibe="circuit"][data-theme="dark"] .hg-band-row.down{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(240,106,106,.08),rgba(240,106,106,.08))}
+  html[data-vibe="circuit"] .hg-res-row{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.05),rgba(47,111,237,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .hg-res-row{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.10),rgba(91,140,255,.10))}
+  html[data-vibe="circuit"] .hg-link.on{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.10),rgba(47,111,237,.10))}
+  html[data-vibe="circuit"][data-theme="dark"] .hg-link.on{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.16),rgba(91,140,255,.16))}
+  html[data-vibe="circuit"] .hg-eff-box.gain{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.035),rgba(21,128,61,.035))}
+  html[data-vibe="circuit"] .hg-eff-box.loss{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(200,30,30,.05),rgba(200,30,30,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .hg-eff-box.gain{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.07),rgba(52,199,123,.07))}
+  html[data-vibe="circuit"][data-theme="dark"] .hg-eff-box.loss{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(240,106,106,.08),rgba(240,106,106,.08))}
+  html[data-vibe="circuit"] .hg-cover{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.07),rgba(47,111,237,.07))}
+  html[data-vibe="circuit"][data-theme="dark"] .hg-cover{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.12),rgba(91,140,255,.12))}
+  html[data-vibe="circuit"] .wl-recent-chip{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.06),rgba(47,111,237,.06))}
+  html[data-vibe="circuit"] .wl-recent-chip:active{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.16),rgba(47,111,237,.16))}
+  html[data-vibe="circuit"][data-theme="dark"] .wl-recent-chip{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.12),rgba(91,140,255,.12))}
+  html[data-vibe="circuit"][data-theme="dark"] .wl-recent-chip:active{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.22),rgba(91,140,255,.22))}
+  html[data-vibe="circuit"] .wl-expand:active{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.08),rgba(47,111,237,.08))}
+  html[data-vibe="circuit"][data-theme="dark"] .wl-expand:active{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.12),rgba(91,140,255,.12))}
+  html[data-vibe="circuit"] .wl-plus3{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.05),rgba(47,111,237,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .wl-plus3{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.10),rgba(91,140,255,.10))}
+  html[data-vibe="circuit"] .btn.pmir-pop{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.06),rgba(47,111,237,.06))}
+  html[data-vibe="circuit"][data-theme="dark"] .btn.pmir-pop{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.12),rgba(91,140,255,.12))}
+  html[data-vibe="circuit"] input[type="text"].pmir-alert-msg{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.05),rgba(47,111,237,.05))}
+  html[data-vibe="circuit"] .pmir-fired-msg{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(200,30,30,.10),rgba(200,30,30,.10))}
+  html[data-vibe="circuit"][data-theme="dark"] .pmir-fired-msg{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(240,106,106,.12),rgba(240,106,106,.12))}
+  html[data-vibe="circuit"] /* result outline by gain/loss — same green/red scheme as the WS2 ladder */
+  .ticket.win{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.06),rgba(21,128,61,.06))}
+  html[data-vibe="circuit"] .ticket.lose{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(200,30,30,.05),rgba(200,30,30,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .ticket.win{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.08),rgba(52,199,123,.08))}
+  html[data-vibe="circuit"][data-theme="dark"] .ticket.lose{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(240,106,106,.08),rgba(240,106,106,.08))}
+  html[data-vibe="circuit"] /* WS1's order ticket wears green — it's THE actionable output */
+  #ws-1 .ticket{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(21,128,61,.05),rgba(21,128,61,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] #ws-1 .ticket{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(52,199,123,.07),rgba(52,199,123,.07))}
+  html[data-vibe="circuit"] /* modal */
+  .modal{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(10,12,18,.5),rgba(10,12,18,.5))}
+  html[data-vibe="circuit"] .wl-portal{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(47,111,237,.05),rgba(47,111,237,.05))}
+  html[data-vibe="circuit"][data-theme="dark"] .wl-portal{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(91,140,255,.10),rgba(91,140,255,.10))}
+  html[data-vibe="circuit"] /* ═══🔍 DETAILED QUOTE — shared component (Material Law: floating sheet /
+     card pinned block / debossed collapsibles). Read-only: data{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(10,12,18,.55),rgba(10,12,18,.55))}
+  html[data-vibe="circuit"] never signals. */
+  .dq-back{background-color:color-mix(in srgb,var(--card) 50%,transparent);background-image:linear-gradient(rgba(10,12,18,.55),rgba(10,12,18,.55))}
+  /* ═══ PRESS-GLOW, FLEET-WIDE — every pressable answers the finger, not just .btn.
+     Founder field report: "Add holding" glowed, "Detailed quote" didn't. ═══ */
+  .chip,.ls,.seg button,.wl-mini,.pmir-exp,.pmir-del,.explainbtn,.iconbtn,.curpill,.op-collapse-hd,.wl-expand,.hg-bandchip,.wl-recent-chip,.op-addrow,.op-scndel,.chip-edit,.gl-clear,.ci-switch,.ci-rows-toggle,.lookbtn,.copybtn,.dq-tab,.dq-x,.dq-chip,.dq-sec summary,.wl-portal{--glow:var(--accent);transition:transform .12s ease,box-shadow .2s ease}
+  .chip:focus,.ls:focus,.seg button:focus,.wl-mini:focus,.pmir-exp:focus,.pmir-del:focus,.explainbtn:focus,.iconbtn:focus,.op-collapse-hd:focus,.wl-expand:focus,.hg-bandchip:focus,.wl-recent-chip:focus,.op-addrow:focus,.chip-edit:focus,.gl-clear:focus,.ci-switch:focus,.ci-rows-toggle:focus,.lookbtn:focus,.copybtn:focus,.dq-tab:focus,.dq-x:focus,.dq-chip:focus,.dq-sec summary:focus,.wl-portal:focus{outline:none}
+  .chip:focus-visible,.ls:focus-visible,.seg button:focus-visible,.wl-mini:focus-visible,.pmir-exp:focus-visible,.pmir-del:focus-visible,.explainbtn:focus-visible,.iconbtn:focus-visible,.op-collapse-hd:focus-visible,.wl-expand:focus-visible,.hg-bandchip:focus-visible,.wl-recent-chip:focus-visible,.op-addrow:focus-visible,.chip-edit:focus-visible,.gl-clear:focus-visible,.ci-switch:focus-visible,.ci-rows-toggle:focus-visible,.lookbtn:focus-visible,.copybtn:focus-visible,.dq-tab:focus-visible,.dq-x:focus-visible,.dq-chip:focus-visible,.dq-sec summary:focus-visible,.wl-portal:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent),0 0 12px color-mix(in srgb,var(--glow) 30%,transparent)}
+  .chip:active,.ls:active,.seg button:active,.wl-mini:active,.pmir-exp:active,.pmir-del:active,.explainbtn:active,.iconbtn:active,.curpill:active,.op-collapse-hd:active,.wl-expand:active,.hg-bandchip:active,.wl-recent-chip:active,.op-addrow:active,.op-scndel:active,.chip-edit:active,.gl-clear:active,.ci-switch:active,.ci-rows-toggle:active,.lookbtn:active,.copybtn:active,.dq-tab:active,.dq-x:active,.dq-chip:active,.dq-sec summary:active,.wl-portal:active{transform:translateY(1px) scale(.985);box-shadow:0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent),0 0 14px color-mix(in srgb,var(--glow) 30%,transparent)}
+  .wl-mini.wl-del,.pmir-del,.op-scndel,.op-chipdel,.gl-clear{--glow:var(--red)}
+  .pmir-run,.op-autofill,.btn.primary,.dq-chip{--glow:var(--accent)}
+  @media (prefers-reduced-motion:reduce){.chip,.ls,.seg button,.wl-mini,.pmir-exp,.pmir-del,.explainbtn,.iconbtn,.curpill,.op-collapse-hd,.wl-expand,.hg-bandchip,.wl-recent-chip,.op-addrow,.chip-edit,.gl-clear,.ci-switch,.ci-rows-toggle,.lookbtn,.copybtn,.dq-tab,.dq-x,.dq-chip,.dq-sec summary,.wl-portal{transition:none}}
+  /* the chip must LOOK inert when there is no symbol to open — no false doors */
+  .dq-chip:disabled{opacity:.42;cursor:default;border-style:dashed}
+  .dq-chip:disabled:active{transform:none;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+  /* two-column rows — twice the fields per screenful (founder layout note) */
+  .dq-pair{display:flex;gap:12px;padding:8px 12px;border-bottom:1px solid var(--line)}
+  .dq-pair:last-child{border-bottom:0}
+  .dq-cell{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .dq-cell .k{font-family:var(--sans);font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .dq-cell .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.9rem;font-weight:700;color:var(--ink);overflow-wrap:anywhere}
+  .dq-cell .v.na{font-family:var(--sans);font-weight:600;color:var(--muted)}
+  /* EVENTS never tucked away */
+  .dq-events{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:12px;border-radius:14px;border:1.5px solid var(--amber);background:var(--amber-bg)}
+  .dq-events .k{font-family:var(--sans);font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--amber)}
+  .dq-events .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1.05rem;font-weight:800;color:var(--ink)}
 </style>
 </head>
 <body data-theme="light">
@@ -5015,6 +5118,19 @@ function dqRow(k,v,extra){                    // ABSENCE: null renders "—", ne
   if(extra)val.appendChild(extra);
   r.appendChild(val); return r;
 }
+function dqCell(k,v,extra){
+  const c=dqEl("div","dq-cell","");
+  c.appendChild(dqEl("span","k",k));
+  const val=dqEl("span","v"+(v==null?" na":""),v==null?"\u2014":String(v));
+  if(extra)val.appendChild(extra);
+  c.appendChild(val); return c;
+}
+function dqPair(k1,v1,k2,v2){          // two fields per row — half a screenful each
+  const r=dqEl("div","dq-pair","");
+  r.appendChild(dqCell(k1,v1));
+  if(k2!=null)r.appendChild(dqCell(k2,v2)); else r.appendChild(dqEl("div","dq-cell",""));
+  return r;
+}
 function dqSection(title,rows){
   const d=document.createElement("details"); d.className="dq-sec";
   const sm=document.createElement("summary");
@@ -5086,37 +5202,35 @@ async function dqPaint(){
   pin.appendChild(pr); body.appendChild(pin);
   /* RULE 1 — a size of 0 is not a size. Absence says so in words. */
   const sizeTxt=function(n){return n==null?"size not available":dqCompact(n);};
+  /* RULE 2 — EVENTS ARE NEVER TUCKED AWAY (founder ruling): earnings rides in the open,
+     bold, directly under the pinned block, with the est. tag when the date is estimated. */
+  const ev=dqEl("div","dq-events","");
+  ev.appendChild(dqEl("span","k","Next earnings"));
+  const evv=dqEl("span","v",dqDate(d.earningsDate)||"\u2014");
+  if(d.earningsDate!=null&&d.earningsEstimated===true)evv.appendChild(dqEl("span","dq-est","est."));
+  ev.appendChild(evv); body.appendChild(ev);
   body.appendChild(dqSection("Market",[
-    dqRow("Bid",d.bid==null?null:cur+dqNum(d.bid)+"  \u00d7 "+sizeTxt(d.bidSize)),
-    dqRow("Ask",d.ask==null?null:cur+dqNum(d.ask)+"  \u00d7 "+sizeTxt(d.askSize)),
-    dqRow("Average volume",dqCompact(d.avgVolume)),
-    dqRow("52-week high",d.wkHigh==null?null:cur+dqNum(d.wkHigh)),
-    dqRow("52-week low",d.wkLow==null?null:cur+dqNum(d.wkLow))
+    dqPair("Bid",d.bid==null?null:cur+dqNum(d.bid)+" \u00d7 "+sizeTxt(d.bidSize),
+           "Ask",d.ask==null?null:cur+dqNum(d.ask)+" \u00d7 "+sizeTxt(d.askSize)),
+    dqPair("Volume",dqCompact(d.volume),"Avg volume",dqCompact(d.avgVolume)),
+    dqPair("52-week high",d.wkHigh==null?null:cur+dqNum(d.wkHigh),
+           "52-week low",d.wkLow==null?null:cur+dqNum(d.wkLow))
   ]));
   body.appendChild(dqSection("Valuation",[
-    dqRow("Market cap",d.marketCapFmt||dqCompact(d.marketCap)),
-    dqRow("P/E (TTM)",d.peTTM==null?null:dqNum(d.peTTM)),
-    dqRow("EPS (TTM)",d.epsTTM==null?null:cur+dqNum(d.epsTTM)),
-    dqRow("Beta",d.beta==null?null:dqNum(d.beta)),
-    dqRow("Shares outstanding",dqCompact(d.sharesOut))
+    dqPair("Market cap",d.marketCapFmt||dqCompact(d.marketCap),"P/E (TTM)",d.peTTM==null?null:dqNum(d.peTTM)),
+    dqPair("Beta",d.beta==null?null:dqNum(d.beta),"EPS (TTM)",d.epsTTM==null?null:cur+dqNum(d.epsTTM)),
+    dqPair("Shares outstanding",dqCompact(d.sharesOut),null,null)
   ]));
   /* RULE 3 — yield is COMPUTED rate \u00f7 price. Yahoo's own yield field never arrives
      here and is never used: its units differ by endpoint (1.96 would render 196%). */
   const dy=(d.divRate!=null&&d.price!=null&&d.price>0)?(d.divRate/d.price*100):null;
   body.appendChild(dqSection("Dividend",[
-    dqRow("Rate (annual)",d.divRate==null?null:cur+dqNum(d.divRate)),
-    dqRow("Yield",dy==null?null:dqNum(dy)+"%"),
-    dqRow("Ex-dividend date",dqDate(d.exDivDate)),
-    dqRow("Pay date",dqDate(d.divPayDate))
+    dqPair("Rate (annual)",d.divRate==null?null:cur+dqNum(d.divRate),"Ex-dividend",dqDate(d.exDivDate)),
+    dqPair("Yield",dy==null?null:dqNum(dy)+"%","Pay date",dqDate(d.divPayDate))
   ]));
   body.appendChild(dqSection("Short interest",[
-    dqRow("Shares short",dqCompact(d.sharesShort)),
-    dqRow("Days to cover",d.daysToCover==null?null:dqNum(d.daysToCover))
+    dqPair("Shares short",dqCompact(d.sharesShort),"Days to cover",d.daysToCover==null?null:dqNum(d.daysToCover))
   ]));
-  /* RULE 2 — an estimated earnings date says so. */
-  let estTag=null;
-  if(d.earningsDate!=null&&d.earningsEstimated===true)estTag=dqEl("span","dq-est","est.");
-  body.appendChild(dqSection("Events",[dqRow("Next earnings",dqDate(d.earningsDate),estTag)]));
   /* RULE 4 — the delayed label rides through to the surface. */
   const foot=$("dqFoot"); foot.textContent="";
   const fl=dqEl("span",null,"Data via "+(d.source||"Yahoo")+".");
@@ -5180,8 +5294,16 @@ function dqAttachChip(inputId){
   if(!anchor||!anchor.parentNode)return;
   const b=dqEl("button","dq-chip","\ud83d\udcca Detailed quote");
   b.type="button"; b.id=inputId+"DqChip";
-  b.setAttribute("aria-label","Open the detailed quote for the symbol you typed");
   b.addEventListener("click",function(){dqOpen(inp.value);});
+  // NO-FALSE-DOORS: the chip is INERT until the field holds a real symbol, and says which
+  // one it will open once it does. A door that leads nowhere is worse than no door.
+  const sync=function(){
+    const sym=normTicker(String(inp.value||"").split(",")[0]);
+    b.disabled=!sym;
+    b.textContent=sym?("\ud83d\udcca Detailed quote \u00b7 "+sym):"\ud83d\udcca Detailed quote";
+    b.setAttribute("aria-label",sym?("Open the detailed quote for "+sym):"Detailed quote — type a ticker first");
+  };
+  inp.addEventListener("input",sync); inp.addEventListener("change",sync); sync();
   anchor.parentNode.insertBefore(b,anchor.nextSibling);
 }
 
