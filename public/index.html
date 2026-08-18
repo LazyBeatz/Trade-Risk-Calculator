@@ -980,6 +980,49 @@
       html[data-vibe="circuit"] .card,html[data-vibe="circuit"] .vb-lo,html[data-vibe="circuit"] .vb-sayrow{-webkit-backdrop-filter:blur(10px) saturate(115%);backdrop-filter:blur(10px) saturate(115%)}
     }
   }
+  /* ═══🔍 DETAILED QUOTE — shared component (Material Law: floating sheet /
+     card pinned block / debossed collapsibles). Read-only: data, never signals. */
+  .dq-back{position:fixed;inset:0;background:rgba(10,12,18,.55);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:10px}
+  .dq-back[hidden]{display:none}
+  @media(min-width:560px){.dq-back{align-items:center}}
+  .dq-sheet{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:520px;width:100%;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.5)}
+  .dq-hd{display:flex;align-items:flex-start;gap:10px;padding:14px 14px 8px}
+  .dq-idwrap{flex:1;min-width:0}
+  .dq-hd h3{font-family:var(--sans);font-size:1.15rem;font-weight:800;color:var(--ink);letter-spacing:.02em}
+  .dq-sub{font-family:var(--sans);font-size:.76rem;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+  .dq-x{flex:0 0 auto;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:1rem;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .dq-tabs{display:flex;gap:6px;padding:0 14px 10px}
+  .dq-tab{flex:1;min-height:40px;border:1.5px solid var(--line);background:var(--chip);color:var(--muted);border-radius:11px;font-family:var(--sans);font-weight:700;font-size:.86rem;cursor:pointer}
+  .dq-tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .dq-body{padding:0 14px 4px;overflow-y:auto;overscroll-behavior:contain;flex:1}
+  .dq-pin{background:var(--chip);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+  .dq-px{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1.75rem;font-weight:800;color:var(--ink)}
+  .dq-chg{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.95rem;font-weight:700;margin-left:8px}
+  .dq-chg.up{color:var(--green)} .dq-chg.down{color:var(--red)}
+  .dq-pinrow{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px}
+  .dq-pincell{display:flex;flex-direction:column;gap:1px}
+  .dq-k{font-family:var(--sans);font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .dq-v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.92rem;font-weight:700;color:var(--ink)}
+  .dq-sec{margin-top:10px}
+  .dq-sec summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:12px;box-shadow:inset 0 2px 5px rgba(0,0,0,.06)}
+  .dq-sec summary::-webkit-details-marker{display:none}
+  .dq-sec .st{flex:1;font-family:var(--sans);font-size:.82rem;font-weight:700;color:var(--ink)}
+  .dq-sec .sc{font-size:1.1rem;font-weight:800;line-height:1;color:var(--accent-deep,#2456C8);transition:transform .15s}
+  .dq-sec[open] .sc{transform:rotate(90deg)}
+  @media (prefers-reduced-motion:reduce){.dq-sec .sc{transition:none}}
+  .dq-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 12px;border-bottom:1px solid var(--line)}
+  .dq-row:last-child{border-bottom:0}
+  .dq-row .k{font-family:var(--sans);font-size:.82rem;color:var(--muted)}
+  .dq-row .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:.88rem;font-weight:700;color:var(--ink);text-align:right;overflow-wrap:anywhere}
+  .dq-row .v.na{font-family:var(--sans);font-weight:600;color:var(--muted)}
+  .dq-est{font-family:var(--sans);font-size:.6rem;font-weight:800;letter-spacing:.06em;color:var(--amber);border:1px solid var(--amber);border-radius:5px;padding:1px 5px;margin-left:6px}
+  .dq-foot{padding:8px 14px 14px;font-family:var(--sans);font-size:.68rem;color:var(--muted);line-height:1.45}
+  .dq-delayed{display:inline-block;font-size:.62rem;font-weight:800;color:var(--amber);background:var(--amber-bg);border-radius:5px;padding:1px 6px;margin-left:6px}
+  .dq-chartwrap{margin-top:6px}
+  .dq-chart{width:100%;height:auto;display:block}
+  .dq-msg{font-family:var(--sans);font-size:.86rem;color:var(--muted);padding:18px 4px;text-align:center}
+  .dq-chip{display:inline-flex;align-items:center;gap:5px;min-height:34px;margin-top:8px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--accent);background:var(--chip);color:var(--accent-deep,#2456C8);font-family:var(--sans);font-size:.8rem;font-weight:800;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.5)}
+  .dq-chip:active{transform:translateY(1px) scale(.985)}
 </style>
 </head>
 <body data-theme="light">
@@ -1840,6 +1883,21 @@
   </section>
 
   <div class="vb-hiccup" id="vbHiccup" hidden></div>
+</div>
+
+<div class="dq-back" id="dqBack" hidden>
+  <div class="dq-sheet" id="dqSheet" role="dialog" aria-modal="true" aria-labelledby="dqTitle">
+    <div class="dq-hd">
+      <div class="dq-idwrap"><h3 id="dqTitle">—</h3><div class="dq-sub" id="dqSub"></div></div>
+      <button class="dq-x" id="dqX" type="button" aria-label="Close detailed quote">✕</button>
+    </div>
+    <div class="dq-tabs" role="tablist">
+      <button class="dq-tab" id="dqTabQ" type="button" role="tab" aria-selected="true">📋 Quote</button>
+      <button class="dq-tab" id="dqTabC" type="button" role="tab" aria-selected="false">📈 Chart</button>
+    </div>
+    <div class="dq-body" id="dqBody"></div>
+    <div class="dq-foot" id="dqFoot"></div>
+  </div>
 </div>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true">
@@ -4454,7 +4512,16 @@ function pmCasinoMirrorToPmir(gm){ // \ud83e\ude9e MIRROR PORTAL (doctrine-amend
     if(x.added&&!iso)memo=("added "+String(x.added)+(memo?" \u00b7 ":""))+memo;
     return {id:pmUID(),sym:normTicker(x.t||""),qty:(x.qty!=null&&x.qty!=="")?x.qty:"",cost:(x.avg!=null&&x.avg!=="")?x.avg:"",date:iso,memo:memo,_open:false};
   }).filter(function(h){return !!h.sym;});
-  return {pmirName:"Casino Mirror \ud83c\udfb0\u2192\ud83e\ude9e",pmirHoldings:holdings,pmirMemo:(typeof gm.pm==="string")?gm.pm:""};
+  // ANCHOR-PROVENANCE STAMP (Treaty ruling, 17-Au-26): a sentence ABOUT the record, never
+  // a structured field (queryable = usable as data = doctrine breach) and never per-holding
+  // (the anchor describes the EXPORT, not each position). REFINEMENT 1: with no anchor the
+  // stamp reads "Casino mirror" full stop — never "anchored unknown", never a guessed date;
+  // absence renders as absence in prose too. REFINEMENT 2: it lives in the user's own 2,000
+  // characters and is theirs to delete — the stamp INFORMS, the snap-exclusion gate PROTECTS.
+  const stamp="Casino mirror"+(gm.anchor?(" \u00b7 anchored "+String(gm.anchor)):"");
+  const pm=(typeof gm.pm==="string")?gm.pm:"";
+  return {pmirName:"Casino Mirror \ud83c\udfb0\u2192\ud83e\ude9e",pmirHoldings:holdings,
+          pmirMemo:(pm?(stamp+"\n\n"+pm):stamp).slice(0,2000)};
 }
 function pmImportPortfolio(p){
   pmEnsure();
@@ -4920,6 +4987,203 @@ function pmPortalToWatchlist(){
 if($("pmirPortal"))$("pmirPortal").addEventListener("click",pmPortalToWatchlist);
 function pmRenderAll(){pmRenderPicker();pmRenderHoldings();pmRenderAlerts();pmApplyAlertsOpen();pmSyncPopBtn();if($("pmirMemo")&&document.activeElement!==$("pmirMemo"))$("pmirMemo").value=pmP().memo||"";memoCount("pmirMemo","pmirMemoCount");}
 
+
+/* ═══🔍 DETAILED QUOTE — shared component, Tabs 1+2 (Brief v1.1 as amended).
+   READ-ONLY: data display, never signals — no verdicts, no derived scores, and
+   none of the banned depth vocabulary. Opens ONLY on a tap, so it can never fire
+   during a Mirror run or a watchlist refresh. One session cache, 30s TTL. */
+const DQ_TTL = 30000;
+const dqCache = new Map();
+let dqSym = "", dqTab = "quote", dqPrevFocus = null, dqTouchY = null;
+const DQ_MON = ["Ja","Fe","Mr","Ap","Ma","Ju","Jl","Au","Se","Oc","No","De"];
+function dqDate(epoch){                       // house 2-letter-month form, from epoch seconds
+  if(epoch==null)return null;
+  const d=new Date(Number(epoch)*1000); if(isNaN(d.getTime()))return null;
+  return String(d.getUTCDate()).padStart(2,"0")+"-"+DQ_MON[d.getUTCMonth()]+"-"+String(d.getUTCFullYear()).slice(2);
+}
+function dqNum(v,dec){ return v==null?null:Number(v).toLocaleString("en-US",{minimumFractionDigits:dec==null?2:dec,maximumFractionDigits:dec==null?2:dec}); }
+function dqCompact(v){
+  if(v==null)return null; const a=Math.abs(v);
+  if(a>=1e12)return (v/1e12).toFixed(2)+"T"; if(a>=1e9)return (v/1e9).toFixed(2)+"B";
+  if(a>=1e6)return (v/1e6).toFixed(1)+"M";   if(a>=1e3)return (v/1e3).toFixed(1)+"K";
+  return String(Math.round(v));
+}
+function dqEl(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=String(txt);return e;}
+function dqRow(k,v,extra){                    // ABSENCE: null renders "—", never 0, never a guess
+  const r=dqEl("div","dq-row"); r.appendChild(dqEl("span","k",k));
+  const val=dqEl("span","v"+(v==null?" na":""),v==null?"—":String(v));
+  if(extra)val.appendChild(extra);
+  r.appendChild(val); return r;
+}
+function dqSection(title,rows){
+  const d=document.createElement("details"); d.className="dq-sec";
+  const sm=document.createElement("summary");
+  sm.appendChild(dqEl("span","st",title));
+  sm.appendChild(dqEl("span","sc","\u25B8"));
+  d.appendChild(sm);
+  const box=dqEl("div",null,""); rows.forEach(r=>box.appendChild(r)); d.appendChild(box);
+  return d;
+}
+/* ── the four exits + focus discipline ── */
+function dqOpen(sym){
+  const s=normTicker(String(sym||"").split(",")[0]);
+  if(!s)return;
+  dqSym=s; dqTab="quote"; dqPrevFocus=document.activeElement;
+  const back=$("dqBack"); if(!back)return;
+  back.hidden=false;
+  $("dqTitle").textContent=s; $("dqSub").textContent="";
+  $("dqBody").innerHTML=""; $("dqBody").appendChild(dqEl("div","dq-msg","Loading \u2026"));
+  $("dqFoot").textContent="";
+  const x=$("dqX"); if(x&&x.focus)x.focus();
+  dqPaint();
+}
+function dqClose(){
+  const back=$("dqBack"); if(back)back.hidden=true;
+  if(dqPrevFocus&&dqPrevFocus.focus)dqPrevFocus.focus();   // focus returns to the originating chip
+  dqPrevFocus=null;
+}
+async function dqFetch(sym){
+  const hit=dqCache.get(sym);
+  if(hit&&(Date.now()-hit.t)<DQ_TTL)return hit.d;
+  const r=await fetch("/api/quotedetail?symbol="+encodeURIComponent(sym),{headers:{accept:"application/json"}});
+  let d=null; try{d=await r.json();}catch(_){ return {error:"Quote-detail service missing — deploy the latest worker.js"};}
+  if(!r.ok||!d||d.error)return {error:(d&&d.error)||"Detail unavailable right now."};
+  dqCache.set(sym,{t:Date.now(),d});
+  return d;
+}
+async function dqPaint(){
+  const body=$("dqBody"); if(!body)return;
+  $("dqTabQ").setAttribute("aria-selected",String(dqTab==="quote"));
+  $("dqTabC").setAttribute("aria-selected",String(dqTab==="chart"));
+  if(dqTab==="chart")return dqPaintChart();
+  const d=await dqFetch(dqSym);
+  if(dqTab!=="quote")return;
+  body.innerHTML="";
+  if(d.error){body.appendChild(dqEl("div","dq-msg",d.error));return;}
+  $("dqSub").textContent=[d.name,d.exchange,d.currency].filter(Boolean).join(" \u00b7 ");
+  const cur=d.currency==="CAD"?"C$":"$";
+  /* PINNED (layout B): price \u00b7 change \u00b7 volume \u00b7 day range \u2014 always visible */
+  const pin=dqEl("div","dq-pin","");
+  const head=dqEl("div",null,"");
+  head.appendChild(dqEl("span","dq-px",d.price==null?"\u2014":cur+dqNum(d.price)));
+  if(d.changePct!=null){
+    const up=d.changePct>=0;
+    head.appendChild(dqEl("span","dq-chg "+(up?"up":"down"),
+      (up?"+":"")+dqNum(d.change)+" ("+(up?"+":"")+dqNum(d.changePct)+"%)"));
+  }
+  pin.appendChild(head);
+  const pr=dqEl("div","dq-pinrow","");
+  [["Volume",dqCompact(d.volume)],
+   ["Day range",(d.dayLow!=null&&d.dayHigh!=null)?(cur+dqNum(d.dayLow)+" \u2013 "+cur+dqNum(d.dayHigh)):null],
+   ["Open",d.open==null?null:cur+dqNum(d.open)],
+   ["Prev close",d.prevClose==null?null:cur+dqNum(d.prevClose)]
+  ].forEach(function(p){
+    const c=dqEl("div","dq-pincell","");
+    c.appendChild(dqEl("span","dq-k",p[0]));
+    c.appendChild(dqEl("span","dq-v",p[1]==null?"\u2014":p[1]));
+    pr.appendChild(c);
+  });
+  pin.appendChild(pr); body.appendChild(pin);
+  /* RULE 1 — a size of 0 is not a size. Absence says so in words. */
+  const sizeTxt=function(n){return n==null?"size not available":dqCompact(n);};
+  body.appendChild(dqSection("Market",[
+    dqRow("Bid",d.bid==null?null:cur+dqNum(d.bid)+"  \u00d7 "+sizeTxt(d.bidSize)),
+    dqRow("Ask",d.ask==null?null:cur+dqNum(d.ask)+"  \u00d7 "+sizeTxt(d.askSize)),
+    dqRow("Average volume",dqCompact(d.avgVolume)),
+    dqRow("52-week high",d.wkHigh==null?null:cur+dqNum(d.wkHigh)),
+    dqRow("52-week low",d.wkLow==null?null:cur+dqNum(d.wkLow))
+  ]));
+  body.appendChild(dqSection("Valuation",[
+    dqRow("Market cap",d.marketCapFmt||dqCompact(d.marketCap)),
+    dqRow("P/E (TTM)",d.peTTM==null?null:dqNum(d.peTTM)),
+    dqRow("EPS (TTM)",d.epsTTM==null?null:cur+dqNum(d.epsTTM)),
+    dqRow("Beta",d.beta==null?null:dqNum(d.beta)),
+    dqRow("Shares outstanding",dqCompact(d.sharesOut))
+  ]));
+  /* RULE 3 — yield is COMPUTED rate \u00f7 price. Yahoo's own yield field never arrives
+     here and is never used: its units differ by endpoint (1.96 would render 196%). */
+  const dy=(d.divRate!=null&&d.price!=null&&d.price>0)?(d.divRate/d.price*100):null;
+  body.appendChild(dqSection("Dividend",[
+    dqRow("Rate (annual)",d.divRate==null?null:cur+dqNum(d.divRate)),
+    dqRow("Yield",dy==null?null:dqNum(dy)+"%"),
+    dqRow("Ex-dividend date",dqDate(d.exDivDate)),
+    dqRow("Pay date",dqDate(d.divPayDate))
+  ]));
+  body.appendChild(dqSection("Short interest",[
+    dqRow("Shares short",dqCompact(d.sharesShort)),
+    dqRow("Days to cover",d.daysToCover==null?null:dqNum(d.daysToCover))
+  ]));
+  /* RULE 2 — an estimated earnings date says so. */
+  let estTag=null;
+  if(d.earningsDate!=null&&d.earningsEstimated===true)estTag=dqEl("span","dq-est","est.");
+  body.appendChild(dqSection("Events",[dqRow("Next earnings",dqDate(d.earningsDate),estTag)]));
+  /* RULE 4 — the delayed label rides through to the surface. */
+  const foot=$("dqFoot"); foot.textContent="";
+  const fl=dqEl("span",null,"Data via "+(d.source||"Yahoo")+".");
+  if(d.delayed!==false)fl.appendChild(dqEl("span","dq-delayed","DELAYED"));
+  foot.appendChild(fl);
+  foot.appendChild(dqEl("div",null,"Informational only \u2014 not investment advice."));
+}
+async function dqPaintChart(){
+  const body=$("dqBody"); if(!body)return;
+  body.innerHTML=""; body.appendChild(dqEl("div","dq-msg","Loading chart \u2026"));
+  let d=null;
+  try{const r=await fetch("/api/history?symbol="+encodeURIComponent(dqSym),{headers:{accept:"application/json"}});d=await r.json();}
+  catch(_){d=null;}
+  if(dqTab!=="chart")return;
+  body.innerHTML="";
+  if(!d||d.error||!Array.isArray(d.closes)||!d.closes.length){
+    body.appendChild(dqEl("div","dq-msg",(d&&d.error)||"Chart unavailable right now."));return;
+  }
+  const C=d.closes, V=Array.isArray(d.volumes)?d.volumes:[];
+  const W=320,PH=120,VH=44,GAP=10,H=PH+GAP+VH;
+  const lo=Math.min.apply(null,C), hi=Math.max.apply(null,C), span=(hi-lo)||1;
+  const NS="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("class","dq-chart");
+  svg.setAttribute("role","img");
+  svg.setAttribute("aria-label","6 month price and volume for "+dqSym);
+  const pts=C.map(function(c,i){return (i/(C.length-1||1)*W).toFixed(1)+","+(PH-((c-lo)/span)*PH).toFixed(1);}).join(" ");
+  const line=document.createElementNS(NS,"polyline");
+  line.setAttribute("points",pts); line.setAttribute("fill","none");
+  line.setAttribute("stroke",C[C.length-1]>=C[0]?"var(--green)":"var(--red)");
+  line.setAttribute("stroke-width","2"); line.setAttribute("stroke-linejoin","round");
+  svg.appendChild(line);
+  /* volume histogram — NULL bars are SKIPPED, never drawn as zero-height zeros */
+  const vMax=V.reduce(function(m,v){return (v!=null&&v>m)?v:m;},0);
+  if(vMax>0){
+    const bw=Math.max(1,W/Math.max(1,V.length)-0.4);
+    V.forEach(function(v,i){
+      if(v==null)return;
+      const h=(v/vMax)*VH; const r=document.createElementNS(NS,"rect");
+      r.setAttribute("x",(i/Math.max(1,V.length)*W).toFixed(1));
+      r.setAttribute("y",(PH+GAP+(VH-h)).toFixed(1));
+      r.setAttribute("width",bw.toFixed(1)); r.setAttribute("height",Math.max(0.5,h).toFixed(1));
+      r.setAttribute("fill","var(--muted)"); r.setAttribute("opacity",".55");
+      svg.appendChild(r);
+    });
+  }
+  const wrap=dqEl("div","dq-chartwrap",""); wrap.appendChild(svg); body.appendChild(wrap);
+  const cur=d.currency==="CAD"?"C$":"$";
+  body.appendChild(dqSection("Range shown",[
+    dqRow("6-month high",cur+dqNum(hi)), dqRow("6-month low",cur+dqNum(lo)),
+    dqRow("Sessions",String(C.length)),
+    dqRow("Volume shown",vMax>0?"histogram beneath":null)
+  ]));
+  const foot=$("dqFoot"); foot.textContent="6-month daily closes with volume beneath. Informational only — not investment advice.";
+}
+/* ── the chip: visibly pressable, never a hidden long-press (HIDDEN-HANDLE law) ── */
+function dqAttachChip(inputId){
+  const inp=$(inputId); if(!inp)return;
+  const host=inp.closest?inp.closest(".inrow, .pmir-addrow, .tickrow"):null;
+  const anchor=(host&&host.parentNode)?host:inp.parentNode;
+  if(!anchor||!anchor.parentNode)return;
+  const b=dqEl("button","dq-chip","\ud83d\udcca Detailed quote");
+  b.type="button"; b.id=inputId+"DqChip";
+  b.setAttribute("aria-label","Open the detailed quote for the symbol you typed");
+  b.addEventListener("click",function(){dqOpen(inp.value);});
+  anchor.parentNode.insertBefore(b,anchor.nextSibling);
+}
 
 /* keep the focused field visible above the on-screen keyboard (all workspaces) */
 document.addEventListener("focusin",e=>{
@@ -5746,6 +6010,29 @@ if(typeof switchWs==="function"){
 if(typeof window!=="undefined")window.__vibeTest={vibeOnEnter,vbUpdSayCount,vbSafe,vbHiccupShow,vbMsgRow,vbSys,vbAtBottom,vbUpdJump,vbScrollLatest};
 /* ═══ end vibe module ═══ */
 
+  // 🔍 Detailed Quote — four exits, focus discipline, six chip sites
+  if($("dqX"))$("dqX").addEventListener("click",dqClose);
+  if($("dqBack"))$("dqBack").addEventListener("click",function(e){if(e.target===$("dqBack"))dqClose();});
+  if($("dqTabQ"))$("dqTabQ").addEventListener("click",function(){dqTab="quote";dqPaint();});
+  if($("dqTabC"))$("dqTabC").addEventListener("click",function(){dqTab="chart";dqPaint();});
+  document.addEventListener("keydown",function(e){
+    const back=$("dqBack"); if(!back||back.hidden)return;
+    if(e.key==="Escape"){e.preventDefault();dqClose();return;}
+    if(e.key==="Tab"){                                   // focus trapped while open
+      const f=$("dqSheet").querySelectorAll("button,[href],input,select,textarea,details summary");
+      if(!f.length)return; const first=f[0],last=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+    }
+  });
+  if($("dqSheet")){                                       // swipe-down exit
+    $("dqSheet").addEventListener("touchstart",function(e){dqTouchY=e.touches&&e.touches[0]?e.touches[0].clientY:null;},{passive:true});
+    $("dqSheet").addEventListener("touchmove",function(e){
+      if(dqTouchY==null||!e.touches||!e.touches[0])return;
+      if(e.touches[0].clientY-dqTouchY>70&&$("dqBody").scrollTop<=0){dqTouchY=null;dqClose();}
+    },{passive:true});
+  }
+  ["ticker","pmTicker","opTicker","hgTicker","wlAddInput","pmirAddInput"].forEach(dqAttachChip);
   buildNav();
   ciApplyStopToggle();
   ciApplyRowsCollapse();
