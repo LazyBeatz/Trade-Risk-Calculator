@@ -1213,7 +1213,21 @@
   .wl-asofmini .dl{font-family:var(--sans);font-weight:800;letter-spacing:.06em;color:var(--amber);display:block}
   .rowvenue{font-family:var(--mono);font-size:.58rem;font-weight:700;letter-spacing:.06em;color:var(--muted);background:var(--chip);border-radius:5px;padding:1px 4px;margin-left:4px;flex:0 0 auto;white-space:nowrap}
   .rowid{display:flex;align-items:center;gap:2px;flex:0 0 auto}
-  .vb-del{background:transparent;border:1.5px solid var(--red);color:var(--red);font-size:1.1rem;--glow:var(--red)}
+  /* ACTIONS SIT BESIDE THE HANDLE, never in the right-hand scroll lane. A thumb cruising
+     the right edge must not be able to graze a destructive control. 28px keeps them small
+     enough to live inline with a name, with generous padding making the target bigger
+     than the ink. */
+  .vb-act{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+    border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+    font-weight:800;font-size:.86rem;line-height:1;cursor:pointer;padding:0;vertical-align:-7px;
+    margin-right:8px;flex:0 0 auto;--glow:var(--accent);transition:transform .12s ease,box-shadow .2s ease}
+  .vb-act:active{transform:translateY(1px) scale(.985);box-shadow:0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent)}
+  .vb-act:focus{outline:none}
+  .vb-act:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
+  @media (prefers-reduced-motion:reduce){.vb-act{transition:none}}
+  .vb-del{border-color:var(--red);color:var(--red);--glow:var(--red)}
+  .btn.danger{background:var(--red);border-color:var(--red);color:#fff;--glow:var(--red)}
+  .btn.danger:active{transform:translateY(1px) scale(.985);box-shadow:0 0 0 4px color-mix(in srgb,var(--red) 85%,transparent),0 0 14px color-mix(in srgb,var(--red) 30%,transparent)}
 </style>
 </head>
 <body data-theme="light">
@@ -2861,7 +2875,11 @@ function openSheet(title,body,text,actions){
   const ta=$("mText");ta.value=text;ta.readOnly=!!text;ta.style.display=text!==null?"block":"none";
   const A=$("mActions");A.innerHTML="";
   actions.forEach(([label,fn,primary])=>{
-    const b=document.createElement("button");b.className="btn"+(primary?" primary":"");b.textContent=label;
+    const b=document.createElement("button");
+    /* a third value of "danger" paints the button red — a destructive choice must not
+       look like every other choice. Booleans keep working exactly as before. */
+    b.className="btn"+(primary==="danger"?" danger":(primary?" primary":""));
+    b.textContent=label;
     b.addEventListener("click",fn);A.appendChild(b);
   });
   modal.classList.add("show");
@@ -6137,21 +6155,25 @@ function vbMsgRow(o){
   const t=document.createElement("span");t.className="vb-t";t.textContent=vbStamp(o.ts);
   const h=document.createElement("span");h.className="vb-h";h.textContent="@"+vbEsc(o.handle);
   const b=document.createElement("span");b.className="vb-b";b.textContent=vbEsc(o.body);
-  div.appendChild(t);div.appendChild(h);div.appendChild(b);
-  if(h_lc && h_lc===String(S.vibe.handle||"").toLowerCase() && o.id){
-    const dl=vbEl("button","vb-dots vb-del","\u00d7");dl.type="button";
-    dl.setAttribute("aria-label","Delete this message");
+  div.appendChild(t);
+  /* the action rides IN FRONT of the handle — actions belong with identity, and the
+     right edge stays a clean scroll lane for the thumb */
+  const mineRow=(h_lc && h_lc===String(S.vibe.handle||"").toLowerCase());
+  if(o.id&&mineRow){
+    const dl=vbEl("button","vb-act vb-del","\u00d7");dl.type="button";
+    dl.setAttribute("aria-label","Delete your message");
     dl.addEventListener("click",vbSafe(function(){
       openSheet("Delete this message?","It disappears for everyone in the room. This cannot be undone.",null,
-        [["Delete",function(){closeSheet();vbSend({op:"del",id:o.id});},false],["Keep it",closeSheet,true]]);
+        [["Delete",function(){closeSheet();vbTx({op:"del",id:o.id});},"danger"],["Keep it",closeSheet,true]]);
     }));
     div.appendChild(dl);
-  }
-  if(h_lc && h_lc!==String(S.vibe.handle||"").toLowerCase()){
-    const dots=vbEl("button","vb-dots","\u22EE");dots.type="button";dots.setAttribute("aria-label","Message actions");
+  }else if(h_lc&&!mineRow){
+    const dots=vbEl("button","vb-act","\u22EE");dots.type="button";
+    dots.setAttribute("aria-label","Message actions");
     dots.addEventListener("click",vbSafe(function(){vbModMenu(o);}));
     div.appendChild(dots);
   }
+  div.appendChild(h);div.appendChild(b);
   try{vbRenderDrop(div,o.body);}catch(e){console.error("vibe drop render:",(e&&e.message)||e);div.appendChild(vbGray("couldn't render this drop"));}
   const stick=vbAtBottom(m);m.appendChild(div);vbAfterAppend(m,stick);
 }
@@ -6214,6 +6236,15 @@ const vbLeave=vbSafe(function(){
   const cc=$("vbChatCard");if(cc)cc.hidden=true;
   const rc=$("vbRoomsCard");if(rc)rc.hidden=false;
   vbRoster=new Set();vbRosterN();
+});
+/* vbTx sends an ARBITRARY frame. vbSend below sends THE COMPOSER — two different jobs,
+   and the delete button was calling the wrong one: vbSend ignores its argument, reads the
+   (empty) message box, and returns before sending anything. The tap did nothing, silently.
+   One name, two meanings — the pm/pmir lesson, in the socket layer this time. */
+const vbTx=vbSafe(function(frame){
+  if(!vbWS||vbWS.readyState!==1){vbSys("Not connected — reopen the room and try again.");return false;}
+  vbWS.send(JSON.stringify(frame));
+  return true;
 });
 const vbSend=vbSafe(function(){
   const el=$("vbSay");if(!el)return;
