@@ -846,10 +846,10 @@
 
   /* ═══ Ledger #4 · jump-to-latest + anti-yank ═══ */
   .vb-msgswrap{position:relative;margin-top:10px}   /* margin moved OFF the basin: collapse was pushing the lips 10px low */
-  .vb-jump{position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--accent);background:var(--card);color:var(--accent-deep,#2456C8);font-size:1.1rem;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:5;padding:0}
+  .vb-jump{position:absolute;left:50%;margin-left:-28px;bottom:12px;width:56px;height:56px;border-radius:50%;border:2px solid var(--accent);background:var(--card);color:var(--accent-deep,#2456C8);font-size:1.6rem;font-weight:800;line-height:1;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:5;padding:0}
   .vb-jump.show{display:flex}
   .vb-jump.pulse{animation:vbJumpPulse 1.1s ease-in-out 2}
-  @keyframes vbJumpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  @keyframes vbJumpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
   @media (prefers-reduced-motion:reduce){.vb-jump.pulse{animation:none}}
 
   /* ═══ SHIELD v1 · moderation UI ═══ */
@@ -1143,7 +1143,8 @@
   .dq-rng:focus,.dq-sma:focus{outline:none}
   .dq-rng:focus-visible,.dq-sma:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
   @media (prefers-reduced-motion:reduce){.dq-rng,.dq-sma{transition:none}}
-  .dq-sma[aria-pressed="true"]{color:var(--accent-ink)}
+  .dq-sma{color:var(--ink)}
+  .dq-sma[aria-pressed="false"]{color:var(--muted);opacity:.85}
   .dq-sma .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
   .dq-axlbl{font-family:var(--mono);font-size:7px;fill:var(--muted)}
   .dq-axline{stroke:var(--line);stroke-width:.6}
@@ -1200,7 +1201,7 @@
   /* ═══📍 THE NOTE FIELDS — the two places a person writes in their own words.
      Given matching treatment because they are the same act at two depths: a pin in
      the map (where you heard it) and the story it turned into. ═══ */
-  .wl-note{background:var(--chip);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:10px 12px;margin-top:10px}
+  .wl-note{background:var(--chip);border:1.5px solid var(--accent);border-radius:12px;padding:10px 12px;margin-top:10px}
   .wl-note-hd{display:flex;align-items:center;gap:7px;margin-bottom:6px}
   .wl-note-ic{font-size:1rem;line-height:1;flex:0 0 auto}
   .wl-note-lbl{font-family:var(--sans);font-size:.78rem;font-weight:800;color:var(--ink);letter-spacing:.01em}
@@ -1212,6 +1213,7 @@
   .wl-asofmini .dl{font-family:var(--sans);font-weight:800;letter-spacing:.06em;color:var(--amber);display:block}
   .rowvenue{font-family:var(--mono);font-size:.58rem;font-weight:700;letter-spacing:.06em;color:var(--muted);background:var(--chip);border-radius:5px;padding:1px 4px;margin-left:4px;flex:0 0 auto;white-space:nowrap}
   .rowid{display:flex;align-items:center;gap:2px;flex:0 0 auto}
+  .vb-del{background:transparent;border:1.5px solid var(--red);color:var(--red);font-size:1.1rem;--glow:var(--red)}
 </style>
 </head>
 <body data-theme="light">
@@ -1869,7 +1871,7 @@
       <h2 class="pop">Add a ticker</h2>
       <div class="tickrow">
         <div class="inrow hastick" id="wlAddWrap">
-          <input id="wlAddInput" type="text" inputmode="text" placeholder="ex. AAPL, SHOP.TO, NVDA" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <input id="wlAddInput" type="text" inputmode="text" placeholder="ex. AAPL, SHOP.TO · or type Shopify" autocomplete="off" autocapitalize="characters" spellcheck="false">
           <button class="lookbtn" id="wlAddBtn" type="button">Add</button>
         </div>
       </div>
@@ -1922,14 +1924,14 @@
       <h2 class="pop">Add a holding</h2>
       <p class="op-detail-intro">Type a ticker and tap <strong>Add holding</strong> (or hit enter).</p>
       <div class="pmir-addrow">
-        <input id="pmirAddInput" type="text" inputmode="text" class="pmir-add-in" placeholder="ex. AAPL, SHOP.TO, NVDA" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Ticker to add">
+        <input id="pmirAddInput" type="text" inputmode="text" class="pmir-add-in" placeholder="ex. AAPL, SHOP.TO · or type Shopify" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Ticker to add">
         <button class="btn primary" id="pmirAdd" type="button">Add holding</button>
       </div>
       <div class="tickstatus" id="pmirAddStatus"></div>
     </section>
 
     <section class="card" style="margin-top:12px">
-      <div class="pmir-hd"><h2 class="pop">Your holdings</h2><div class="vb-row" style="margin-top:0"><button class="btn pmir-pop" id="pmirCharts" type="button">📊 Charts</button><button class="btn pmir-pop" id="pmirPop" type="button">Populate Values</button></div></div>
+      <div class="pmir-hd"><h2 class="pop">Your holdings</h2><div class="vb-row" style="margin-top:0"><button class="btn pmir-pop" id="pmirCharts" type="button">📊 Charts</button><button class="btn pmir-pop" id="pmirGlobe" type="button">🌎 Exposure</button><button class="btn pmir-pop" id="pmirPop" type="button">Populate Values</button></div></div>
       <div class="tickstatus" id="pmirPopStatus"></div>
       <p class="op-detail-intro">Newest on top. Tap <strong>+</strong> on any row to add quantity, cost, purchase date and your original thesis. Then run the mirror for an emotionless momentum read on each one.</p>
       <div id="pmirList"></div>
@@ -2042,7 +2044,7 @@
     </div>
     <div class="vb-msgswrap">
       <div class="vb-msgs" id="vbMsgs" aria-live="polite"></div>
-      <button class="vb-jump" id="vbJumpLatest" type="button" aria-label="Jump to latest messages">▾</button>
+      <button class="vb-jump" id="vbJumpLatest" type="button" aria-label="Jump to latest messages">↓</button>
     </div>
     <label class="fl" for="vbSay" style="margin-top:10px">Message</label>
     <div class="vb-sayrow" style="margin-top:6px">
@@ -2409,11 +2411,11 @@ function renderAll(){
   {const entryOK=isFinite(num(S.entry))&&num(S.entry)>0, stopOK=isFinite(num(S.stopPct));
    const portOK=isFinite(num(S.portfolio))&&num(S.portfolio)>0;
    if($("portRow"))$("portRow").classList.toggle("needfill",!portOK);
-   if($("portfolioReq"))$("portfolioReq").style.display=portOK?"none":"inline-block";
+   if($("portfolioReq"))$("portfolioReq").style.visibility=portOK?"hidden":"visible";
    if($("entryRow"))$("entryRow").classList.toggle("needfill",!entryOK);
    if($("stopPctRow"))$("stopPctRow").classList.toggle("needfill",!stopOK);
-   if($("entryReq"))$("entryReq").style.display=entryOK?"none":"inline-block";
-   if($("stopPctReq"))$("stopPctReq").style.display=stopOK?"none":"inline-block";}
+   if($("entryReq"))$("entryReq").style.visibility=entryOK?"hidden":"visible";
+   if($("stopPctReq"))$("stopPctReq").style.visibility=stopOK?"hidden":"visible";}
   // portfolio lock
   const ICON_LOCKED='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
   const ICON_OPEN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
@@ -2643,7 +2645,11 @@ function lkShow(cfg,items,fallbackFor){
     const sy=document.createElement("span");sy.className="sym";sy.textContent=String(m.symbol);
     b.appendChild(nm);b.appendChild(sy);
     b.setAttribute("aria-label","Use "+String(m.symbol)+" \u2014 "+x.w.place);
-    b.addEventListener("click",function(){lkDismiss();const inEl=$(cfg.inputId);if(inEl)inEl.value=m.symbol;runLookup(cfg);});
+    b.addEventListener("click",function(){
+      lkDismiss();
+      if(cfg.onPick){cfg.onPick(m.symbol);return;}          // list boxes ADD; lookup fields QUOTE
+      const inEl=$(cfg.inputId);if(inEl)inEl.value=m.symbol;runLookup(cfg);
+    });
     box.appendChild(b);
   });
   if(st.parentNode&&st.parentNode.insertBefore)st.parentNode.insertBefore(box,st.nextSibling);
@@ -3101,8 +3107,8 @@ function ciRender(){
   const rateOK=isFinite(num(S.ciRate));
   if($("ciStartRow"))$("ciStartRow").classList.toggle("needfill",!startOK);
   if($("ciRateRow"))$("ciRateRow").classList.toggle("needfill",!rateOK);
-  if($("ciStartReq"))$("ciStartReq").style.display=startOK?"none":"inline-block";
-  if($("ciRateReq"))$("ciRateReq").style.display=rateOK?"none":"inline-block";
+  if($("ciStartReq"))$("ciStartReq").style.visibility=startOK?"hidden":"visible";
+  if($("ciRateReq"))$("ciRateReq").style.visibility=rateOK?"hidden":"visible";
   $("ciSumFinal").textContent=r.valid?ciFmtMoney(r.final):"—";
   $("ciSumGains").textContent=r.valid?ciFmtMoney(r.totalGains):"—";
   $("ciSumWithdrawn").textContent=r.valid?ciFmtMoney(r.totalWithdrawn):"—";
@@ -3356,7 +3362,7 @@ function glRenderTracker(){
   if($("glSellPxRow"))$("glSellPxRow").classList.toggle("needfill",share&&!sellOK);
   if($("glSharesRow"))$("glSharesRow").classList.toggle("needfill",share&&!shOK);
   // stacked Required pills: show only for the active mode, hide once filled
-  const pill=(id,show)=>{const e=$(id);if(e)e.style.display=show?"inline-block":"none";};
+  const pill=(id,show)=>{const e=$(id);if(e)e.style.visibility=show?"visible":"hidden";};
   pill("glCostReq",!share&&!costOK); pill("glSaleReq",!share&&!saleOK);
   pill("glBuyPxReq",share&&!buyOK); pill("glSellPxReq",share&&!sellOK); pill("glSharesReq",share&&!shOK);
   // dynamic hint naming exactly what's missing
@@ -3558,7 +3564,7 @@ function pmRender(){
   const host=$("pmRows"),hint=$("pmNeedHint");
   const priceOK=isFinite(price)&&price>0;
   if($("pmPriceRow"))$("pmPriceRow").classList.toggle("needfill",!priceOK);
-  if($("pmPriceReq"))$("pmPriceReq").style.display=priceOK?"none":"inline-block";
+  if($("pmPriceReq"))$("pmPriceReq").style.visibility=priceOK?"hidden":"visible";
   host.innerHTML="";
   if(!priceOK){ if(hint)hint.style.display=""; return; }
   if(hint)hint.style.display="none";
@@ -4187,19 +4193,19 @@ function hgRender(){
 
   // required cue on portfolio
   if($("hgPortRow"))$("hgPortRow").classList.toggle("needfill",!havePort);
-  if($("hgPortReq"))$("hgPortReq").style.display=havePort?"none":"inline-block";
+  if($("hgPortReq"))$("hgPortReq").style.visibility=havePort?"hidden":"visible";
   // required cues: last price, and (in the put section) strike / expiry / ask
   const typedIVok=isFinite(num(S.hgIV))&&num(S.hgIV)>0;
   if($("hgSpyRow"))$("hgSpyRow").classList.toggle("needfill",!haveSpy);
-  if($("hgSpyReq"))$("hgSpyReq").style.display=haveSpy?"none":"inline-block";
+  if($("hgSpyReq"))$("hgSpyReq").style.visibility=haveSpy?"hidden":"visible";
   if($("hgStrikeRow"))$("hgStrikeRow").classList.toggle("needfill",!haveStrike);
-  if($("hgStrikeReq"))$("hgStrikeReq").style.display=haveStrike?"none":"inline-block";
+  if($("hgStrikeReq"))$("hgStrikeReq").style.visibility=haveStrike?"hidden":"visible";
   if($("hgAskRow"))$("hgAskRow").classList.toggle("needfill",!haveAsk);
-  if($("hgAskReq"))$("hgAskReq").style.display=haveAsk?"none":"inline-block";
+  if($("hgAskReq"))$("hgAskReq").style.visibility=haveAsk?"hidden":"visible";
   // expiry needed for delta/IV — unless the user typed IV directly
   const needExpiry=!isFinite(T)&&!typedIVok;
   if($("hgExpiryRow"))$("hgExpiryRow").classList.toggle("needfill",needExpiry);
-  if($("hgExpiryReq"))$("hgExpiryReq").style.display=needExpiry?"inline-block":"none";
+  if($("hgExpiryReq"))$("hgExpiryReq").style.visibility=needExpiry?"visible":"hidden";
 
   // band levels
   if($("hgUpLbl"))$("hgUpLbl").textContent="+"+pct+"% level";
@@ -4530,12 +4536,20 @@ function wlBuildCard(it,idx){
   // ---- action row: refresh + delete ----
   const act=document.createElement("div");act.className="wl-actions";
   const refresh=document.createElement("button");refresh.type="button";refresh.className="wl-mini";
-  refresh.textContent="↻ Refresh quote";
+  refresh.textContent="↻ Refresh";
   refresh.addEventListener("click",()=>wlRefreshOne(idx,refresh));
   const del=document.createElement("button");del.type="button";del.className="wl-mini wl-del";
   del.textContent="✕ Remove";
   del.addEventListener("click",()=>{wlItemsRef().splice(idx,1);persist();wlRender();});
-  act.appendChild(refresh);act.appendChild(del);
+  act.appendChild(refresh);
+  if(normTicker(it.sym||"")){
+    const dqb=document.createElement("button");dqb.type="button";dqb.className="wl-mini";
+    dqb.textContent="\ud83d\udcca "+normTicker(it.sym);
+    dqb.setAttribute("aria-label","Detailed quote for "+normTicker(it.sym));
+    dqb.addEventListener("click",function(){dqOpen(it.sym);});
+    act.appendChild(dqb);
+  }
+  act.appendChild(del);
   card.appendChild(act);
 
   // +3% level (calculated) always shows when we have a price
@@ -4652,6 +4666,27 @@ function wlField(it,idx,key,label,isPre,ph){
 }
 
 // add a ticker (looks up an initial quote)
+function looksLikeName(raw){
+  /* The add boxes eat comma-separated TICKERS. A single entry with a space or a letter
+     run longer than any real symbol is a company name, not a list — resolve it rather
+     than storing "SHOPIFY" as a holding. Multi-item lists are never treated as names. */
+  const t=String(raw||"").trim();
+  if(!t||t.indexOf(",")>=0)return false;
+  return /\s/.test(t)||/[^A-Za-z0-9.\-]/.test(t)||/^[A-Za-z]{7,}$/.test(t);
+}
+async function resolveName(typed,statusId,inputId,onPick){
+  const el=$(statusId);
+  const say=function(k,m){if(el){el.className="tickstatus show "+k;el.textContent=m;}};
+  say("busy","Looking up \u201c"+typed+"\u201d\u2026");
+  try{
+    const r=await fetch(SEARCH_ENDPOINT+"?q="+encodeURIComponent(String(typed).slice(0,40)),{headers:{accept:"application/json"}});
+    const d=r.ok?await r.json():null;
+    const items=(d&&d.ok&&Array.isArray(d.matches))?d.matches:[];
+    if(!items.length){lkDismiss();say("err","Couldn\u0027t find that name \u2014 try the ticker symbol.");return;}
+    say("ok","Pick the listing you meant:");
+    lkShow({statusId:statusId,inputId:inputId,onPick:onPick},items,typed);
+  }catch(e){lkDismiss();say("err","Couldn\u0027t find that name \u2014 try the ticker symbol.");}
+}
 function parseTickerList(raw){ // Ledger #8: the placeholder's promise, kept — split FIRST, clean each, batch-dedupe, skip blanks
   return String(raw||"").split(",").map(function(s){return normTicker(s);}).filter(Boolean)
     .filter(function(s,i,a){return a.indexOf(s)===i;});
@@ -4659,8 +4694,14 @@ function parseTickerList(raw){ // Ledger #8: the placeholder's promise, kept —
 function wlAdd(sym){
   const inp=$("wlAddInput");
   const setStat=(kind,html)=>{const e=$("wlAddStatus");if(!e)return;e.className="tickstatus show "+kind;e.innerHTML=html;if(!kind)e.className="tickstatus";};
-  const list=parseTickerList(sym!=null?sym:((inp&&inp.value)||""));
-  if(!list.length){setStat("err","Type a ticker to add (e.g. AAPL).");return;}
+  const rawIn=(sym!=null?sym:((inp&&inp.value)||""));
+  if(sym==null&&looksLikeName(rawIn)){
+    return resolveName(rawIn.trim(),"wlAddStatus","wlAddInput",function(picked){
+      if(inp)inp.value="";dqSyncChips();wlAdd(picked);
+    });
+  }
+  const list=parseTickerList(rawIn);
+  if(!list.length){setStat("err","Type a ticker to add (e.g. AAPL) \u2014 or a company name.");return;}
   const items=wlItemsRef();
   let added=0,dups=0,capped=0;
   list.forEach(function(raw){
@@ -4673,6 +4714,7 @@ function wlAdd(sym){
   });
   persist();
   if(inp){inp.value="";inp.focus();}   // rapid-fire: keyboard never closes, next symbol flows
+  dqSyncChips();
   wlRender();
   if(!added&&dups&&list.length===1){setStat("err",list[0]+" is already on this watchlist.");return;}
   if(!added&&capped&&!dups){setStat("err","This list is full ("+WL_MAX_SYMBOLS+" max). Start a new watchlist for more.");return;}
@@ -4690,6 +4732,11 @@ function wlRenderRecent(){
   if(!show.length){row.hidden=true;row.innerHTML="";return;}
   row.hidden=false;
   row.innerHTML='<span class="wl-recent-lbl">Recently added · tap to re-add</span>';
+  {const cl=document.createElement("button");cl.type="button";cl.className="gl-clear";
+   cl.style.cssText="float:right;margin-top:-22px";cl.textContent="Clear recents";
+   cl.setAttribute("aria-label","Forget the recently added tickers");
+   cl.addEventListener("click",function(){S.wlRecent=[];persist();wlRender();});
+   row.appendChild(cl);}
   const wrap=document.createElement("div");wrap.className="wl-recent-chips";
   show.forEach(s=>{
     const c=document.createElement("button");c.type="button";c.className="wl-recent-chip";c.textContent=s;
@@ -4740,7 +4787,7 @@ async function wlFetchQuote(idx,btn,statusFn){
       setStat("ok",it.sym+" "+S.curSym+groupNum(String(d.price)));
     }else setStat("err","No usable price for "+it.sym+".");
   }catch(e){setStat("err","Couldn't reach the quote service. (Live quotes work on the deployed site.)");}
-  finally{if(btn){btn.disabled=false;btn.textContent=btn.dataset.lbl||"↻ Refresh quote";}}
+  finally{if(btn){btn.disabled=false;btn.textContent=btn.dataset.lbl||"↻ Refresh";}}
 }
 function wlRefreshOne(idx,btn){
   wlFetchQuote(idx,btn,(k,h)=>{const e=$("wlAddStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}});
@@ -4760,7 +4807,7 @@ async function wlRefreshAll(){
 }
 
 if($("wlAddBtn")){
-  $("wlAddInput").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9.\-, ]/g,"");});
+  $("wlAddInput").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[^A-Za-z0-9.\-, &']/g,"");});
   $("wlAddInput").setAttribute("enterkeyhint","go");
   $("wlAddInput").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();wlAdd();}});
   $("wlAddBtn").addEventListener("click",()=>wlAdd());
@@ -4937,7 +4984,8 @@ function pcRender(host){
   wrap.appendChild(dqEl("div","pc-msg",res.note));
   host.appendChild(wrap);
 }
-function pcOpen(){
+function pcOpen(view){
+  if(view)pcView=view;          // a caller may land straight on a view
   openSheet("\ud83d\udcca "+(pmP().name||"Portfolio")+" \u2014 charts","",null,[["Close",closeSheet,true]]);
   const body=$("mBody"); if(!body)return;
   body.textContent=""; pcRender(body);
@@ -5206,6 +5254,7 @@ async function pmPopulate(){
 }
 if($("pmirPop"))$("pmirPop").addEventListener("click",()=>pmPopulate());
 if($("pmirCharts"))$("pmirCharts").addEventListener("click",()=>pcOpen());
+if($("pmirGlobe"))$("pmirGlobe").addEventListener("click",()=>pcOpen("country"));
 
 // ----- the mirror run -----
 async function pmRunMirror(){
@@ -5298,11 +5347,50 @@ function pmRenderResults(results){
 }
 
 // ----- wiring -----
+/* FETCH ON ADD (founder ruling, 18-Au-26 — option A). A holding's identity is settled
+   the moment it is added, so its flag is true from birth and never corrects itself later.
+   IDENTITY ONLY: country, sector, venue and company name. Prices stay the job of Populate
+   Values — adding a ticker should not quietly fill columns the user hasn't asked for. */
+async function pmFetchProfiles(syms){
+  const st=$("pmirAddStatus");
+  const say=function(k,t){if(st){st.className="tickstatus show "+k;st.textContent=t;}};
+  let done=0,got=0;
+  for(let i=0;i<syms.length;i++){
+    const sym=syms[i];
+    const H=pmHoldingsRef();
+    const h=H.filter(function(x){return normTicker(x.sym||"")===sym;})[0];
+    if(!h||h.country){done++;continue;}                       // already known → never re-fetch
+    if(syms.length>1)say("busy","Identifying "+(done+1)+" of "+syms.length+"\u2026");
+    try{
+      const r=await fetch(QUOTE_ENDPOINT+"?symbol="+encodeURIComponent(sym)+"&extra=1",{headers:{accept:"application/json"}});
+      if(r.ok){
+        const d=await r.json();
+        if(d&&!d.error){
+          if(d.country)h.country=d.country;
+          if(d.sector)h.sector=d.sector;
+          if(d.exchange)h.exchange=d.exchange;
+          if(!h.name&&d.name)h.name=d.name;
+          if(d.country)got++;
+        }
+      }
+    }catch(e){/* a holding with no profile is still a holding — silence, never a crash */}
+    done++;
+    if(i<syms.length-1)await new Promise(function(r){setTimeout(r,700);});   // same pacing as Populate
+  }
+  persist();pmRenderHoldings();
+  if(got)say("ok",got===1?"Identified \u2014 flag and exchange set.":("Identified "+got+" holdings \u2014 flags and exchanges set."));
+}
 function pmAddHolding(){
   const inp=$("pmirAddInput");if(!inp)return;
   const setStat=(k,h)=>{const e=$("pmirAddStatus");if(e){e.className="tickstatus show "+k;e.innerHTML=h;}};
-  const list=parseTickerList(inp.value||"");
-  if(!list.length){setStat("err","Type a ticker first.");return;}
+  const rawIn=inp.value||"";
+  if(looksLikeName(rawIn)){
+    return resolveName(rawIn.trim(),"pmirAddStatus","pmirAddInput",function(picked){
+      inp.value=picked;pmAddHolding();
+    });
+  }
+  const list=parseTickerList(rawIn);
+  if(!list.length){setStat("err","Type a ticker first \u2014 or a company name.");return;}
   const H=pmHoldingsRef();
   let added=0,dups=0;
   list.forEach(function(sym){
@@ -5311,13 +5399,16 @@ function pmAddHolding(){
   });
   persist();pmRenderHoldings();
   inp.value="";inp.focus();   // rapid-fire parity
+  dqSyncChips();
+  const fresh=list.filter(function(x){return added&&H.some(function(h){return normTicker(h.sym||"")===x&&!h.country;});});
+  if(fresh.length)pmFetchProfiles(fresh);
   if(!added&&dups&&list.length===1){setStat("err",list[0]+" is already in your holdings.");inp.select();return;}
   const bits=[];if(added)bits.push("Added "+added);if(dups)bits.push("skipped "+dups+" duplicate"+(dups>1?"s":""));
   setStat(added?"ok":"err",bits.join(" \u00b7 ")||"Nothing to add.");
 }
 if($("pmirAdd"))$("pmirAdd").addEventListener("click",()=>pmAddHolding());
 if($("pmirAddInput")){
-  $("pmirAddInput").addEventListener("input",e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9.\-, ]/g,"");});
+  $("pmirAddInput").addEventListener("input",e=>{e.target.value=e.target.value.replace(/[^A-Za-z0-9.\-, &']/g,"");});
   $("pmirAddInput").setAttribute("enterkeyhint","go");
   $("pmirAddInput").addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();pmAddHolding();}});
 }
@@ -5792,6 +5883,11 @@ function dqRowChip(sym){        // rows already know their symbol — no field t
   b.addEventListener("click",function(){dqOpen(sym);});
   return b;
 }
+const dqChipSyncs=[];
+/* Setting input.value in code fires NO input event, so a chip synced only by the
+   listener kept a stale symbol after wlAdd/pmAddHolding cleared the box. Every sync
+   is registered and replayed after any programmatic change. */
+function dqSyncChips(){dqChipSyncs.forEach(function(f){try{f();}catch(_){}});}
 function dqAttachChip(inputId){
   const inp=$(inputId); if(!inp)return;
   const host=inp.closest?inp.closest(".inrow, .pmir-addrow, .tickrow"):null;
@@ -5808,7 +5904,7 @@ function dqAttachChip(inputId){
     b.textContent=sym?("\ud83d\udcca Detailed quote \u00b7 "+sym):"\ud83d\udcca Detailed quote";
     b.setAttribute("aria-label",sym?("Open the detailed quote for "+sym):"Detailed quote — type a ticker first");
   };
-  inp.addEventListener("input",sync); inp.addEventListener("change",sync); sync();
+  inp.addEventListener("input",sync); inp.addEventListener("change",sync); dqChipSyncs.push(sync); sync();
   anchor.parentNode.insertBefore(b,anchor.nextSibling);
 }
 
@@ -5868,6 +5964,15 @@ async function vbApi(path,body){
   }catch(_){return {status:0,data:{error:"Network hiccup — check your connection and try again."}};}
 }
 function vbEsc(s){return String(s==null?"":s);}
+function vbStamp(ts){                 // date AND time — a room read days later needs both
+  const n=Number(ts);
+  if(!isFinite(n)||n<=0)return "";        // '||0' would render garbage as 01-Ja-70
+  const d=new Date(n);
+  if(isNaN(d.getTime()))return "";
+  const M=["Ja","Fe","Mr","Ap","Ma","Ju","Jl","Au","Se","Oc","No","De"];
+  return String(d.getDate()).padStart(2,"0")+"-"+M[d.getMonth()]+"-"+String(d.getFullYear()).slice(2)+
+         " \u00b7 "+d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+}
 function vbTime(ts){const d=new Date(ts);const p=n=>String(n).padStart(2,"0");return p(d.getHours())+":"+p(d.getMinutes());}
 
 /* ── identity ── */
@@ -6027,11 +6132,20 @@ function vbMsgRow(o){
   const h_lc=String(o.handle||"").toLowerCase();
   if(S.vibe.muted.indexOf(h_lc)>=0||S.vibe.blocked.indexOf(h_lc)>=0)return;   // HIDDEN-HANDLE LAW
   const div=document.createElement("div");div.className="vb-m"+(o.handle===S.vibe.handle?" mine":"");
-  div.dataset.h=h_lc;
-  const t=document.createElement("span");t.className="vb-t";t.textContent=vbTime(o.ts);
+  div.dataset.h=h_lc; if(o.id)div.dataset.mid=String(o.id);
+  const t=document.createElement("span");t.className="vb-t";t.textContent=vbStamp(o.ts);
   const h=document.createElement("span");h.className="vb-h";h.textContent="@"+vbEsc(o.handle);
   const b=document.createElement("span");b.className="vb-b";b.textContent=vbEsc(o.body);
   div.appendChild(t);div.appendChild(h);div.appendChild(b);
+  if(h_lc && h_lc===String(S.vibe.handle||"").toLowerCase() && o.id){
+    const dl=vbEl("button","vb-dots vb-del","\u00d7");dl.type="button";
+    dl.setAttribute("aria-label","Delete this message");
+    dl.addEventListener("click",vbSafe(function(){
+      openSheet("Delete this message?","It disappears for everyone in the room. This cannot be undone.",null,
+        [["Delete",function(){closeSheet();vbSend({op:"del",id:o.id});},false],["Keep it",closeSheet,true]]);
+    }));
+    div.appendChild(dl);
+  }
   if(h_lc && h_lc!==String(S.vibe.handle||"").toLowerCase()){
     const dots=vbEl("button","vb-dots","\u22EE");dots.type="button";dots.setAttribute("aria-label","Message actions");
     dots.addEventListener("click",vbSafe(function(){vbModMenu(o);}));
@@ -6048,6 +6162,15 @@ const vbOnMsg=vbSafe(function(ev){
     (o.backfill||[]).forEach(vbMsgRow);
     vbSys("— you're in · last "+(o.backfill?o.backfill.length:0)+" messages —");
   }else if(o.t==="msg"){vbMsgRow(o);}
+  else if(o.t==="del"){                       // the room agrees the message is gone
+    const box=$("vbMsgs");
+    if(box&&box.children){
+      Array.prototype.slice.call(box.children).forEach(function(k){
+        if(k&&k.dataset&&k.dataset.mid===String(o.id)&&k.remove)k.remove();
+      });
+    }
+    vbUpdJump();
+  }
   else if(o.t==="join"){vbRoster.add(o.handle);vbRosterN();vbSys("@"+o.handle+" joined");}
   else if(o.t==="leave"){vbRoster.delete(o.handle);vbRosterN();vbSys("@"+o.handle+" left");}
   else if(o.t==="held"){vbSys(o.error||"Message held by the scam filter.",true);}
