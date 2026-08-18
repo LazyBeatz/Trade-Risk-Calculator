@@ -1126,6 +1126,20 @@
   .dq-events{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:12px;border-radius:14px;border:1.5px solid var(--amber);background:var(--amber-bg)}
   .dq-events .k{font-family:var(--sans);font-size:.72rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--amber)}
   .dq-events .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:1.05rem;font-weight:800;color:var(--ink)}
+  /* ═══📈 CHART — range chips, SMA toggles, axes ═══ */
+  .dq-ranges,.dq-smas{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .dq-rng,.dq-sma{min-height:34px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--chip);color:var(--ink);font-family:var(--sans);font-size:.76rem;font-weight:800;cursor:pointer;--glow:var(--accent);transition:transform .12s ease,box-shadow .2s ease}
+  .dq-rng[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .dq-rng:active,.dq-sma:active{transform:translateY(1px) scale(.985);box-shadow:0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent),0 0 14px color-mix(in srgb,var(--glow) 30%,transparent)}
+  .dq-rng:focus,.dq-sma:focus{outline:none}
+  .dq-rng:focus-visible,.dq-sma:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
+  @media (prefers-reduced-motion:reduce){.dq-rng,.dq-sma{transition:none}}
+  .dq-sma[aria-pressed="true"]{color:var(--accent-ink)}
+  .dq-sma .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  .dq-axlbl{font-family:var(--mono);font-size:7px;fill:var(--muted)}
+  .dq-axline{stroke:var(--line);stroke-width:.6}
+  .dq-volcap{font-family:var(--sans);font-size:7px;font-weight:800;fill:var(--muted);letter-spacing:.08em}
+  .dq-note{font-family:var(--sans);font-size:.72rem;color:var(--muted);margin-top:8px;line-height:1.45}
 </style>
 </head>
 <body data-theme="light">
@@ -2017,7 +2031,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const VIBE_SKINS=[{id:"circuit",name:"Circuit Board",emoji:"\ud83d\udd0c"},{id:"none",name:"Plain (no artwork)",emoji:"\u2b1c"}];
-const DEFAULTS={vibeSkin:"circuit",
+const DEFAULTS={vibeSkin:"circuit",dqRange:"6mo",dqSMA:[20,50],
   portfolio:"",riskPct:"",riskAmt:"",editOrder:["pct","port"],portLock:false,
   entry:"",stopPct:"",direction:"long",memo:"",
   presetsPct:[1,2.5,5,7.5,12.5],presetsStop:[2,3,5,8,10],
@@ -5238,53 +5252,139 @@ async function dqPaint(){
   foot.appendChild(fl);
   foot.appendChild(dqEl("div",null,"Informational only \u2014 not investment advice."));
 }
+const DQ_RANGES=[["1d","1D",0],["5d","1W",0],["1mo","1M",1],["3mo","3M",1],["6mo","6M",1],["1y","1Y",1],["5y","5Y",1],["max","MAX",1]];
+const DQ_SMA_SET=[[20,"var(--accent)"],[50,"var(--amber)"],[100,"var(--accent-deep,#2456C8)"],[200,"var(--muted)"]];
+function dqSMASeries(arr,p){            // the SAME arithmetic as the shipped pmSMA, as a SERIES.
+  const out=[]; let run=0;              // gate cross-checks the last point against pmSMA itself.
+  for(let i=0;i<arr.length;i++){
+    run+=arr[i];
+    if(i>=p)run-=arr[i-p];
+    out.push(i>=p-1?run/p:null);        // absence before the window fills — never a partial average
+  }
+  return out;
+}
+function dqTimeLabel(sec,intraday){
+  if(sec==null)return "";
+  const d=new Date(Number(sec)*1000);
+  if(isNaN(d.getTime()))return "";
+  if(intraday)return String(d.getUTCHours()).padStart(2,"0")+":"+String(d.getUTCMinutes()).padStart(2,"0");
+  return String(d.getUTCDate()).padStart(2,"0")+"-"+DQ_MON[d.getUTCMonth()];
+}
 async function dqPaintChart(){
   const body=$("dqBody"); if(!body)return;
   body.innerHTML=""; body.appendChild(dqEl("div","dq-msg","Loading chart \u2026"));
   let d=null;
-  try{const r=await fetch("/api/history?symbol="+encodeURIComponent(dqSym),{headers:{accept:"application/json"}});d=await r.json();}
+  try{const r=await fetch("/api/history?symbol="+encodeURIComponent(dqSym)+"&range="+encodeURIComponent(S.dqRange||"6mo"),{headers:{accept:"application/json"}});d=await r.json();}
   catch(_){d=null;}
   if(dqTab!=="chart")return;
   body.innerHTML="";
+  /* range chips ALWAYS render — even on an error the user can pick another span */
+  const rr=dqEl("div","dq-ranges","");
+  DQ_RANGES.forEach(function(R){
+    const b=dqEl("button","dq-rng",R[1]); b.type="button";
+    b.setAttribute("aria-pressed",String((S.dqRange||"6mo")===R[0]));
+    b.setAttribute("aria-label",R[1]+" chart range");
+    b.addEventListener("click",function(){S.dqRange=R[0];persist();dqPaintChart();});
+    rr.appendChild(b);
+  });
+  body.appendChild(rr);
   if(!d||d.error||!Array.isArray(d.closes)||!d.closes.length){
-    body.appendChild(dqEl("div","dq-msg",(d&&d.error)||"Chart unavailable right now."));return;
+    body.appendChild(dqEl("div","dq-msg",(d&&d.error)||"Chart unavailable for this range."));return;
   }
-  const C=d.closes, V=Array.isArray(d.volumes)?d.volumes:[];
-  const W=320,PH=120,VH=44,GAP=10,H=PH+GAP+VH;
-  const lo=Math.min.apply(null,C), hi=Math.max.apply(null,C), span=(hi-lo)||1;
+  const C=d.closes, V=Array.isArray(d.volumes)?d.volumes:[], TS=Array.isArray(d.ts)?d.ts:[];
+  const meta=DQ_RANGES.filter(function(R){return R[0]===(S.dqRange||"6mo");})[0]||DQ_RANGES[4];
+  const daily=meta[2]===1;
+  const cur=d.currency==="CAD"?"C$":"$";
+  /* SMA toggles — offered ONLY where the window can actually produce them. A 200-day
+     average cannot exist inside a 3-month chart; absence renders as absence, and on
+     intraday spans "20" would mean 20 five-minute bars, so they are not offered at all. */
+  const avail=daily?DQ_SMA_SET.filter(function(P){return C.length>=P[0];}):[];
+  if(!Array.isArray(S.dqSMA))S.dqSMA=[20,50];
+  const on=S.dqSMA.filter(function(p){return avail.some(function(P){return P[0]===p;});});
+  if(avail.length){
+    const sr=dqEl("div","dq-smas","");
+    avail.forEach(function(P){
+      const b=dqEl("button","dq-sma",""); b.type="button";
+      const sw=dqEl("span","sw",""); sw.style.background=P[1];
+      b.appendChild(sw); b.appendChild(dqEl("span",null,P[0]+"-day"));
+      const isOn=on.indexOf(P[0])>=0;
+      b.setAttribute("aria-pressed",String(isOn));
+      if(isOn){b.style.borderColor=P[1];}
+      b.setAttribute("aria-label",P[0]+"-day moving average overlay");
+      b.addEventListener("click",function(){
+        const i=S.dqSMA.indexOf(P[0]);
+        if(i>=0)S.dqSMA.splice(i,1); else S.dqSMA.push(P[0]);
+        persist();dqPaintChart();
+      });
+      sr.appendChild(b);
+    });
+    body.appendChild(sr);
+  }
+  /* ── the plot ── */
   const NS="http://www.w3.org/2000/svg";
+  const W=360,H=206,PL=34,PR=34,TOP=8,PH=108,VTOP=146,VH=38,plotW=W-PL-PR;
+  const lo=Math.min.apply(null,C), hi=Math.max.apply(null,C), span=(hi-lo)||1;
+  const X=function(i){return PL+(i/((C.length-1)||1))*plotW;};
+  const Y=function(v){return TOP+PH-((v-lo)/span)*PH;};
   const svg=document.createElementNS(NS,"svg");
-  svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("class","dq-chart");
-  svg.setAttribute("role","img");
-  svg.setAttribute("aria-label","6 month price and volume for "+dqSym);
-  const pts=C.map(function(c,i){return (i/(C.length-1||1)*W).toFixed(1)+","+(PH-((c-lo)/span)*PH).toFixed(1);}).join(" ");
-  const line=document.createElementNS(NS,"polyline");
-  line.setAttribute("points",pts); line.setAttribute("fill","none");
-  line.setAttribute("stroke",C[C.length-1]>=C[0]?"var(--green)":"var(--red)");
-  line.setAttribute("stroke-width","2"); line.setAttribute("stroke-linejoin","round");
-  svg.appendChild(line);
-  /* volume histogram — NULL bars are SKIPPED, never drawn as zero-height zeros */
+  svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("class","dq-chart"); svg.setAttribute("role","img");
+  svg.setAttribute("aria-label",meta[1]+" price and volume chart for "+dqSym);
+  const mkEl=function(t,attrs){const e=document.createElementNS(NS,t);Object.keys(attrs).forEach(function(k){e.setAttribute(k,attrs[k]);});return e;};
+  const txt=function(x,y,str,cls,anchor){const e=mkEl("text",{x:x,y:y,class:cls||"dq-axlbl","text-anchor":anchor||"start"});e.textContent=str;return e;};
+  /* PRICE AXIS — labelled on BOTH sides (founder ruling) */
+  for(let k=0;k<=4;k++){
+    const v=lo+(span*k/4), y=Y(v);
+    svg.appendChild(mkEl("line",{x1:PL,y1:y.toFixed(1),x2:PL+plotW,y2:y.toFixed(1),class:"dq-axline"}));
+    svg.appendChild(txt(PL-3,(y+2.5).toFixed(1),cur+dqNum(v,v>=100?0:2),"dq-axlbl","end"));
+    svg.appendChild(txt(PL+plotW+3,(y+2.5).toFixed(1),cur+dqNum(v,v>=100?0:2),"dq-axlbl","start"));
+  }
+  /* price line */
+  svg.appendChild(mkEl("polyline",{points:C.map(function(c,i){return X(i).toFixed(1)+","+Y(c).toFixed(1);}).join(" "),
+    fill:"none",stroke:C[C.length-1]>=C[0]?"var(--green)":"var(--red)","stroke-width":"2","stroke-linejoin":"round"}));
+  /* SMA overlays — our own math, our own data, no third party */
+  on.forEach(function(p){
+    const col=(DQ_SMA_SET.filter(function(P){return P[0]===p;})[0]||[0,"var(--muted)"])[1];
+    const ser=dqSMASeries(C,p);
+    const pts=[]; ser.forEach(function(v,i){if(v!=null)pts.push(X(i).toFixed(1)+","+Y(v).toFixed(1));});
+    if(pts.length>1)svg.appendChild(mkEl("polyline",{points:pts.join(" "),fill:"none",stroke:col,"stroke-width":"1.2","stroke-dasharray":"3 2",opacity:".95"}));
+  });
+  /* VOLUME — captioned, null bars skipped */
+  svg.appendChild(txt(PL,VTOP-4,"VOLUME","dq-volcap","start"));
   const vMax=V.reduce(function(m,v){return (v!=null&&v>m)?v:m;},0);
   if(vMax>0){
-    const bw=Math.max(1,W/Math.max(1,V.length)-0.4);
+    svg.appendChild(txt(PL+plotW,VTOP-4,dqCompact(vMax)+" max","dq-axlbl","end"));
+    const bw=Math.max(.8,plotW/Math.max(1,V.length)-.4);
     V.forEach(function(v,i){
       if(v==null)return;
-      const h=(v/vMax)*VH; const r=document.createElementNS(NS,"rect");
-      r.setAttribute("x",(i/Math.max(1,V.length)*W).toFixed(1));
-      r.setAttribute("y",(PH+GAP+(VH-h)).toFixed(1));
-      r.setAttribute("width",bw.toFixed(1)); r.setAttribute("height",Math.max(0.5,h).toFixed(1));
-      r.setAttribute("fill","var(--muted)"); r.setAttribute("opacity",".55");
-      svg.appendChild(r);
+      const h=(v/vMax)*VH;
+      svg.appendChild(mkEl("rect",{x:X(i).toFixed(1),y:(VTOP+(VH-h)).toFixed(1),width:bw.toFixed(1),
+        height:Math.max(.5,h).toFixed(1),fill:"var(--muted)",opacity:".5"}));
     });
+  }else{
+    svg.appendChild(txt(PL+plotW,VTOP-4,"not reported","dq-axlbl","end"));
+  }
+  /* TIME AXIS beneath */
+  svg.appendChild(mkEl("line",{x1:PL,y1:(VTOP+VH).toFixed(1),x2:PL+plotW,y2:(VTOP+VH).toFixed(1),class:"dq-axline"}));
+  const ticks=Math.min(5,C.length);
+  for(let k=0;k<ticks;k++){
+    const i=Math.round(k*(C.length-1)/((ticks-1)||1));
+    const lbl=dqTimeLabel(TS[i],!daily);
+    if(!lbl)continue;
+    svg.appendChild(txt(X(i).toFixed(1),VTOP+VH+10,lbl,"dq-axlbl",k===0?"start":(k===ticks-1?"end":"middle")));
   }
   const wrap=dqEl("div","dq-chartwrap",""); wrap.appendChild(svg); body.appendChild(wrap);
-  const cur=d.currency==="CAD"?"C$":"$";
   body.appendChild(dqSection("Range shown",[
-    dqRow("6-month high",cur+dqNum(hi)), dqRow("6-month low",cur+dqNum(lo)),
-    dqRow("Sessions",String(C.length)),
-    dqRow("Volume shown",vMax>0?"histogram beneath":null)
+    dqPair(meta[1]+" high",cur+dqNum(hi),meta[1]+" low",cur+dqNum(lo)),
+    dqPair("Sessions",String(C.length),"Interval",String(d.interval||"\u2014"))
   ]));
-  const foot=$("dqFoot"); foot.textContent="6-month daily closes with volume beneath. Informational only — not investment advice.";
+  if(daily&&avail.length<DQ_SMA_SET.length){
+    const missing=DQ_SMA_SET.filter(function(P){return C.length<P[0];}).map(function(P){return P[0];});
+    body.appendChild(dqEl("div","dq-note","Not offered on this span: "+missing.join("- and ")+"-day averages \u2014 this window holds "+C.length+" sessions, fewer than the average needs. Pick a longer range to see them."));
+  }else if(!daily){
+    body.appendChild(dqEl("div","dq-note","Moving averages are not offered on intraday spans \u2014 a \u201c20\u201d here would mean 20 minute-bars, not 20 days."));
+  }
+  const foot=$("dqFoot");
+  foot.textContent=meta[1]+" \u00b7 "+(d.interval||"")+" bars, volume beneath. Informational only \u2014 not investment advice.";
 }
 /* ── the chip: visibly pressable, never a hidden long-press (HIDDEN-HANDLE law) ── */
 function dqAttachChip(inputId){
