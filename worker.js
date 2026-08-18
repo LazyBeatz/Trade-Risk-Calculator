@@ -82,7 +82,7 @@ async function handleQuoteDetail(url) {
   const sz = (x) => { const v = n(x); return (v != null && v > 0) ? v : null; };   // 0 = sentinel, not a size
   try {
     const sess = await yahooSession();
-    const mods = "price,summaryDetail,defaultKeyStatistics,calendarEvents";
+    const mods = "price,summaryDetail,defaultKeyStatistics,calendarEvents,assetProfile";
     const u = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(raw)}?modules=${mods}&crumb=${encodeURIComponent(sess.crumb)}`;
     const r = await fetch(u, { headers: { "User-Agent": YUA, "Cookie": sess.cookies, "Accept": "application/json" }, cf: { cacheTtl: 30 } });
     if (r.status === 429) return json({ error: "Rate limit." }, 429);
@@ -91,12 +91,14 @@ async function handleQuoteDetail(url) {
     const res = d && d.quoteSummary && d.quoteSummary.result && d.quoteSummary.result[0];
     if (!res) return json({ error: "No detail for " + raw + "." }, 404);
     const P = res.price || {}, S = res.summaryDetail || {}, K = res.defaultKeyStatistics || {}, C = res.calendarEvents || {};
+    const A = res.assetProfile || {};   // country/sector: an ADR LISTS in the US but is DOMICILED elsewhere
     const earn = (C.earnings && Array.isArray(C.earnings.earningsDate) && C.earnings.earningsDate[0]) || null;
     return json({
       symbol: raw,
       name: P.longName || P.shortName || null,
       currency: P.currency || null,
       exchange: P.exchangeName || null,
+      country: A.country || null, sector: A.sector || null, industry: A.industry || null,
       // price
       price: n(P.regularMarketPrice), open: n(P.regularMarketOpen),
       prevClose: n(P.regularMarketPreviousClose),
@@ -140,7 +142,7 @@ async function handleQuote(url, env) {
     const y = await fromYahoo(raw);
     if (y) {
       if (url.searchParams.get("extra") === "1") {
-        try { y.marketCap = await yahooMarketCap(raw); } catch (e) { y.marketCap = null; }
+        try { const _x = await yahooExtra(raw); if (_x) { y.marketCap = _x.marketCap; y.country = _x.country; y.sector = _x.sector; if (_x.exchange) y.exchange = _x.exchange; } } catch (e) { y.marketCap = null; }
       }
       return json(y, 200, 30);
     }
@@ -436,13 +438,27 @@ async function handleHistory(url) {
   // ranges are refused, and each entry names its own interval because Yahoo's granularity
   // is not derivable from the span. Intraday spans use minute bars; multi-year use weekly
   // or monthly, or the payload would be tens of thousands of points.
-  const RANGES = { "1d":"5m", "5d":"30m", "1mo":"1d", "3mo":"1d", "6mo":"1d",
-                   "1y":"1d", "2y":"1d", "5y":"1wk", "max":"1mo" };
-  const interval = RANGES[range];
-  if (!interval) return json({ error: "Bad range." }, 400);
+  // RANGE TABLE — an ENUM WITH AN ELSE. Each entry names what we ASK Yahoo for, the
+  // granularity, and an optional TRIM, because three spans the founder wants (9M, 3Y)
+  // are NOT ranges Yahoo offers. We request the nearest span it does support and cut
+  // the series back to the window asked for — stated plainly rather than silently
+  // serving a longer chart than the label promises.
+  const RANGES = {
+    "1d":  { fetch:"1d",  iv:"5m"  }, "5d": { fetch:"5d", iv:"30m" },
+    "1mo": { fetch:"1mo", iv:"1d"  }, "3mo":{ fetch:"3mo",iv:"1d"  },
+    "6mo": { fetch:"6mo", iv:"1d"  },
+    "9mo": { fetch:"1y",  iv:"1d", trim:275  },   // Yahoo has no 9mo — trimmed from 1y
+    "1y":  { fetch:"1y",  iv:"1d"  }, "2y": { fetch:"2y", iv:"1d"  },
+    "3y":  { fetch:"5y",  iv:"1d", trim:1100 },   // Yahoo has no 3y — trimmed from 5y
+    "5y":  { fetch:"5y",  iv:"1wk" }, "10y":{ fetch:"10y",iv:"1wk" },
+    "max": { fetch:"max", iv:"1mo" }
+  };
+  const R = RANGES[range];
+  if (!R) return json({ error: "Bad range." }, 400);
+  const interval = R.iv;
 
   try {
-    const u = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(raw)}?interval=${interval}&range=${range}`;
+    const u = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(raw)}?interval=${interval}&range=${R.fetch}`;
     const r = await fetch(u, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept": "application/json" }, cf: { cacheTtl: 300 } });
     if (r.status === 429) return json({ error: "Rate limit." }, 429);
     if (!r.ok) return json({ error: "History unavailable." }, 502);
@@ -470,6 +486,16 @@ async function handleHistory(url) {
     // BAR FLOOR — the Mirror calls this with NO range and needs ≥60 bars for MACD/DMI.
     // That contract is untouched: the 60-bar floor still applies to the default path.
     // An EXPLICIT range is a chart request, where 1W legitimately returns a dozen bars.
+    // TRIM — applied after the strip so every series stays index-aligned by construction.
+    if (R.trim) {
+      const cut = Math.floor(Date.now() / 1000) - R.trim * 86400;
+      let from = 0;
+      for (let i = 0; i < ts.length; i++) { if (ts[i] != null && ts[i] >= cut) { from = i; break; } }
+      if (from > 0) {
+        closes.splice(0, from); highs.splice(0, from); lows.splice(0, from);
+        volumes.splice(0, from); opens.splice(0, from); ts.splice(0, from);
+      }
+    }
     const asked = url.searchParams.get("range");
     const floor = asked ? 2 : 60;
     if (closes.length < floor) return json({ error: "Not enough history for " + raw + "." }, 404);
@@ -494,15 +520,24 @@ async function handleHistory(url) {
 }
 
 // market cap via quoteSummary (crumb handshake — best-effort, returns null on any failure)
-async function yahooMarketCap(symbol) {
+async function yahooExtra(symbol) {
+  // ONE crumb call, three facts. assetProfile costs nothing extra here — the request
+  // was already being made for market cap, so country and sector ride along free.
   const sess = await yahooSession();
-  const u = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=price&crumb=${encodeURIComponent(sess.crumb)}`;
+  const u = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=price,assetProfile&crumb=${encodeURIComponent(sess.crumb)}`;
   const r = await fetch(u, { headers: { "User-Agent": YUA, "Cookie": sess.cookies }, cf: { cacheTtl: 300 } });
   if (!r.ok) return null;
   const d = await r.json();
-  const p = d && d.quoteSummary && d.quoteSummary.result && d.quoteSummary.result[0] && d.quoteSummary.result[0].price;
-  const mc = p && p.marketCap;
-  return (mc && (mc.fmt || mc.raw != null)) ? { raw: mc.raw != null ? mc.raw : null, fmt: mc.fmt || null } : null;
+  const res = d && d.quoteSummary && d.quoteSummary.result && d.quoteSummary.result[0];
+  if (!res) return null;
+  const p = res.price || {}, a = res.assetProfile || {};
+  const mc = p.marketCap;
+  return {
+    marketCap: (mc && (mc.fmt || mc.raw != null)) ? { raw: mc.raw != null ? mc.raw : null, fmt: mc.fmt || null } : null,
+    country: a.country || null,
+    sector: a.sector || null,
+    exchange: p.exchangeName || null
+  };
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
