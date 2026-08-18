@@ -844,6 +844,25 @@ export class VibeRoom {
       return;
     }
 
+    if (msg.op === "del") {
+      // AUTHOR-ONLY DELETE. The row is removed from the room's own storage and every
+      // socket is told — a client-side hide would leave the message live on every other
+      // screen while the sender believed it was gone. The crown may remove anything;
+      // a citizen may remove only what they wrote. Ownership is read from the STORED
+      // row, never from what the client claims.
+      const id = String(msg.id || "").slice(0, 40);
+      if (!id) { this.send(ws, { t: "err", error: "Nothing to delete." }); return; }
+      const row = this.sqlA("SELECT handle FROM messages WHERE id = ?", id)[0];
+      if (!row) { this.send(ws, { t: "err", error: "That message is already gone." }); return; }
+      const mine = String(row.handle || "").toLowerCase() === String(att.handle || "").toLowerCase();
+      if (!mine && !att.isAdmin) { this.send(ws, { t: "err", error: "You can only delete your own messages." }); return; }
+      this.sql("DELETE FROM messages WHERE id = ?", id);
+      const out = { t: "del", id, ts: Date.now() };
+      this.send(ws, out);
+      this.broadcast(out, ws);
+      return;
+    }
+
     this.send(ws, { t: "err", error: "Unknown op." });
   }
 
