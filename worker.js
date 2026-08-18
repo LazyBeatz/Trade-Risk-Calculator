@@ -30,6 +30,7 @@ export default {
       }
     }
     if (url.pathname === "/api/search") return handleSearch(url);
+    if (url.pathname === "/api/quotedetail") return handleQuoteDetail(url);
     if (url.pathname === "/api/quote") return handleQuote(url, env);
     if (url.pathname === "/api/options") return handleOptions(url);
     if (url.pathname === "/api/history") return handleHistory(url);
@@ -59,6 +60,71 @@ async function handleSearch(url) {
   } catch (e) {
     console.error("search:", (e && e.message) || e);
     return json({ error: "search unavailable" }, 502);
+  }
+}
+
+// ── /api/quotedetail — ONE quoteSummary call behind the Detailed Quote widget.
+//    Brief v1.1: modules price,summaryDetail,defaultKeyStatistics,calendarEvents.
+//    ABSENCE LAW THROUGHOUT: every field is a number or NULL. Never 0-as-unknown,
+//    never a guess. Two sentinel decodings are deliberate and named:
+//      · bidSize/askSize — Yahoo returns 0 for "L1 depth not licensed". That 0 is a
+//        SENTINEL, not a measurement; decoded to null here so the surface can say
+//        "size not available" rather than "nobody is bidding" (Verification-Path Law).
+//      · dividendYield — Yahoo's own yield field is NOT forwarded at all. Its units
+//        are inconsistent across endpoints (1.96 meaning 1.96% renders as 196%).
+//        We send rate + price and the SURFACE computes rate/price, or shows nothing.
+async function handleQuoteDetail(url) {
+  const raw = (url.searchParams.get("symbol") || "").trim().toUpperCase();
+  if (!raw || !/^[A-Z0-9.\-]{1,12}$/.test(raw)) return json({ error: "Invalid or missing symbol." }, 400);
+  const n = (x) => (x && typeof x === "object") ? (x.raw != null && Number.isFinite(x.raw) ? x.raw : null)
+                                                : (Number.isFinite(x) ? x : null);
+  const f = (x) => (x && typeof x === "object" && x.fmt) ? String(x.fmt) : null;
+  const sz = (x) => { const v = n(x); return (v != null && v > 0) ? v : null; };   // 0 = sentinel, not a size
+  try {
+    const sess = await yahooSession();
+    const mods = "price,summaryDetail,defaultKeyStatistics,calendarEvents";
+    const u = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(raw)}?modules=${mods}&crumb=${encodeURIComponent(sess.crumb)}`;
+    const r = await fetch(u, { headers: { "User-Agent": YUA, "Cookie": sess.cookies, "Accept": "application/json" }, cf: { cacheTtl: 30 } });
+    if (r.status === 429) return json({ error: "Rate limit." }, 429);
+    if (!r.ok) return json({ error: "Detail unavailable." }, 502);
+    const d = await r.json();
+    const res = d && d.quoteSummary && d.quoteSummary.result && d.quoteSummary.result[0];
+    if (!res) return json({ error: "No detail for " + raw + "." }, 404);
+    const P = res.price || {}, S = res.summaryDetail || {}, K = res.defaultKeyStatistics || {}, C = res.calendarEvents || {};
+    const earn = (C.earnings && Array.isArray(C.earnings.earningsDate) && C.earnings.earningsDate[0]) || null;
+    return json({
+      symbol: raw,
+      name: P.longName || P.shortName || null,
+      currency: P.currency || null,
+      exchange: P.exchangeName || null,
+      // price
+      price: n(P.regularMarketPrice), open: n(P.regularMarketOpen),
+      prevClose: n(P.regularMarketPreviousClose),
+      dayHigh: n(P.regularMarketDayHigh), dayLow: n(P.regularMarketDayLow),
+      change: n(P.regularMarketChange), changePct: n(P.regularMarketChangePercent),
+      // market
+      bid: n(S.bid), ask: n(S.ask), bidSize: sz(S.bidSize), askSize: sz(S.askSize),
+      volume: n(P.regularMarketVolume), avgVolume: n(S.averageDailyVolume3Month),
+      // range
+      wkHigh: n(S.fiftyTwoWeekHigh), wkLow: n(S.fiftyTwoWeekLow),
+      // valuation
+      marketCap: n(P.marketCap), marketCapFmt: f(P.marketCap),
+      peTTM: n(S.trailingPE), epsTTM: n(K.trailingEps), beta: n(S.beta),
+      sharesOut: n(K.sharesOutstanding),
+      // dividend — RATE + dates only; yield is computed at the surface, never forwarded
+      divRate: n(S.dividendRate), exDivDate: n(S.exDividendDate), divPayDate: n(C.dividendDate),
+      // short interest
+      sharesShort: n(K.sharesShort), daysToCover: n(K.shortRatio),
+      // events
+      earningsDate: earn ? n(earn) : null,
+      earningsEstimated: (C.earnings && C.earnings.isEarningsDateEstimate === true) ? true
+                        : (C.earnings && C.earnings.isEarningsDateEstimate === false) ? false : null,
+      delayed: true,
+      source: "Yahoo",
+    }, 200, 30);
+  } catch (e) {
+    console.error("quotedetail:", (e && e.message) || e);
+    return json({ error: "Detail upstream error." }, 502);
   }
 }
 
