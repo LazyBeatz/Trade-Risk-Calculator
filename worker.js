@@ -759,6 +759,21 @@ export class VibeRoom {
     const dayStart = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
     const r = this.sqlA("SELECT COUNT(*) AS n FROM messages WHERE ts >= ?", dayStart);
     this.dayCount = { day, n: r.length ? Number(r[0].n) : 0 };
+    // ── ROLLING RETENTION. The room forgets on its own after VIBE_MSG_TTL_DAYS.
+    //    Deletion is a CHOICE the author makes; expiry is a POLICY the room keeps —
+    //    two different things, and a chat that only had the first would grow forever.
+    //    This runs on the DAY ROLL, not per message: once per active room per day, so
+    //    it can never become a per-write cost. Purged rows were already beyond the
+    //    backfill window, so nothing on any open screen changes and no broadcast is due.
+    try {
+      const cutoff = Date.now() - VIBE_MSG_TTL_DAYS * 86400000;   // 'now' is not in scope here — an undefined ref would have been SWALLOWED by the catch below
+      const old = this.sqlA("SELECT COUNT(*) AS n FROM messages WHERE ts < ?", cutoff);
+      const n = old.length ? Number(old[0].n) : 0;
+      if (n > 0) {
+        this.sql("DELETE FROM messages WHERE ts < ?", cutoff);
+        console.log("vibe retention: purged " + n + " message(s) older than " + VIBE_MSG_TTL_DAYS + "d");
+      }
+    } catch (e) { console.error("retention:", (e && e.message) || e); }   // a failed purge must never block a message
     return this.dayCount.n;
   }
 
@@ -963,6 +978,7 @@ async function vibeBootstrap(env) {
 const VIBE_B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"; // Crockford: no I L O U
 const VIBE_ROOM_CAP = 50;   // v1 member cap per room — the D8 free/paid seam.
                             // Raising it is the paid tier's job, not a hotfix.
+const VIBE_MSG_TTL_DAYS = 30;      // the Floor keeps a month; older rows purge on the day roll
 const VIBE_BACKFILL = 50;   // stage-3 constant, locked now: join backfill sends
                             // the last N messages, never the whole scroll.
 const VIBE_CLAIMS_PER_IP_DAY = 10; // third wall: handle claims per hashed IP/day
