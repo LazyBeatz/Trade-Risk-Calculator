@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>Trade Risk Calculator</title>
+<!-- APP ICON — the inline SVG needs no files and works the moment this deploys; the PNG
+     links below are for a crisp Android/iOS home-screen tile and 404 harmlessly until
+     those three files are uploaded to public/. Same mark either way. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230F1116'/><g fill='%235B8CFF' opacity='.6'><rect x='11' y='40' width='5' height='7' rx='1'/><rect x='19' y='36' width='5' height='11' rx='1'/><rect x='27' y='38' width='5' height='9' rx='1'/><rect x='35' y='32' width='5' height='15' rx='1'/><rect x='43' y='34' width='5' height='13' rx='1'/></g><path d='M11 38 L21 32 L31 35 L41 21 L53 16' fill='none' stroke='%2334C77B' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/><circle cx='53' cy='16' r='3.5' fill='%2334C77B'/><rect x='11' y='49' width='42' height='1.6' rx='.8' fill='%239AA2B1' opacity='.45'/></svg>">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F2F3F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1116" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap">
@@ -1140,6 +1149,69 @@
   .dq-axline{stroke:var(--line);stroke-width:.6}
   .dq-volcap{font-family:var(--sans);font-size:7px;font-weight:800;fill:var(--muted);letter-spacing:.08em}
   .dq-note{font-family:var(--sans);font-size:.72rem;color:var(--muted);margin-top:8px;line-height:1.45}
+  /* ═══ pinned grid, volume emphasis, short-interest cell ═══ */
+  .dq-pinrow{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:10px}
+  .dq-v.hot{color:var(--green);font-size:1.08rem}
+  .dq-hotnote{font-family:var(--sans);font-size:.62rem;font-weight:800;letter-spacing:.04em;color:var(--green);text-transform:uppercase}
+  .dq-edu{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--amber);background:var(--amber-bg);color:var(--ink);font-family:var(--sans);font-size:.78rem;font-weight:700;text-align:left;cursor:pointer;--glow:var(--amber)}
+  .dq-edu:active{transform:translateY(1px) scale(.985)}
+  .dq-x{font-size:1.15rem;font-weight:800;border-width:2px}
+  .dq-perf{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:800}
+  .dq-perf.up{color:var(--green)} .dq-perf.down{color:var(--red)}
+  /* frost parity: the swept surfaces get the same glass the cards have.
+     PERF RAIL — if any target phone stutters scrolling WS4's row list, delete THIS
+     ONE BLOCK and every surface reverts to scrim-only, exactly as it is today. */
+  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    @media (prefers-reduced-transparency:no-preference){
+      html[data-vibe="circuit"] .ci-summary,html[data-vibe="circuit"] .ci-row,
+      html[data-vibe="circuit"] .ticket,html[data-vibe="circuit"] .gl-scn,
+      html[data-vibe="circuit"] .pm-row,html[data-vibe="circuit"] .op-row,
+      html[data-vibe="circuit"] .op-greek,html[data-vibe="circuit"] .hg-band-row,
+      html[data-vibe="circuit"] .hg-res-row,html[data-vibe="circuit"] .hg-eff-box,
+      html[data-vibe="circuit"] .hg-cover,html[data-vibe="circuit"] .wl-portal,
+      html[data-vibe="circuit"] .wl-plus3,html[data-vibe="circuit"] .pmir-hold,
+      html[data-vibe="circuit"] .ci-needhint,html[data-vibe="circuit"] .ci-rows-toggle
+      {-webkit-backdrop-filter:blur(8px) saturate(112%);backdrop-filter:blur(8px) saturate(112%)}
+    }
+  }
+  /* ═══🇨🇦🇺🇸 LISTING PICKER — a bare symbol can be listed in more than one country.
+     Show the flags and let the thumb choose; never guess a country for someone. */
+  .lk-hd.multi{font-size:.82rem;color:var(--ink);margin:6px 0 2px}
+  .lk-flag{font-size:1.45rem;line-height:1;flex:0 0 auto}
+  .lk-row .ex{font-family:var(--sans);font-size:.68rem;font-weight:700;color:var(--muted);display:block}
+  .lk-row{align-items:center}
+  .lk-row .nm{display:flex;flex-direction:column;gap:1px}
+  /* ═══🏳️ ROW FLAGS — visible when everything is collapsed, far left, consistent ═══ */
+  .rowflag{font-size:1.15rem;line-height:1;flex:0 0 auto;margin-right:2px}
+  .pmir-hold-top .rowflag,.wl-expand .rowflag{align-self:center}
+  /* ═══🥧 PORTFOLIO CHARTS ═══ */
+  .pc-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .pc-tab{min-height:34px;padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--chip);color:var(--ink);font-family:var(--sans);font-size:.76rem;font-weight:800;cursor:pointer;--glow:var(--accent)}
+  .pc-tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .pc-tab:active{transform:translateY(1px) scale(.985)}
+  .pc-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .pc-svg{width:190px;height:190px;display:block}
+  .pc-legend{width:100%;display:flex;flex-direction:column;gap:4px}
+  .pc-li{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.82rem;color:var(--ink)}
+  .pc-sw{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+  .pc-nm{flex:1;min-width:0;overflow-wrap:anywhere}
+  .pc-pc{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700}
+  .pc-msg{font-family:var(--sans);font-size:.84rem;color:var(--muted);text-align:center;padding:14px 6px;line-height:1.5}
+  /* ═══📍 THE NOTE FIELDS — the two places a person writes in their own words.
+     Given matching treatment because they are the same act at two depths: a pin in
+     the map (where you heard it) and the story it turned into. ═══ */
+  .wl-note{background:var(--chip);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:10px 12px;margin-top:10px}
+  .wl-note-hd{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .wl-note-ic{font-size:1rem;line-height:1;flex:0 0 auto}
+  .wl-note-lbl{font-family:var(--sans);font-size:.78rem;font-weight:800;color:var(--ink);letter-spacing:.01em}
+  .wl-note-sub{font-family:var(--sans);font-size:.68rem;color:var(--muted);margin-left:auto;text-align:right}
+  input[type="text"].wl-note-in{width:100%;font-family:var(--sans);font-size:.95rem;font-weight:600;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink)}
+  .wl-note textarea{margin-top:0;background:var(--card)}
+  /* ═══ the as-of stamp moves INTO the header, two tight lines, one row saved ═══ */
+  .wl-asofmini{font-family:var(--mono);font-size:.6rem;line-height:1.25;color:var(--muted);text-align:right;margin-top:2px}
+  .wl-asofmini .dl{font-family:var(--sans);font-weight:800;letter-spacing:.06em;color:var(--amber);display:block}
+  .rowvenue{font-family:var(--mono);font-size:.58rem;font-weight:700;letter-spacing:.06em;color:var(--muted);background:var(--chip);border-radius:5px;padding:1px 4px;margin-left:4px;flex:0 0 auto;white-space:nowrap}
+  .rowid{display:flex;align-items:center;gap:2px;flex:0 0 auto}
 </style>
 </head>
 <body data-theme="light">
@@ -1857,7 +1929,7 @@
     </section>
 
     <section class="card" style="margin-top:12px">
-      <div class="pmir-hd"><h2 class="pop">Your holdings</h2><button class="btn pmir-pop" id="pmirPop" type="button">Populate Values</button></div>
+      <div class="pmir-hd"><h2 class="pop">Your holdings</h2><div class="vb-row" style="margin-top:0"><button class="btn pmir-pop" id="pmirCharts" type="button">📊 Charts</button><button class="btn pmir-pop" id="pmirPop" type="button">Populate Values</button></div></div>
       <div class="tickstatus" id="pmirPopStatus"></div>
       <p class="op-detail-intro">Newest on top. Tap <strong>+</strong> on any row to add quantity, cost, purchase date and your original thesis. Then run the mirror for an emotionless momentum read on each one.</p>
       <div id="pmirList"></div>
@@ -2431,17 +2503,146 @@ function normTicker(v){return v.toUpperCase().replace(/[^A-Z0-9.\-]/g,"").slice(
 /* ── name→ticker search (safe match-list; Yahoo endpoint live-confirmed 05-Au-26) ── */
 const SEARCH_ENDPOINT="/api/search";
 let lkBoxEl=null;
+/* Exchange → country. Read from the EXCHANGE Yahoo reports; fall back to the ticker
+   suffix, which is a documented convention (.TO/.V/.NE/.CN = Canada, .L = London…).
+   An unknown exchange gets a neutral globe — we never invent a nationality. */
+const LK_EXCH=[[/toronto|^tsx|tor\b/i,"\ud83c\udde8\ud83c\udde6","Toronto"],
+               [/venture|tsxv/i,"\ud83c\udde8\ud83c\udde6","TSX Venture"],
+               [/cse|canadian sec|neo\b|cboe ca/i,"\ud83c\udde8\ud83c\udde6","Canada \u00b7 CDR"],
+               [/nasdaq/i,"\ud83c\uddfa\ud83c\uddf8","NASDAQ"],
+               [/nyse|amex|arca|bats/i,"\ud83c\uddfa\ud83c\uddf8","NYSE"],
+               [/otc|pink|other/i,"\ud83c\uddfa\ud83c\uddf8","OTC"],
+               [/london|lse/i,"\ud83c\uddec\ud83c\udde7","London"],
+               [/amsterdam/i,"\ud83c\uddf3\ud83c\uddf1","Amsterdam"],
+               [/frankfurt|xetra|german/i,"\ud83c\udde9\ud83c\uddea","Germany"],
+               [/vienna/i,"\ud83c\udde6\ud83c\uddf9","Vienna"],
+               [/paris|euronext/i,"\ud83c\uddeb\ud83c\uddf7","Paris"],
+               [/swiss|zurich|six\b/i,"\ud83c\udde8\ud83c\udded","Switzerland"],
+               [/milan|italian/i,"\ud83c\uddee\ud83c\uddf9","Milan"],
+               [/madrid|spanish/i,"\ud83c\uddea\ud83c\uddf8","Madrid"],
+               [/s\u00e3o paulo|sao paulo|bovespa|b3\b/i,"\ud83c\udde7\ud83c\uddf7","S\u00e3o Paulo \u00b7 BDR"],
+               [/buenos aires/i,"\ud83c\udde6\ud83c\uddf7","Buenos Aires \u00b7 CEDEAR"],
+               [/mexico/i,"\ud83c\uddf2\ud83c\uddfd","Mexico \u00b7 SIC"],
+               [/^set$|thai/i,"\ud83c\uddf9\ud83c\udded","Thailand \u00b7 DR"],
+               [/tokyo/i,"\ud83c\uddef\ud83c\uddf5","Tokyo"],
+               [/hong kong|hkse/i,"\ud83c\udded\ud83c\uddf0","Hong Kong"],
+               [/taiwan/i,"\ud83c\uddf9\ud83c\uddfc","Taiwan"],
+               [/india|nse\b|bse\b/i,"\ud83c\uddee\ud83c\uddf3","India"],
+               [/australia|asx/i,"\ud83c\udde6\ud83c\uddfa","Australia"],
+               [/johannesburg/i,"\ud83c\uddff\ud83c\udde6","Johannesburg"]];
+const LK_SUFFIX=[[/\.(TO|V|NE|CN)$/i,"\ud83c\udde8\ud83c\udde6","Canada"],
+                 [/\.L$/i,"\ud83c\uddec\ud83c\udde7","London"],
+                 [/\.AS$/i,"\ud83c\uddf3\ud83c\uddf1","Amsterdam"],
+                 [/\.(DE|F)$/i,"\ud83c\udde9\ud83c\uddea","Germany"],
+                 [/\.VI$/i,"\ud83c\udde6\ud83c\uddf9","Vienna"],
+                 [/\.PA$/i,"\ud83c\uddeb\ud83c\uddf7","Paris"],
+                 [/\.SW$/i,"\ud83c\udde8\ud83c\udded","Switzerland"],
+                 [/\.SA$/i,"\ud83c\udde7\ud83c\uddf7","S\u00e3o Paulo"],
+                 [/\.BA$/i,"\ud83c\udde6\ud83c\uddf7","Buenos Aires"],
+                 [/\.MX$/i,"\ud83c\uddf2\ud83c\uddfd","Mexico"],
+                 [/\.BK$/i,"\ud83c\uddf9\ud83c\udded","Thailand"],
+                 [/\.T$/i,"\ud83c\uddef\ud83c\uddf5","Tokyo"],
+                 [/\.HK$/i,"\ud83c\udded\ud83c\uddf0","Hong Kong"],
+                 [/\.TW$/i,"\ud83c\uddf9\ud83c\uddfc","Taiwan"],
+                 [/\.(NS|BO)$/i,"\ud83c\uddee\ud83c\uddf3","India"],
+                 [/\.AX$/i,"\ud83c\udde6\ud83c\uddfa","Australia"],
+                 [/\.JO$/i,"\ud83c\uddff\ud83c\udde6","Johannesburg"]];
+function lkWhere(sym,exch){
+  const e=String(exch||"");
+  for(let i=0;i<LK_EXCH.length;i++)if(LK_EXCH[i][0].test(e))return {flag:LK_EXCH[i][1],place:LK_EXCH[i][2]};
+  const t=String(sym||"");
+  for(let i=0;i<LK_SUFFIX.length;i++)if(LK_SUFFIX[i][0].test(t))return {flag:LK_SUFFIX[i][1],place:LK_SUFFIX[i][2]};
+  if(/^[A-Z.\-]{1,6}$/i.test(t)&&t.indexOf(".")<0)return {flag:"\ud83c\uddfa\ud83c\uddf8",place:e||"United States"};
+  return {flag:"\ud83c\udf0e",place:e||"listing"};
+}
+const LK_VENUE=[[/toronto|^tsx$|tor\b/i,"TSX"],[/venture|tsxv/i,"TSXV"],[/neo\b|cboe ca/i,"NEO"],
+  [/cse|canadian sec/i,"CSE"],[/nasdaq/i,"NASDAQ"],[/nyse(?!.*arca)/i,"NYSE"],[/arca/i,"NYSE ARCA"],
+  [/amex/i,"AMEX"],[/bats/i,"BATS"],[/otc|pink|other/i,"OTC"],[/london|lse/i,"LSE"],[/amsterdam/i,"AMS"],
+  [/frankfurt|xetra/i,"XETRA"],[/vienna/i,"VIE"],[/paris|euronext/i,"PAR"],[/swiss|six\b/i,"SIX"],
+  [/s\u00e3o paulo|sao paulo|b3\b/i,"B3"],[/buenos aires/i,"BYMA"],[/mexico/i,"BMV"],[/^set$|thai/i,"SET"],
+  [/tokyo/i,"TSE"],[/hong kong/i,"HKEX"],[/taiwan/i,"TWSE"],[/nse\b/i,"NSE"],[/bse\b/i,"BSE"],
+  [/australia|asx/i,"ASX"],[/johannesburg/i,"JSE"]];
+const LK_VENUE_SUFFIX=[[/\.TO$/i,"TSX"],[/\.V$/i,"TSXV"],[/\.NE$/i,"NEO"],[/\.CN$/i,"CSE"],[/\.L$/i,"LSE"],
+  [/\.AS$/i,"AMS"],[/\.(DE|F)$/i,"XETRA"],[/\.VI$/i,"VIE"],[/\.PA$/i,"PAR"],[/\.SW$/i,"SIX"],[/\.SA$/i,"B3"],
+  [/\.BA$/i,"BYMA"],[/\.MX$/i,"BMV"],[/\.BK$/i,"SET"],[/\.T$/i,"TSE"],[/\.HK$/i,"HKEX"],[/\.TW$/i,"TWSE"],
+  [/\.NS$/i,"NSE"],[/\.BO$/i,"BSE"],[/\.AX$/i,"ASX"],[/\.JO$/i,"JSE"]];
+/* THE FOUNDER'S RULE (18-Au-26): ONE flag for WHOSE money it is (domicile), one small
+   label for WHERE it changes hands (venue). Shopify is 🇨🇦 whether you bought it on the
+   TSX or the NYSE; a Palantir CDR is 🇺🇸 sitting on NEO. Never two flags, never a guess:
+   the venue label appears ONLY when the exchange is known or the suffix names it. A bare
+   US ticker could be NYSE or NASDAQ and we do not know which — so it shows nothing. */
+function venueFor(sym,exch){
+  const e=String(exch||"");
+  for(let i=0;i<LK_VENUE.length;i++)if(LK_VENUE[i][0].test(e))return LK_VENUE[i][1];
+  const t=String(sym||"");
+  for(let i=0;i<LK_VENUE_SUFFIX.length;i++)if(LK_VENUE_SUFFIX[i][0].test(t))return LK_VENUE_SUFFIX[i][1];
+  return null;                                  // unknown venue renders as absence
+}
+function rowIdent(sym,exch,country){            // the pair, built once, used everywhere
+  const wrap=document.createElement("span");wrap.className="rowid";
+  const f=document.createElement("span");f.className="rowflag";f.textContent=flagFor(sym,exch,country);
+  f.setAttribute("aria-hidden","true");wrap.appendChild(f);
+  const v=venueFor(sym,exch);
+  if(v){const b=document.createElement("span");b.className="rowvenue";b.textContent=v;wrap.appendChild(b);}
+  wrap.setAttribute("aria-label",(country?country:"listing")+(v?(" \u00b7 "+v):""));
+  return wrap;
+}
+function flagFor(sym,exch,country){
+  /* PRIORITY: a known DOMICILE beats the listing venue — an ADR trades in New York but
+     the exposure is Dutch, Taiwanese, Brazilian. Until a country is fetched we show the
+     LISTING flag, which is true and cheap; never a guess dressed as global exposure. */
+  if(country){
+    const C=String(country).trim().toUpperCase();
+    const M={"CANADA":"\ud83c\udde8\ud83c\udde6","UNITED STATES":"\ud83c\uddfa\ud83c\uddf8","USA":"\ud83c\uddfa\ud83c\uddf8",
+      "NETHERLANDS":"\ud83c\uddf3\ud83c\uddf1","UNITED KINGDOM":"\ud83c\uddec\ud83c\udde7","IRELAND":"\ud83c\uddee\ud83c\uddea",
+      "GERMANY":"\ud83c\udde9\ud83c\uddea","FRANCE":"\ud83c\uddeb\ud83c\uddf7","SWITZERLAND":"\ud83c\udde8\ud83c\udded",
+      "JAPAN":"\ud83c\uddef\ud83c\uddf5","CHINA":"\ud83c\udde8\ud83c\uddf3","TAIWAN":"\ud83c\uddf9\ud83c\uddfc",
+      "SOUTH KOREA":"\ud83c\uddf0\ud83c\uddf7","KOREA":"\ud83c\uddf0\ud83c\uddf7","INDIA":"\ud83c\uddee\ud83c\uddf3",
+      "BRAZIL":"\ud83c\udde7\ud83c\uddf7","MEXICO":"\ud83c\uddf2\ud83c\uddfd","AUSTRALIA":"\ud83c\udde6\ud83c\uddfa",
+      "ISRAEL":"\ud83c\uddee\ud83c\uddf1","SPAIN":"\ud83c\uddea\ud83c\uddf8","ITALY":"\ud83c\uddee\ud83c\uddf9",
+      "SWEDEN":"\ud83c\uddf8\ud83c\uddea","DENMARK":"\ud83c\udde9\ud83c\uddf0","NORWAY":"\ud83c\uddf3\ud83c\uddf4",
+      "SINGAPORE":"\ud83c\uddf8\ud83c\uddec","HONG KONG":"\ud83c\udded\ud83c\uddf0","SOUTH AFRICA":"\ud83c\uddff\ud83c\udde6"};
+    if(M[C])return M[C];
+    return "\ud83c\udf0e";                     // known country we haven't mapped — a globe, not a wrong flag
+  }
+  return lkWhere(sym,exch).flag;
+}
+function lkRoot(sym){return String(sym||"").split(".")[0].toUpperCase();}
 function lkDismiss(){if(lkBoxEl&&lkBoxEl.remove)lkBoxEl.remove();lkBoxEl=null;}
 function lkShow(cfg,items,fallbackFor){
   lkDismiss();
   const st=$(cfg.statusId);if(!st)return;
   const box=document.createElement("div");box.className="lk-box";
-  if(fallbackFor){const hd=document.createElement("div");hd.className="lk-hd";hd.textContent="No quote for "+fallbackFor+" \u2014 did you mean:";box.appendChild(hd);}
-  items.forEach(function(m){
+  const typed=lkRoot(fallbackFor||"");
+  /* a bare symbol that failed usually has SIBLING listings abroad — surface those first */
+  const marked=items.map(function(m){
+    const w=lkWhere(m.symbol,m.exch);
+    return {m:m,w:w,same:typed&&lkRoot(m.symbol)===typed};
+  });
+  marked.sort(function(x,y){return (y.same?1:0)-(x.same?1:0);});
+  const sameOnes=marked.filter(function(x){return x.same;});
+  const flags={};sameOnes.forEach(function(x){flags[x.w.flag]=1;});
+  const multi=Object.keys(flags).length>1;
+  if(multi){
+    const hd=document.createElement("div");hd.className="lk-hd multi";
+    hd.textContent=typed+" is listed in more than one country \u2014 which one?";
+    box.appendChild(hd);
+  }else if(fallbackFor){
+    const hd=document.createElement("div");hd.className="lk-hd";
+    hd.textContent="No quote for "+fallbackFor+" \u2014 did you mean:";
+    box.appendChild(hd);
+  }
+  marked.forEach(function(x){
+    const m=x.m;
     const b=document.createElement("button");b.type="button";b.className="lk-row";
-    const nm=document.createElement("span");nm.className="nm";nm.textContent=String(m.name||m.symbol);
-    const sy=document.createElement("span");sy.className="sym";sy.textContent=String(m.symbol)+(m.exch?(" \u00b7 "+String(m.exch)):"");
+    b.appendChild(dqEl?dqEl("span","lk-flag",x.w.flag):document.createElement("span"));
+    const nm=document.createElement("span");nm.className="nm";
+    const n1=document.createElement("span");n1.textContent=String(m.name||m.symbol);
+    const n2=document.createElement("span");n2.className="ex";n2.textContent=x.w.place;
+    nm.appendChild(n1);nm.appendChild(n2);
+    const sy=document.createElement("span");sy.className="sym";sy.textContent=String(m.symbol);
     b.appendChild(nm);b.appendChild(sy);
+    b.setAttribute("aria-label","Use "+String(m.symbol)+" \u2014 "+x.w.place);
     b.addEventListener("click",function(){lkDismiss();const inEl=$(cfg.inputId);if(inEl)inEl.value=m.symbol;runLookup(cfg);});
     box.appendChild(b);
   });
@@ -2490,6 +2691,17 @@ async function runLookup(cfg){
       const when=d.asOf?(" · "+d.asOf):"";
       setStat("ok",(d.symbol||raw)+" "+S.curSym+groupNum(String(d.price))+when+(delayed?'<span class="delayed">DELAYED</span>':''));
       cfg.onPrice(d.price,(d.symbol||raw),delayed,d.asOf||"");
+      /* OTHER LISTINGS — a US ticker very often has a Canadian CDR, a Brazilian BDR, an
+         Argentine CEDEAR. A successful quote used to end the conversation; now it offers
+         the door. TAP-ONLY: no extra request unless someone asks for one. */
+      const stEl=$(cfg.statusId);
+      if(stEl&&stEl.appendChild){
+        const ob=document.createElement("button");
+        ob.type="button"; ob.className="dq-chip"; ob.textContent="\ud83c\udf0e Other listings";
+        ob.setAttribute("aria-label","Show other countries where "+(d.symbol||raw)+" is listed");
+        ob.addEventListener("click",function(){lkSearch(cfg,lkRoot(d.symbol||raw));});
+        stEl.appendChild(ob);
+      }
     }else{
       setStat("err","No usable price returned for "+raw+". Enter it manually.");
     }
@@ -4296,6 +4508,7 @@ function wlBuildCard(it,idx){
   const hd=document.createElement("div");hd.className="wl-hd";
   hd.innerHTML=
     '<button class="wl-expand" type="button" aria-expanded="'+(it._open?"true":"false")+'">'+
+      '<span class="rowid"><span class="rowflag" aria-hidden="true">'+flagFor(it.sym,it.exchange,it.country)+'</span>'+(venueFor(it.sym,it.exchange)?('<span class="rowvenue">'+venueFor(it.sym,it.exchange)+'</span>'):'')+'</span>'+
       '<span class="wl-idwrap">'+
         '<span class="wl-sym">'+(it.sym||"")+'</span>'+
         (it.name?'<span class="wl-name">'+it.name+'</span>':'')+
@@ -4304,7 +4517,7 @@ function wlBuildCard(it,idx){
       '<span class="wl-hd-nums">'+
         (hasQuote?'<span class="wl-last">'+wlFmt(last)+'</span>':'')+
         (hasQuote&&isFinite(pct)?'<span class="wl-chg '+dir+'">'+((pct>0?"+":"")+pct.toFixed(2)+"%")+
-          (isFinite(chg)?(' <span class="wl-chgd">('+(chg>0?"+":"")+wlFmt(chg)+')</span>'):"")+'</span>':"")+
+          (isFinite(chg)?(' <span class="wl-chgd">('+(chg>0?"+":"")+wlFmt(chg)+')</span>'):"")+'</span>':"")+        (it.asOf?('<span class="wl-asofmini">'+(it.delayed?'<span class="dl">DELAYED</span>':'')+String(it.asOf).replace(/[<>]/g,"")+'</span>'):"")+
       '</span>'+
       '<span class="wl-chevwrap">'+
         '<span class="wl-chev">'+(it._open?"▾":"▸")+'</span>'+
@@ -4330,7 +4543,7 @@ function wlBuildCard(it,idx){
   plus3.innerHTML='<span class="wl-plus3-lbl">+3% above last</span>'+(isFinite(last)?'<span class="wl-plus3-val">'+wlFmt(last*1.03)+'</span>':'<span class="wl-plus3-val na">N/A</span>');
   card.appendChild(plus3);
 
-  if(it.asOf){const ao=document.createElement("div");ao.className="wl-asof";ao.textContent="Quote: "+it.asOf+(it.delayed?" · delayed":"");card.appendChild(ao);}
+  /* the as-of stamp now rides in the header beside the price — a whole row reclaimed */
 
   // ---- expanded body ----
   if(it._open){
@@ -4338,6 +4551,7 @@ function wlBuildCard(it,idx){
     // Company name (manual — also auto-fills from a quote when available)
     body.appendChild(wlField(it,idx,"name","Company name",false,"e.g. Apple Inc."));
     // Last price + $ change today (manual entry — anchors the whole card)
+    if(normTicker(it.sym||""))body.appendChild(dqRowChip(normTicker(it.sym)));
     const priceHd=document.createElement("div");priceHd.className="wl-section-lbl";priceHd.textContent="Price · enter or refresh a quote";
     body.appendChild(priceHd);
     const priceDuo=document.createElement("div");priceDuo.className="wl-grid";
@@ -4345,9 +4559,28 @@ function wlBuildCard(it,idx){
     priceDuo.appendChild(wlField(it,idx,"chg","$ change today",true,"ex. 1.25"));
     body.appendChild(priceDuo);
     // universe / source
-    body.appendChild(wlField(it,idx,"universe","Where you heard about it",false,"e.g. CNBC Fast Money"));
+    {
+      const nb=document.createElement("div");nb.className="wl-note";
+      const nh=document.createElement("div");nh.className="wl-note-hd";
+      const ic=document.createElement("span");ic.className="wl-note-ic";ic.textContent="\ud83d\udccd";
+      const lb=document.createElement("span");lb.className="wl-note-lbl";lb.textContent="Where you heard about it";
+      const sb=document.createElement("span");sb.className="wl-note-sub";sb.textContent="a pin in the map";
+      nh.appendChild(ic);nh.appendChild(lb);nh.appendChild(sb);
+      const inp=document.createElement("input");inp.type="text";inp.className="wl-note-in";
+      inp.value=it.universe||"";inp.autocomplete="off";
+      inp.placeholder="ex. Jim Cramer \u00b7 BNN \u00b7 a friend at work";
+      inp.setAttribute("aria-label","Where you heard about "+(it.sym||"this ticker"));
+      inp.addEventListener("input",e=>{it.universe=e.target.value;persist();});
+      nb.appendChild(nh);nb.appendChild(inp);
+      body.appendChild(nb);
+    }
     // 52-week range display (from wkLow/wkHigh)
     const lo=wlNum(it.wkLow),hi=wlNum(it.wkHigh);
+    if(it.sector){
+      const sc=document.createElement("div");sc.className="wl-range";
+      sc.innerHTML='<span class="wl-range-lbl">Sector</span><span class="wl-range-val">'+String(it.sector).replace(/[<>]/g,"")+'</span>';
+      body.appendChild(sc);
+    }
     const rng=document.createElement("div");rng.className="wl-range";
     rng.innerHTML='<span class="wl-range-lbl">52-week range</span><span class="wl-range-val">'+
       ((isFinite(lo)&&isFinite(hi))?(wlFmt(lo)+" – "+wlFmt(hi)):"—")+'</span>';
@@ -4361,7 +4594,12 @@ function wlBuildCard(it,idx){
 
   // ---- memo (ALWAYS visible — the story matters even when details are collapsed) ----
   const memoWrap=document.createElement("div");memoWrap.className="wl-memowrap";
-  const ml=document.createElement("label");ml.className="fl";ml.textContent="Story · catalyst · what to watch";
+  const mh=document.createElement("div");mh.className="wl-note wl-note-memo";
+  const mhh=document.createElement("div");mhh.className="wl-note-hd";
+  const mic=document.createElement("span");mic.className="wl-note-ic";mic.textContent="\ud83d\udcdd";
+  const mlb=document.createElement("span");mlb.className="wl-note-lbl";mlb.textContent="Story \u00b7 catalyst \u00b7 what to watch";
+  mhh.appendChild(mic);mhh.appendChild(mlb);mh.appendChild(mhh);
+  const ml=document.createElement("span");ml.className="visually-hidden";ml.textContent="Story, catalyst, what to watch";
   const ta=document.createElement("textarea");ta.className="wl-memo";ta.value=it.memo||"";
   const WL_MEMO_MAX=2000;ta.maxLength=WL_MEMO_MAX;
   ta.placeholder="Why you're watching it — the story, the catalyst, levels to watch…";
@@ -4376,7 +4614,7 @@ function wlBuildCard(it,idx){
   };
   ta.addEventListener("input",e=>{it.memo=e.target.value;updCount();persist();});
   updCount();
-  memoWrap.appendChild(ml);memoWrap.appendChild(ta);memoWrap.appendChild(counter);
+  mh.appendChild(ml);mh.appendChild(ta);mh.appendChild(counter);memoWrap.appendChild(mh);
   card.appendChild(memoWrap);
   return card;
 }
@@ -4469,7 +4707,12 @@ async function wlFetchQuote(idx,btn,statusFn){
   const setStat=statusFn||((k,h)=>{});
   setStat("busy","Fetching "+it.sym+"…");
   try{
-    const r=await fetch(QUOTE_ENDPOINT+"?symbol="+encodeURIComponent(it.sym),{headers:{"accept":"application/json"}});
+    /* PROFILE IS FETCHED ONCE PER SYMBOL, EVER. Country, sector and exchange do not
+       change between refreshes, so the heavier crumb call (&extra=1) runs only while
+       they are still unknown. Every refresh after that rides the light path — true
+       flags without a recurring cost. */
+    const needProfile=!(it.country&&it.exchange);
+    const r=await fetch(QUOTE_ENDPOINT+"?symbol="+encodeURIComponent(it.sym)+(needProfile?"&extra=1":""),{headers:{"accept":"application/json"}});
     if(!r.ok){
       if(r.status===429)setStat("err","Quote limit reached — try again shortly.");
       else if(r.status===404)setStat("err","No quote found for "+it.sym+".");
@@ -4480,6 +4723,10 @@ async function wlFetchQuote(idx,btn,statusFn){
     if(d&&typeof d.price==="number"&&isFinite(d.price)){
       it.last=String(d.price);
       if(!it.name&&(d.name||d.companyName))it.name=d.name||d.companyName;
+      if(d.country)it.country=d.country;        // domicile → the flag becomes true exposure
+      if(d.sector)it.sector=d.sector;
+      if(d.exchange)it.exchange=d.exchange;     // venue → the badge beside the flag
+      if(d.marketCap&&d.marketCap.fmt&&!it.marketCap)it.marketCap=d.marketCap.fmt;
       if(typeof d.change==="number")it.chg=String(d.change);
       if(typeof d.changePct==="number")it.pct=String(d.changePct);
       else if(typeof d.change==="number"&&typeof d.prevClose==="number"&&d.prevClose)it.pct=String((d.change/d.prevClose)*100);
@@ -4594,6 +4841,108 @@ $("wlImport").addEventListener("click",()=>{
 });
 
 /* ---------- Portfolio Mirror workspace (#8) ---------- */
+/* ═══🥧 PORTFOLIO CHARTS (WS8) — three views, all from data already in hand.
+   Nothing is fetched, nothing is modelled, and a view that lacks its inputs says so
+   plainly rather than drawing a confident circle out of missing numbers. */
+const PC_PALETTE=["#2F6FED","#34C77B","#E0A458","#F06A6A","#7BA2FF","#15803D","#B45309","#9AA2B1","#5B8CFF","#C81E1E"];
+let pcView="value";
+function pcSlices(view){
+  const H=pmHoldingsRef().filter(function(h){return normTicker(h.sym||"");});
+  if(!H.length)return {err:"No holdings yet — add a ticker first."};
+  if(view==="value"){
+    const rows=H.map(function(h){
+      const q=num(h.qty), c=num(h.cost), last=num(h.last);
+      const px=isFinite(last)&&last>0?last:c;                 // market value, or book if no quote yet
+      const v=(isFinite(q)&&q>0&&isFinite(px)&&px>0)?q*px:null;
+      return {k:normTicker(h.sym),v:v,basis:(isFinite(last)&&last>0)?"market":"book"};
+    }).filter(function(r){return r.v!=null;});
+    if(!rows.length)return {err:"Allocation needs a quantity and a cost (or a populated price) on at least one holding. Tap + on a holding to add them."};
+    const basis=rows.every(function(r){return r.basis==="market";})?"market value":"book value where no price is populated";
+    return {rows:rows,note:"By "+basis+" \u00b7 "+rows.length+" of "+H.length+" holdings have the numbers"};
+  }
+  if(view==="country"){
+    const map={};
+    H.forEach(function(h){const f=flagFor(normTicker(h.sym),"",h.country);map[f]=(map[f]||0)+1;});
+    const rows=Object.keys(map).map(function(f){return {k:f,v:map[f]};});
+    return {rows:rows,note:"By number of holdings \u00b7 flags follow the listing venue until a country is populated"};
+  }
+  if(view==="sector"){
+    const known=H.filter(function(h){return h.sector;});
+    if(!known.length)return {err:"Sector needs a Populate Values run \u2014 it arrives with the quote, and is never guessed from a ticker."};
+    const map={};
+    known.forEach(function(h){map[h.sector]=(map[h.sector]||0)+1;});
+    const rows=Object.keys(map).map(function(k){return {k:k,v:map[k]};});
+    return {rows:rows,note:"By number of holdings \u00b7 "+known.length+" of "+H.length+" have a sector populated"};
+  }
+  // tier mix — only exists after a Mirror run
+  if(!Array.isArray(S._pcTiers)||!S._pcTiers.length)return {err:"Run the mirror first — the tier mix is drawn from its results, never guessed."};
+  const map={};
+  S._pcTiers.forEach(function(t){const k=PM_TIER_LABEL[t]||("Tier "+t);map[k]=(map[k]||0)+1;});
+  return {rows:Object.keys(map).map(function(k){return {k:k,v:map[k]};}),note:"By momentum tier \u00b7 from the last mirror run"};
+}
+function pcDonut(rows){
+  const NS="http://www.w3.org/2000/svg", R=76, r=44, CX=95, CY=95;
+  const total=rows.reduce(function(a,b){return a+b.v;},0)||1;
+  const svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("viewBox","0 0 190 190"); svg.setAttribute("class","pc-svg"); svg.setAttribute("role","img");
+  svg.setAttribute("aria-label","Portfolio breakdown, "+rows.length+" segments");
+  let a0=-Math.PI/2;
+  rows.forEach(function(row,i){
+    const frac=row.v/total, a1=a0+frac*Math.PI*2;
+    const col=PC_PALETTE[i%PC_PALETTE.length];
+    if(frac>=0.9999){                                    // a single holding is a ring, not an arc
+      const c=document.createElementNS(NS,"circle");
+      c.setAttribute("cx",CX);c.setAttribute("cy",CY);c.setAttribute("r",(R+r)/2);
+      c.setAttribute("fill","none");c.setAttribute("stroke",col);c.setAttribute("stroke-width",R-r);
+      svg.appendChild(c); a0=a1; return;
+    }
+    const big=(a1-a0)>Math.PI?1:0;
+    const p=["M",CX+R*Math.cos(a0),CY+R*Math.sin(a0),
+             "A",R,R,0,big,1,CX+R*Math.cos(a1),CY+R*Math.sin(a1),
+             "L",CX+r*Math.cos(a1),CY+r*Math.sin(a1),
+             "A",r,r,0,big,0,CX+r*Math.cos(a0),CY+r*Math.sin(a0),"Z"].join(" ");
+    const path=document.createElementNS(NS,"path");
+    path.setAttribute("d",p); path.setAttribute("fill",col);
+    svg.appendChild(path);
+    a0=a1;
+  });
+  return svg;
+}
+function pcRender(host){
+  host.innerHTML="";
+  const tabs=dqEl("div","pc-tabs","");
+  [["value","\ud83d\udcb0 Allocation"],["country","\ud83c\udf0e Country"],["sector","\ud83c\udfed Sector"],["tier","\ud83d\udfe2 Tier mix"]].forEach(function(t){
+    const b=dqEl("button","pc-tab",t[1]); b.type="button";
+    b.setAttribute("aria-selected",String(pcView===t[0]));
+    b.addEventListener("click",function(){pcView=t[0];pcRender(host);});
+    tabs.appendChild(b);
+  });
+  host.appendChild(tabs);
+  const res=pcSlices(pcView);
+  if(res.err){host.appendChild(dqEl("div","pc-msg",res.err));return;}
+  const rows=res.rows.slice().sort(function(a,b){return b.v-a.v;});
+  const total=rows.reduce(function(a,b){return a+b.v;},0)||1;
+  const wrap=dqEl("div","pc-wrap","");
+  wrap.appendChild(pcDonut(rows));
+  const leg=dqEl("div","pc-legend","");
+  rows.forEach(function(row,i){
+    const li=dqEl("div","pc-li","");
+    const sw=dqEl("span","pc-sw",""); sw.style.background=PC_PALETTE[i%PC_PALETTE.length];
+    li.appendChild(sw);
+    li.appendChild(dqEl("span","pc-nm",String(row.k)));
+    li.appendChild(dqEl("span","pc-pc",(row.v/total*100).toFixed(1)+"%"));
+    leg.appendChild(li);
+  });
+  wrap.appendChild(leg);
+  wrap.appendChild(dqEl("div","pc-msg",res.note));
+  host.appendChild(wrap);
+}
+function pcOpen(){
+  openSheet("\ud83d\udcca "+(pmP().name||"Portfolio")+" \u2014 charts","",null,[["Close",closeSheet,true]]);
+  const body=$("mBody"); if(!body)return;
+  body.textContent=""; pcRender(body);
+}
+
 function pmUID(){return "h"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 
 // ----- multiple named portfolios (mirrors the multi-watchlist pattern) -----
@@ -4729,9 +5078,11 @@ function pmBuildHolding(h,idx){
   const card=document.createElement("div");card.className="pmir-hold";
   // top row: symbol input + expand + delete
   const top=document.createElement("div");top.className="pmir-hold-top";
+  let ident=rowIdent(normTicker(h.sym||""),h.exchange,h.country);
+  top.appendChild(ident);
   const inp=document.createElement("input");inp.type="text";inp.className="pmir-sym";inp.placeholder="ex. NVDA";
   inp.value=h.sym||"";inp.autocapitalize="characters";inp.spellcheck=false;inp.setAttribute("aria-label","Ticker symbol");
-  inp.addEventListener("input",e=>{e.target.value=normTicker(e.target.value);h.sym=e.target.value;persist();});
+  inp.addEventListener("input",e=>{e.target.value=normTicker(e.target.value);h.sym=e.target.value;const ni=rowIdent(h.sym,h.exchange,h.country);top.replaceChild(ni,ident);ident=ni;persist();});
   const exp=document.createElement("button");exp.type="button";exp.className="pmir-exp"+(h._open?" on":"");exp.textContent=h._open?"−":"+";
   exp.title=h._open?"Hide details":"Add quantity, cost, thesis";exp.setAttribute("aria-label",exp.title);
   exp.addEventListener("click",()=>{h._open=!h._open;persist();pmRenderHoldings();});
@@ -4769,6 +5120,7 @@ function pmBuildHolding(h,idx){
     ta.placeholder="e.g. '10-year AI compounder — ignore short-term noise. Adding below $120.'";
     ta.addEventListener("input",e=>{h.memo=e.target.value;persist();});
     body.appendChild(ml);body.appendChild(ta);
+    if(normTicker(h.sym||""))body.appendChild(dqRowChip(normTicker(h.sym)));
     card.appendChild(body);
   }
   return card;
@@ -4840,6 +5192,9 @@ async function pmPopulate(){
         h.vol=(typeof d.volume==="number")?d.volume:null;
         h.mcap=(d.marketCap&&d.marketCap.fmt)?d.marketCap.fmt:null;
         if(d.name)h.name=d.name;
+        if(d.country)h.country=d.country;      // domicile → the flag becomes TRUE exposure
+        if(d.sector)h.sector=d.sector;         // unlocks the sector view in charts
+        if(d.exchange)h.exchange=d.exchange;   // venue → the label beside the flag
         got++;
       }
     }catch(e){}
@@ -4850,6 +5205,7 @@ async function pmPopulate(){
   setStat(got?"ok":"err",got?("Values updated — "+got+" of "+holds.length+".") :"Couldn't fetch values — works on the live site.");
 }
 if($("pmirPop"))$("pmirPop").addEventListener("click",()=>pmPopulate());
+if($("pmirCharts"))$("pmirCharts").addEventListener("click",()=>pcOpen());
 
 // ----- the mirror run -----
 async function pmRunMirror(){
@@ -4879,6 +5235,7 @@ async function pmRunMirror(){
     if(a.res&&b.res){if(a.res.tier!==b.res.tier)return a.res.tier-b.res.tier;return b.res.score-a.res.score;}
     return 0;
   });
+  S._pcTiers=results.filter(x=>x.res).map(x=>x.res.tier);   // tier mix is RECORDED, never inferred
   setStat("ok","Done — "+results.filter(x=>x.res).length+" of "+holds.length+" read.");
   pmRenderResults(results);
 }
@@ -4908,6 +5265,7 @@ function pmRenderResults(results){
     // header: dot + symbol + tier label + price
     const hd=document.createElement("div");hd.className="pmir-res-hd";
     hd.innerHTML='<span class="pmir-dot" style="background:'+color+'"></span>'+
+      '<span class="rowid"><span class="rowflag" aria-hidden="true">'+flagFor(sym,h.exchange,h.country)+'</span>'+(venueFor(sym,h.exchange)?('<span class="rowvenue">'+venueFor(sym,h.exchange)+'</span>'):'')+'</span>'+
       '<span class="pmir-res-sym">'+sym+(res.name?'<span class="pmir-res-name">'+res.name+'</span>':'')+'</span>'+
       '<span class="pmir-res-tier" style="color:'+color+'">'+PM_TIER_LABEL[res.tier]+'</span>';
     card.appendChild(hd);
@@ -5064,6 +5422,7 @@ function wlPortalToMirror(){
     const vn=num(it.volume);if(isFinite(vn)&&vn>0)h.vol=vn;
     if(it.marketCap)h.mcap=String(it.marketCap);
     if(it.name)h.name=it.name;
+    if(it.country)h.country=it.country;if(it.sector)h.sector=it.sector;if(it.exchange)h.exchange=it.exchange;
     holds.push(h);
   });
   S.pmirPortfolios.push({id:pmUID(),name:((L.name||"Watchlist")+" 🕳💨").slice(0,40),holdings:holds,memo:""});
@@ -5091,6 +5450,7 @@ function pmPortalToWatchlist(){
     if(h.vol!=null)it.volume=String(h.vol);
     if(h.mcap)it.marketCap=String(h.mcap);
     if(h.name)it.name=h.name;
+    if(h.country)it.country=h.country;if(h.sector)it.sector=h.sector;if(h.exchange)it.exchange=h.exchange;
     // the story rides the portal: mirror thesis -> watchlist memo
     if(h.memo&&h.memo.trim())it.memo=h.memo.trim().slice(0,2000);
     items.push(it);
@@ -5148,13 +5508,24 @@ function dqPair(k1,v1,k2,v2){          // two fields per row — half a screenfu
 function dqSection(title,rows){
   const d=document.createElement("details"); d.className="dq-sec";
   const sm=document.createElement("summary");
-  sm.appendChild(dqEl("span","st",title));
+  const stx=dqEl("span","st",title);sm.appendChild(stx);
   sm.appendChild(dqEl("span","sc","\u25B8"));
   d.appendChild(sm);
   const box=dqEl("div",null,""); rows.forEach(r=>box.appendChild(r)); d.appendChild(box);
   return d;
 }
 /* ── the four exits + focus discipline ── */
+function dqSqueezeSheet(pct,dtc){
+  openSheet("\ud83c\udf4b Elevated short interest",
+    "Two public figures are elevated on this name: about "+dqNum(pct,1)+"% of shares outstanding are sold short, "+
+    "and it would take roughly "+dqNum(dtc)+" days of average volume for those positions to be bought back.\n\n"+
+    "WHAT SHORT INTEREST IS \u2014 shares borrowed and sold by traders betting the price falls. They must eventually buy the shares back to close the position.\n\n"+
+    "DAYS TO COVER \u2014 short shares divided by average daily volume. A larger number means the exit is crowded relative to normal trading.\n\n"+
+    "WHY PEOPLE WATCH IT \u2014 if a heavily shorted stock rises, some shorts buy back to limit losses, and that buying can push the price higher still, prompting more of the same. That feedback loop is what people mean by a squeeze.\n\n"+
+    "WHY IT IS NOT A PREDICTION \u2014 high short interest is far more often a sign that many people have researched a company and expect it to fall. Most heavily shorted stocks keep falling. A squeeze needs a catalyst nobody can schedule, and shorts can be right for years. These figures are also reported with a lag.\n\n"+
+    "This is educational context, not a recommendation to buy, sell or hold anything.",
+    null,[["Got it",closeSheet,true]]);
+}
 function dqOpen(sym){
   const s=normTicker(String(sym||"").split(",")[0]);
   if(!s)return;
@@ -5203,14 +5574,24 @@ async function dqPaint(){
   }
   pin.appendChild(head);
   const pr=dqEl("div","dq-pinrow","");
-  [["Volume",dqCompact(d.volume)],
-   ["Day range",(d.dayLow!=null&&d.dayHigh!=null)?(cur+dqNum(d.dayLow)+" \u2013 "+cur+dqNum(d.dayHigh)):null],
-   ["Open",d.open==null?null:cur+dqNum(d.open)],
-   ["Prev close",d.prevClose==null?null:cur+dqNum(d.prevClose)]
+  /* Founder layout: Open sits above Prev close; Volume to its right; Avg volume beneath
+     it; Short interest beside Prev close. Volume runs GREEN and larger when today beats
+     its own average — a factual comparison of two numbers, not a signal. */
+  const hot=(d.volume!=null&&d.avgVolume!=null&&d.avgVolume>0&&d.volume>d.avgVolume);
+  const shortTxt=(d.sharesShort==null&&d.daysToCover==null)?null
+    :[d.sharesShort==null?null:dqCompact(d.sharesShort)+" sh",
+      d.daysToCover==null?null:dqNum(d.daysToCover)+"d cover"].filter(Boolean).join(" \u00b7 ");
+  [["Open",d.open==null?null:cur+dqNum(d.open),false],
+   ["Volume",dqCompact(d.volume),hot],
+   ["Prev close",d.prevClose==null?null:cur+dqNum(d.prevClose),false],
+   ["Avg volume",dqCompact(d.avgVolume),false],
+   ["Day range",(d.dayLow!=null&&d.dayHigh!=null)?(cur+dqNum(d.dayLow)+" \u2013 "+cur+dqNum(d.dayHigh)):null,false],
+   ["Short interest",shortTxt,false]
   ].forEach(function(p){
     const c=dqEl("div","dq-pincell","");
     c.appendChild(dqEl("span","dq-k",p[0]));
-    c.appendChild(dqEl("span","dq-v",p[1]==null?"\u2014":p[1]));
+    c.appendChild(dqEl("span","dq-v"+(p[2]?" hot":""),p[1]==null?"\u2014":p[1]));
+    if(p[2])c.appendChild(dqEl("span","dq-hotnote","above average"));
     pr.appendChild(c);
   });
   pin.appendChild(pr); body.appendChild(pin);
@@ -5242,9 +5623,17 @@ async function dqPaint(){
     dqPair("Rate (annual)",d.divRate==null?null:cur+dqNum(d.divRate),"Ex-dividend",dqDate(d.exDivDate)),
     dqPair("Yield",dy==null?null:dqNum(dy)+"%","Pay date",dqDate(d.divPayDate))
   ]));
-  body.appendChild(dqSection("Short interest",[
-    dqPair("Shares short",dqCompact(d.sharesShort),"Days to cover",d.daysToCover==null?null:dqNum(d.daysToCover))
-  ]));
+  /* SHORT-INTEREST EDUCATION — NOT a signal and deliberately not called an opportunity.
+     Two public numbers crossing a threshold is a FACT; what it implies is contested and
+     depends on float, borrow cost and catalyst. The card states the fact and offers to
+     explain the mechanics; it never suggests a trade (FRAMING LAW). */
+  const shPct=(d.sharesShort!=null&&d.sharesOut!=null&&d.sharesOut>0)?(d.sharesShort/d.sharesOut*100):null;
+  if(shPct!=null&&d.daysToCover!=null&&shPct>=10&&d.daysToCover>=5){
+    const e=dqEl("button","dq-edu","\ud83c\udf4b Elevated short interest \u2014 "+dqNum(shPct,1)+"% of shares out, "+dqNum(d.daysToCover)+" days to cover. What this means \u203a");
+    e.type="button";
+    e.addEventListener("click",function(){dqSqueezeSheet(shPct,d.daysToCover);});
+    body.appendChild(e);
+  }
   /* RULE 4 — the delayed label rides through to the surface. */
   const foot=$("dqFoot"); foot.textContent="";
   const fl=dqEl("span",null,"Data via "+(d.source||"Yahoo")+".");
@@ -5252,7 +5641,7 @@ async function dqPaint(){
   foot.appendChild(fl);
   foot.appendChild(dqEl("div",null,"Informational only \u2014 not investment advice."));
 }
-const DQ_RANGES=[["1d","1D",0],["5d","1W",0],["1mo","1M",1],["3mo","3M",1],["6mo","6M",1],["1y","1Y",1],["5y","5Y",1],["max","MAX",1]];
+const DQ_RANGES=[["1d","1D",0],["5d","1W",0],["1mo","1M",1],["3mo","3M",1],["6mo","6M",1],["9mo","9M",1],["1y","1Y",1],["3y","3Y",1],["5y","5Y",1],["10y","10Y",1],["max","MAX",1]];
 const DQ_SMA_SET=[[20,"var(--accent)"],[50,"var(--amber)"],[100,"var(--accent-deep,#2456C8)"],[200,"var(--muted)"]];
 function dqSMASeries(arr,p){            // the SAME arithmetic as the shipped pmSMA, as a SERIES.
   const out=[]; let run=0;              // gate cross-checks the last point against pmSMA itself.
@@ -5373,10 +5762,19 @@ async function dqPaintChart(){
     svg.appendChild(txt(X(i).toFixed(1),VTOP+VH+10,lbl,"dq-axlbl",k===0?"start":(k===ticks-1?"end":"middle")));
   }
   const wrap=dqEl("div","dq-chartwrap",""); wrap.appendChild(svg); body.appendChild(wrap);
-  body.appendChild(dqSection("Range shown",[
+  /* performance ACROSS THE SELECTED SPAN — arithmetic on the series already drawn */
+  const first=C[0], last=C[C.length-1];
+  const perf=(first!=null&&first!==0)?((last-first)/first*100):null;
+  const perfEl=dqEl("span","dq-perf "+(perf==null?"":(perf>=0?"up":"down")),
+    perf==null?"\u2014":((perf>=0?"+":"")+dqNum(perf)+"%"));
+  const rs=dqSection(meta[1]+" performance",[
     dqPair(meta[1]+" high",cur+dqNum(hi),meta[1]+" low",cur+dqNum(lo)),
     dqPair("Sessions",String(C.length),"Interval",String(d.interval||"\u2014"))
-  ]));
+  ]);
+  rs.open=true; rs.setAttribute("open","");                      // expanded by default
+  const sm=rs.children&&rs.children[0];
+  if(sm&&sm.children&&sm.children[0])sm.children[0].appendChild(perfEl);
+  body.appendChild(rs);
   if(daily&&avail.length<DQ_SMA_SET.length){
     const missing=DQ_SMA_SET.filter(function(P){return C.length<P[0];}).map(function(P){return P[0];});
     body.appendChild(dqEl("div","dq-note","Not offered on this span: "+missing.join("- and ")+"-day averages \u2014 this window holds "+C.length+" sessions, fewer than the average needs. Pick a longer range to see them."));
@@ -5387,6 +5785,13 @@ async function dqPaintChart(){
   foot.textContent=meta[1]+" \u00b7 "+(d.interval||"")+" bars, volume beneath. Informational only \u2014 not investment advice.";
 }
 /* ── the chip: visibly pressable, never a hidden long-press (HIDDEN-HANDLE law) ── */
+function dqRowChip(sym){        // rows already know their symbol — no field to watch
+  const b=dqEl("button","dq-chip","\ud83d\udcca Detailed quote \u00b7 "+String(sym));
+  b.type="button";
+  b.setAttribute("aria-label","Open the detailed quote for "+String(sym));
+  b.addEventListener("click",function(){dqOpen(sym);});
+  return b;
+}
 function dqAttachChip(inputId){
   const inp=$(inputId); if(!inp)return;
   const host=inp.closest?inp.closest(".inrow, .pmir-addrow, .tickrow"):null;
@@ -6247,13 +6652,9 @@ if(typeof window!=="undefined")window.__vibeTest={vibeOnEnter,vbUpdSayCount,vbSa
       else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
     }
   });
-  if($("dqSheet")){                                       // swipe-down exit
-    $("dqSheet").addEventListener("touchstart",function(e){dqTouchY=e.touches&&e.touches[0]?e.touches[0].clientY:null;},{passive:true});
-    $("dqSheet").addEventListener("touchmove",function(e){
-      if(dqTouchY==null||!e.touches||!e.touches[0])return;
-      if(e.touches[0].clientY-dqTouchY>70&&$("dqBody").scrollTop<=0){dqTouchY=null;dqClose();}
-    },{passive:true});
-  }
+  // SWIPE-DOWN EXIT REMOVED (founder override of the brief's four-exit rule, 18-Au):
+  // a fast scroll inside the sheet was dismissing it. Deliberate exits only — ✕, the
+  // backdrop, and Esc. The ✕ is heavier and bolder to compensate for the exit removed.
   ["ticker","pmTicker","opTicker","hgTicker","wlAddInput","pmirAddInput"].forEach(dqAttachChip);
   buildNav();
   ciApplyStopToggle();
