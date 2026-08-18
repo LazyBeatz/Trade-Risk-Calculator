@@ -777,8 +777,11 @@
   .vb-roster{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
   .vb-msgs{margin-top:0;max-height:52vh;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch;background:var(--bg);border:1px solid var(--line,#D7DBE4);border-radius:14px;box-shadow:inset 0 2px 6px rgba(0,0,0,.07);overscroll-behavior:contain}
   .vb-m{background:var(--chip);border-radius:12px;padding:8px 10px;margin:8px 0;font-family:var(--sans)}
-  .vb-m .vb-h{font-weight:800;color:var(--accent-deep,#2456C8);margin-right:6px}
-  .vb-m .vb-t{float:right;font-family:var(--mono);font-size:.68rem;color:var(--ink);opacity:.62;margin-left:8px}
+  .vb-m .vb-h{font-weight:800;color:var(--accent-deep,#2456C8);flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* HEADER LINE — a float and an inline-block can never share a baseline, which is why
+     the ✕ sat lower than the handle. One flex row, centred, timestamp pushed right. */
+  .vb-mhd{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .vb-m .vb-t{margin-left:auto;font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--ink);opacity:.8;white-space:nowrap;flex:0 0 auto}
   .vb-m .vb-b{color:var(--ink);word-wrap:break-word;overflow-wrap:anywhere;white-space:pre-wrap}
   .vb-m.mine{border-left:3px solid var(--accent)}
   .vb-sys{font-family:var(--sans);font-size:.78rem;color:var(--ink);opacity:.72;text-align:center;margin:8px 0}
@@ -1219,8 +1222,7 @@
      than the ink. */
   .vb-act{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
     border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);
-    font-weight:800;font-size:.86rem;line-height:1;cursor:pointer;padding:0;vertical-align:-7px;
-    margin-right:8px;flex:0 0 auto;--glow:var(--accent);transition:transform .12s ease,box-shadow .2s ease}
+    font-weight:800;font-size:.86rem;line-height:1;cursor:pointer;padding:0;flex:0 0 auto;--glow:var(--accent);transition:transform .12s ease,box-shadow .2s ease}
   .vb-act:active{transform:translateY(1px) scale(.985);box-shadow:0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent)}
   .vb-act:focus{outline:none}
   .vb-act:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
@@ -2058,7 +2060,7 @@
     </div>
     <div class="vb-msgswrap">
       <div class="vb-msgs" id="vbMsgs" aria-live="polite"></div>
-      <button class="vb-jump" id="vbJumpLatest" type="button" aria-label="Jump to latest messages">↓</button>
+      <button class="vb-jump" id="vbJumpLatest" type="button" aria-label="Drop anchor — jump to the latest messages" title="Drop anchor">⚓</button>
     </div>
     <label class="fl" for="vbSay" style="margin-top:10px">Message</label>
     <div class="vb-sayrow" style="margin-top:6px">
@@ -6152,10 +6154,10 @@ function vbMsgRow(o){
   if(S.vibe.muted.indexOf(h_lc)>=0||S.vibe.blocked.indexOf(h_lc)>=0)return;   // HIDDEN-HANDLE LAW
   const div=document.createElement("div");div.className="vb-m"+(o.handle===S.vibe.handle?" mine":"");
   div.dataset.h=h_lc; if(o.id)div.dataset.mid=String(o.id);
+  const hd=document.createElement("div");hd.className="vb-mhd";
   const t=document.createElement("span");t.className="vb-t";t.textContent=vbStamp(o.ts);
   const h=document.createElement("span");h.className="vb-h";h.textContent="@"+vbEsc(o.handle);
   const b=document.createElement("span");b.className="vb-b";b.textContent=vbEsc(o.body);
-  div.appendChild(t);
   /* the action rides IN FRONT of the handle — actions belong with identity, and the
      right edge stays a clean scroll lane for the thumb */
   const mineRow=(h_lc && h_lc===String(S.vibe.handle||"").toLowerCase());
@@ -6166,14 +6168,15 @@ function vbMsgRow(o){
       openSheet("Delete this message?","It disappears for everyone in the room. This cannot be undone.",null,
         [["Delete",function(){closeSheet();vbTx({op:"del",id:o.id});},"danger"],["Keep it",closeSheet,true]]);
     }));
-    div.appendChild(dl);
+    hd.appendChild(dl);
   }else if(h_lc&&!mineRow){
     const dots=vbEl("button","vb-act","\u22EE");dots.type="button";
     dots.setAttribute("aria-label","Message actions");
     dots.addEventListener("click",vbSafe(function(){vbModMenu(o);}));
-    div.appendChild(dots);
+    hd.appendChild(dots);
   }
-  div.appendChild(h);div.appendChild(b);
+  hd.appendChild(h);hd.appendChild(t);      // handle left, stamp pushed right, one baseline
+  div.appendChild(hd);div.appendChild(b);
   try{vbRenderDrop(div,o.body);}catch(e){console.error("vibe drop render:",(e&&e.message)||e);div.appendChild(vbGray("couldn't render this drop"));}
   const stick=vbAtBottom(m);m.appendChild(div);vbAfterAppend(m,stick);
 }
