@@ -432,10 +432,17 @@ async function handleHistory(url) {
   const raw = (url.searchParams.get("symbol") || "").trim().toUpperCase();
   const range = (url.searchParams.get("range") || "6mo").trim();
   if (!raw || !/^[A-Z0-9.\-]{1,12}$/.test(raw)) return json({ error: "Invalid or missing symbol." }, 400);
-  if (!/^(3mo|6mo|1y|2y)$/.test(range)) return json({ error: "Bad range." }, 400);
+  // RANGE TABLE — an ENUM WITH AN ELSE (generator-aware, per the 17-Au ruling): unknown
+  // ranges are refused, and each entry names its own interval because Yahoo's granularity
+  // is not derivable from the span. Intraday spans use minute bars; multi-year use weekly
+  // or monthly, or the payload would be tens of thousands of points.
+  const RANGES = { "1d":"5m", "5d":"30m", "1mo":"1d", "3mo":"1d", "6mo":"1d",
+                   "1y":"1d", "2y":"1d", "5y":"1wk", "max":"1mo" };
+  const interval = RANGES[range];
+  if (!interval) return json({ error: "Bad range." }, 400);
 
   try {
-    const u = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(raw)}?interval=1d&range=${range}`;
+    const u = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(raw)}?interval=${interval}&range=${range}`;
     const r = await fetch(u, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept": "application/json" }, cf: { cacheTtl: 300 } });
     if (r.status === 429) return json({ error: "Rate limit." }, 429);
     if (!r.ok) return json({ error: "History unavailable." }, 502);
@@ -451,15 +458,21 @@ async function handleHistory(url) {
     // bar, so every existing caller sees byte-identical closes/highs/lows; (2) a missing
     // volume or open is pushed as NULL, never coerced to 0 — a zero volume is a real,
     // different fact from an unreported one (the None→0 coercion defect, by name).
-    const closes = [], highs = [], lows = [], volumes = [], opens = [];
-    const C = q.close || [], H = q.high || [], L = q.low || [], V = q.volume || [], O = q.open || [];
+    const closes = [], highs = [], lows = [], volumes = [], opens = [], ts = [];
+    const C = q.close || [], H = q.high || [], L = q.low || [], V = q.volume || [], O = q.open || [], TS = res.timestamp || [];
     for (let i = 0; i < C.length; i++) {
       if (C[i] == null || H[i] == null || L[i] == null) continue;
       closes.push(round2(C[i])); highs.push(round2(H[i])); lows.push(round2(L[i]));
       volumes.push(V[i] == null ? null : Math.round(V[i]));
       opens.push(O[i] == null ? null : round2(O[i]));
+      ts.push(TS[i] == null ? null : Math.round(TS[i]));   // the time axis rides the same rows
     }
-    if (closes.length < 60) return json({ error: "Not enough history for " + raw + "." }, 404);
+    // BAR FLOOR — the Mirror calls this with NO range and needs ≥60 bars for MACD/DMI.
+    // That contract is untouched: the 60-bar floor still applies to the default path.
+    // An EXPLICIT range is a chart request, where 1W legitimately returns a dozen bars.
+    const asked = url.searchParams.get("range");
+    const floor = asked ? 2 : 60;
+    if (closes.length < floor) return json({ error: "Not enough history for " + raw + "." }, 404);
 
     return json({
       symbol: raw,
@@ -469,6 +482,9 @@ async function handleHistory(url) {
       closes, highs, lows,
       volumes,
       opens,
+      ts,
+      range,
+      interval,
       delayed: true,
       source: "Yahoo",
     }, 200, 120);
