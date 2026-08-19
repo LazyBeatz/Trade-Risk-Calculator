@@ -1517,6 +1517,30 @@
     box-shadow:inset 0 0 10px rgba(0,0,0,.12),
       0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent),
       0 0 14px color-mix(in srgb,var(--glow) 30%,transparent)}
+
+  /* ══ PAINT PLAN 1a — LEGACY SHADOWS JOIN THE LADDER (non-FAM strokes) ═════
+     The literals below-stairs retire by source order, never by surgery. Every
+     shadow here now names its plane instead of holding a private opinion:
+     a sheet floats, a card could be picked up, a chip rests on the bedrock.
+     Dark twins are restated because a scoped legacy rule (0,1,1) outranks a
+     lone appended class — the plane is the same, only the winner changes.
+     CARVED OUT on purpose: the FAM edge-law family (their inner shade is the
+     lit rim's own material, not debt) · .vb-msgs (a basin, already recessed —
+     a basin must never sit at chip height) · .inrow.needfill input (that ring
+     is a REQUIRED-FIELD signal, not a shadow; it becomes a well in Step 2).
+     ═══════════════════════════════════════════════════════════════════════ */
+  .dq-sheet{box-shadow:var(--e3)}                    /* floating — suspended, not stuck */
+  .card,#vbAdminCard{box-shadow:var(--e2)}           /* raised — the hand could pick it up */
+  [data-theme="dark"] .card,[data-theme="dark"] #vbAdminCard{box-shadow:var(--e2)}
+  /* resting — chips lying ON the bedrock. The pilot's own razor (.vb-lo-row.live)
+     retires here too: a 0-blur inset is a stroke, and strokes are drawings. */
+  .vb-legal summary,.ci-switch-thumb,.dq-pin,.dq-sec summary,
+  .vb-lo,.vb-m,.vb-sayrow,.vb-lo-row.live{box-shadow:var(--e1)}
+  [data-theme="dark"] .vb-lo,[data-theme="dark"] .vb-sayrow,
+  [data-theme="dark"] .vb-legal summary{box-shadow:var(--e1)}
+  /* the bubble keeps its breath: ambient separation rides ABOVE the plane,
+     ten times quieter than any signal — space, never a message */
+  [data-theme="dark"] .vb-m{box-shadow:var(--e1),0 0 14px 2px rgba(52,199,123,.09)}
 </style>
 </head>
 <body data-theme="light">
