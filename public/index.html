@@ -770,18 +770,18 @@
   .vb-list{margin-top:8px}
   /* ROOMS ARE OBJECTS, NOT A LIST — the founder could not tell where one ended and the
      next began. Each gets its own card, its own edge and a breath of space. */
-  .vb-room{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:13px 14px;
-    margin-top:10px;border-radius:14px;border:1px solid var(--line);background:var(--card);
-    color:var(--ink);font-family:var(--sans);font-size:.95rem;font-weight:700;cursor:pointer;
-    box-shadow:0 1px 3px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.5);--glow:var(--accent);
+  .vb-room{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+    padding:13px 14px;margin-top:10px;border-radius:14px;
+    background:var(--chip);border:1.5px solid var(--line);
+    color:var(--ink);font-family:var(--sans);cursor:pointer;
+    box-shadow:0 1px 3px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.5);--glow:var(--accent);
     transition:transform .12s ease,box-shadow .2s ease}
-  [data-theme="dark"] .vb-room{box-shadow:0 1px 3px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05)}
+  [data-theme="dark"] .vb-room{box-shadow:0 1px 3px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);border-color:#3A4254}
   .vb-room:active{transform:translateY(1px) scale(.995);box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
   .vb-room:focus{outline:none}
   .vb-room:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
   @media (prefers-reduced-motion:reduce){.vb-room{transition:none}}
-  .vb-room .rn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .vb-room .rgo{font-family:var(--sans);font-size:.72rem;font-weight:800;color:var(--accent-deep,#2456C8);flex:0 0 auto}
+  .vb-room>*:last-child{flex:0 0 auto;margin-left:auto}   /* the Open button always lands on the right edge */
 
   .vb-room .vb-rn{font-family:var(--sans);font-weight:700;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vb-room .vb-tag{font-size:.7rem;color:var(--accent-deep,#2456C8);font-weight:700;letter-spacing:.03em}
@@ -6146,19 +6146,29 @@ function vbScrollLatest(smooth){
   else{m.scrollTop=m.scrollHeight;}
   vbUpdJump();
 }
+let vbLastTop=0;
 function vbUpdJump(){
   const m=$("vbMsgs"),b=$("vbJumpLatest");if(!m||!b)return;
-  const gap=m.scrollHeight-m.scrollTop-m.clientHeight;
+  const top=m.scrollTop;
+  const gap=m.scrollHeight-top-m.clientHeight;
   const at=gap<=VB_NEAR_BOTTOM;
   b.classList.toggle("show",!at);
-  if(at){b.classList.remove("pulse");return;}
-  /* THE GLYPH EARNS ITS SHAPE: a short way up is an arrow — "nudge me down". Once you are
-     more than a couple of screens adrift it becomes an anchor — "drop me all the way".
-     The founder's own idea: the anchor should mean something, not just look nautical. */
-  const deep=gap>(m.clientHeight*2);
-  b.textContent=deep?"\u2693":"\u2193";
-  b.setAttribute("aria-label",deep?"Drop anchor \u2014 jump to the latest messages":"Jump to the latest messages");
-  b.setAttribute("title",deep?"Drop anchor":"Jump to latest");
+  if(at){b.classList.remove("pulse");vbLastTop=top;return;}
+  /* DIRECTION OF TRAVEL, not distance (founder ruling): heading BACK through history —
+     away from the newest — offers the anchor, because that is the trip worth ending in
+     one tap. Already heading toward the bottom under your own thumb? A quiet arrow; you
+     do not need a rescue you are already performing. A one-screen deadband keeps small
+     jitters from flipping the glyph while you read. */
+  const movingAway=top<vbLastTop-4;
+  const towards=top>vbLastTop+4;
+  if(movingAway&&gap>m.clientHeight)b.dataset.mode="anchor";
+  else if(towards)b.dataset.mode="arrow";
+  else if(!b.dataset.mode)b.dataset.mode="arrow";
+  const anchor=b.dataset.mode==="anchor";
+  b.textContent=anchor?"\u2693":"\u2193";
+  b.setAttribute("aria-label",anchor?"Drop anchor \u2014 jump to the latest messages":"Jump to the latest messages");
+  b.setAttribute("title",anchor?"Drop anchor":"Jump to latest");
+  vbLastTop=top;
 }
 function vbAfterAppend(m,stick){
   if(stick){vbScrollLatest(false);}
