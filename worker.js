@@ -660,6 +660,11 @@ export class VibeRoom {
   }
 
   sqlA(q, ...b) { return this.ctx.storage.sql.exec(q, ...b).toArray(); }
+  // WRITE helper. Its absence is why message delete did nothing and why the retention
+  // purge silently never ran: both called this.sql() and both threw "not a function" —
+  // one killed the frame, the other was swallowed by a try/catch. Reads had sqlA(),
+  // writes had no companion, and every write in the class was inlined instead.
+  sql(q, ...b) { this.ctx.storage.sql.exec(q, ...b); }
 
   roomSchema() {
     if (this.schemaDone) return;
