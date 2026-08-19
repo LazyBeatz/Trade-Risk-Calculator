@@ -1244,6 +1244,56 @@
   .vb-del{border-color:var(--red);color:var(--red);--glow:var(--red)}
   .btn.danger{background:var(--red);border-color:var(--red);color:#fff;--glow:var(--red)}
   .btn.danger:active{transform:translateY(1px) scale(.985);box-shadow:0 0 0 4px color-mix(in srgb,var(--red) 85%,transparent),0 0 14px color-mix(in srgb,var(--red) 30%,transparent)}
+  /* ══════════════════════════════════════════════════════════════════════════
+     THE ELEVATION LADDER — four planes, named once, and nothing improvises.
+     The audit found FIVE distinct shadow geometries in the app: a material
+     system with five planes is not a system, it is five opinions. Everything
+     that has a physical station now names it.
+        --e0  bedrock      the page itself. matte, structural, unlit.
+        --e1  resting      a chip lying ON the bedrock. a whisper of lift and
+                           a single-pixel edge-light along the top, as if a
+                           machined part were catching a ceiling light.
+        --e2  raised       a card the hand could pick up. real shadow, real edge.
+        --e3  floating     sheets and overlays. reads as suspended, not stuck.
+        --well recessed    a field is a WELL you pour words into — debossed
+                           into the bedrock, never a rectangle drawn on paper.
+     ══════════════════════════════════════════════════════════════════════════ */
+  :root{
+    --e1:0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.55);
+    --e2:0 1px 3px rgba(0,0,0,.10),0 4px 14px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.5);
+    --e3:0 8px 30px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.45);
+    --well:inset 0 2px 6px rgba(0,0,0,.09),inset 0 -1px 0 rgba(255,255,255,.5);
+  }
+  [data-theme="dark"]{
+    --e1:0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+    --e2:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+    --e3:0 10px 34px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);
+    --well:inset 0 2px 8px rgba(0,0,0,.45),inset 0 -1px 0 rgba(255,255,255,.04);
+  }
+  /* ── WS9 · the showroom. Every field becomes a well; ids and .cls beat the
+        global input rule (0,1,1) without !important, per the specificity law. ── */
+  #ws-9 input[type="text"],#ws-9 textarea,#vbHandle{
+    background:var(--bg);box-shadow:var(--well);border:1px solid var(--line);
+    transition:box-shadow .16s ease,border-color .16s ease}
+  #ws-9 input[type="text"]:focus,#ws-9 textarea:focus,#vbHandle:focus{
+    outline:none;border-color:var(--accent);
+    box-shadow:var(--well),0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+  /* ── the two pressables the audit caught lying flat ── */
+  .vb-lo-row.live{border-radius:9px;padding:2px 4px;margin:0 -4px;--glow:var(--accent);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+    transition:transform .12s ease,box-shadow .2s ease,background-color .16s ease}
+  .vb-lo-row.live:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+  .vb-lo-row.live:active{transform:translateY(1px) scale(.995);
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 70%,transparent)}
+  .vb-lo-row.live:focus{outline:none}
+  .vb-lo-row.live:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
+  .vb-tab{--glow:var(--accent);box-shadow:var(--e1);transition:transform .12s ease,box-shadow .2s ease}
+  .vb-tab:active{transform:translateY(1px) scale(.985);
+    box-shadow:0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent)}
+  .vb-tab:focus{outline:none}
+  .vb-tab:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
+  @media (prefers-reduced-motion:reduce){
+    .vb-lo-row.live,.vb-tab,#ws-9 input[type="text"],#ws-9 textarea,#vbHandle{transition:none}}
 </style>
 </head>
 <body data-theme="light">
