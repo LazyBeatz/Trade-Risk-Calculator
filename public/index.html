@@ -1259,15 +1259,15 @@
                            into the bedrock, never a rectangle drawn on paper.
      ══════════════════════════════════════════════════════════════════════════ */
   :root{
-    --e1:0 1px 2px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.55);
-    --e2:0 1px 3px rgba(0,0,0,.10),0 4px 14px rgba(0,0,0,.05),inset 0 1px 0 rgba(255,255,255,.5);
-    --e3:0 8px 30px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.45);
+    --e1:0 1px 2px rgba(0,0,0,.08),inset 0 1px 1.5px rgba(255,255,255,.40),inset 0 -1px 0 rgba(0,0,0,.05);
+    --e2:0 1px 3px rgba(0,0,0,.10),0 4px 14px rgba(0,0,0,.05),inset 0 1px 2px rgba(255,255,255,.38),inset 0 -1px 0 rgba(0,0,0,.05);
+    --e3:0 8px 30px rgba(0,0,0,.30),inset 0 1px 2px rgba(255,255,255,.34),inset 0 -1px 0 rgba(0,0,0,.05);
     --well:inset 0 2px 6px rgba(0,0,0,.09),inset 0 -1px 0 rgba(255,255,255,.5);
   }
   [data-theme="dark"]{
-    --e1:0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
-    --e2:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
-    --e3:0 10px 34px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);
+    --e1:0 1px 2px rgba(0,0,0,.35),inset 0 1px 1.5px rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.30);
+    --e2:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35),inset 0 1px 2px rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.30);
+    --e3:0 10px 34px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.30);
     --well:inset 0 2px 8px rgba(0,0,0,.45),inset 0 -1px 0 rgba(255,255,255,.04);
   }
   /* ── WS9 · the showroom. Every field becomes a well; ids and .cls beat the
@@ -1294,6 +1294,54 @@
   .vb-tab:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--glow) 85%,transparent)}
   @media (prefers-reduced-motion:reduce){
     .vb-lo-row.live,.vb-tab,#ws-9 input[type="text"],#ws-9 textarea,#vbHandle{transition:none}}
+  /* ══ CHAMFER, NOT A STROKE ══════════════════════════════════════════════
+     A hard 1px highlight under a 1.5px border reads as two parallel lines —
+     a drawing of an edge rather than an edge. A machined chamfer has no line
+     at all: light GATHERS at the crown and falls away across the face, and the
+     underside sits fractionally in its own shade. That falloff is the whole
+     illusion of a solid, and it is why this is a gradient rather than a stroke.
+     ══════════════════════════════════════════════════════════════════════ */
+  .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,
+  .dq-rng,.dq-sma,.vb-tab,.vb-legal summary,.wsdot,.iconbtn,.curpill,.pc-tab{
+    background-image:linear-gradient(180deg,
+      rgba(255,255,255,.14) 0%,
+      rgba(255,255,255,.05) 34%,
+      rgba(255,255,255,0)   62%,
+      rgba(0,0,0,.045)     100%);
+    background-repeat:no-repeat}
+  [data-theme="dark"] .btn,[data-theme="dark"] .vb-room,[data-theme="dark"] .vb-pill,
+  [data-theme="dark"] .vb-dots,[data-theme="dark"] .vb-act,[data-theme="dark"] .vb-jump,
+  [data-theme="dark"] .lk-row,[data-theme="dark"] .dq-chip,[data-theme="dark"] .dq-tab,
+  [data-theme="dark"] .dq-x,[data-theme="dark"] .dq-rng,[data-theme="dark"] .dq-sma,
+  [data-theme="dark"] .vb-tab,[data-theme="dark"] .vb-legal summary,[data-theme="dark"] .wsdot,
+  [data-theme="dark"] .iconbtn,[data-theme="dark"] .curpill,[data-theme="dark"] .pc-tab{
+    background-image:linear-gradient(180deg,
+      rgba(255,255,255,.09) 0%,
+      rgba(255,255,255,.03) 36%,
+      rgba(255,255,255,0)   64%,
+      rgba(0,0,0,.16)      100%)}
+  /* pressed: the crown light collapses as the face tips INTO the screen */
+  .btn:active,.vb-room:active,.vb-pill:active,.vb-dots:active,.vb-act:active,.vb-jump:active,
+  .lk-row:active,.dq-chip:active,.dq-tab:active,.dq-x:active,.dq-rng:active,.dq-sma:active,
+  .vb-tab:active,.vb-legal summary:active,.wsdot:active,.iconbtn:active,.pc-tab:active{
+    background-image:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(255,255,255,.05) 100%)}
+  /* FILLED CONTROLS take a gentler crown. White text on a saturated fill has no
+     contrast to spare: at .14 the accent button measured 3.61:1 at its brightest
+     band. Solved rather than guessed — .06 sits under every ceiling (accent, red,
+     green) while still reading as a chamfer rather than a flat plate. */
+  /* FILLED CONTROLS GET A SHADE-ONLY CHAMFER — measured, not stylistic. --accent with
+     white text sits at 4.55:1: a pass with NO headroom, so a crown of even 1% lightening
+     drops it under 4.5. On filled surfaces the light is therefore removed and the form is
+     carried entirely by the UNDERSIDE shade. A convex object lit from above shows a bright
+     crown AND a dark base; where the crown cannot be afforded, the base alone still reads
+     as roundness. Contrast is never traded for a highlight.
+     (Palette note: --accent has no room for decoration laid on top of it.) */
+  .btn.primary,.btn.danger,.wsdot.on,.dq-tab[aria-selected="true"],.dq-rng[aria-pressed="true"],
+  .pc-tab[aria-selected="true"],.vb-tab[aria-selected="true"]{
+    background-image:linear-gradient(180deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0) 55%,
+      rgba(0,0,0,.10)    100%)}
 </style>
 </head>
 <body data-theme="light">
@@ -6204,15 +6252,15 @@ function vbUpdJump(){
   const at=gap<=VB_NEAR_BOTTOM;
   b.classList.toggle("show",!at);
   if(at){b.classList.remove("pulse");vbLastTop=top;return;}
-  /* DIRECTION OF TRAVEL, not distance (founder ruling): heading BACK through history —
-     away from the newest — offers the anchor, because that is the trip worth ending in
-     one tap. Already heading toward the bottom under your own thumb? A quiet arrow; you
-     do not need a rescue you are already performing. A one-screen deadband keeps small
-     jitters from flipping the glyph while you read. */
-  const movingAway=top<vbLastTop-4;
-  const towards=top>vbLastTop+4;
-  if(movingAway&&gap>m.clientHeight)b.dataset.mode="anchor";
-  else if(towards)b.dataset.mode="arrow";
+  /* DIRECTION OF TRAVEL, not distance. Heading DOWN toward the newest is the moment the
+     anchor belongs: you are already making that journey, and one tap finishes it. Reading
+     BACK through history is not a journey to end — it is a place you chose to be — so the
+     glyph stays a quiet arrow that offers a way home without nagging. A one-screen
+     deadband keeps a jitter from flipping the glyph mid-sentence. */
+  const movingAway=top<vbLastTop-4;                 // scrolling BACK through history
+  const towards=top>vbLastTop+4;                    // heading DOWN toward the newest
+  if(towards&&gap>m.clientHeight)b.dataset.mode="anchor";
+  else if(movingAway)b.dataset.mode="arrow";
   else if(!b.dataset.mode)b.dataset.mode="arrow";
   const anchor=b.dataset.mode==="anchor";
   b.textContent=anchor?"\u2693":"\u2193";
