@@ -1259,13 +1259,13 @@
                            into the bedrock, never a rectangle drawn on paper.
      ══════════════════════════════════════════════════════════════════════════ */
   :root{
-    --e1:0 1px 2px rgba(0,0,0,.08),inset 0 1px 1.5px rgba(255,255,255,.40),inset 0 -1px 0 rgba(0,0,0,.05);
+    --e1:0 1px 2px rgba(0,0,0,.08),inset 0 1px 1.5px rgba(255,255,255,.40),inset 0 -1px 1px rgba(0,0,0,.07),inset 1px 0 0 rgba(255,255,255,.18),inset -1px 0 0 rgba(0,0,0,.045);
     --e2:0 1px 3px rgba(0,0,0,.10),0 4px 14px rgba(0,0,0,.05),inset 0 1px 2px rgba(255,255,255,.38),inset 0 -1px 0 rgba(0,0,0,.05);
     --e3:0 8px 30px rgba(0,0,0,.30),inset 0 1px 2px rgba(255,255,255,.34),inset 0 -1px 0 rgba(0,0,0,.05);
     --well:inset 0 2px 6px rgba(0,0,0,.09),inset 0 -1px 0 rgba(255,255,255,.5);
   }
   [data-theme="dark"]{
-    --e1:0 1px 2px rgba(0,0,0,.35),inset 0 1px 1.5px rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.30);
+    --e1:0 1px 2px rgba(0,0,0,.35),inset 0 1px 1.5px rgba(255,255,255,.08),inset 0 -1px 1px rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.04),inset -1px 0 0 rgba(0,0,0,.22);
     --e2:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35),inset 0 1px 2px rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.30);
     --e3:0 10px 34px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.30);
     --well:inset 0 2px 8px rgba(0,0,0,.45),inset 0 -1px 0 rgba(255,255,255,.04);
@@ -1342,6 +1342,48 @@
       rgba(255,255,255,0) 0%,
       rgba(255,255,255,0) 55%,
       rgba(0,0,0,.10)    100%)}
+  /* ══ THE BEZEL RUNS THE WHOLE PERIMETER ══════════════════════════════════
+     A gradient on the FACE treats one axis. A machined part is chamfered all
+     the way ROUND: the rim is bright where it faces the light, mid at the
+     equator, dark underneath — and because the ramp is vertical across a
+     rounded rectangle, it wraps the corners on its own. So the BORDER itself
+     becomes the gradient, painted into the border-box while the face keeps
+     the padding-box. Two layers, one part.
+     The interior side-walls now live in --e1, so every plane has four rims
+     rather than a top lip and three guesses.
+     ══════════════════════════════════════════════════════════════════════ */
+  .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+    border-color:transparent;
+    background-origin:border-box;
+    background-clip:padding-box,border-box;
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 34%,rgba(255,255,255,0) 62%,rgba(0,0,0,.045) 100%),
+      linear-gradient(180deg,
+        color-mix(in srgb,var(--line) 72%,#FFFFFF) 0%,   /* lit, but never dissolved */
+        var(--line) 48%,
+        color-mix(in srgb,var(--line) 55%,#000000) 100%)}
+  [data-theme="dark"] .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.03) 36%,rgba(255,255,255,0) 64%,rgba(0,0,0,.16) 100%),
+      linear-gradient(180deg,
+        color-mix(in srgb,var(--line) 55%,#FFFFFF) 0%,
+        var(--line) 46%,
+        color-mix(in srgb,var(--line) 40%,#000000) 100%)}
+  /* FILLED controls: the fill is saturated, so the rim is pure light and pure
+     shade rather than a tint of --line. Face stays shade-only — --accent has
+     no contrast headroom for a crown (measured 4.55:1 with white text). */
+  .btn.primary,.btn.danger,.wsdot.on,.dq-tab[aria-selected="true"],.dq-rng[aria-pressed="true"],.pc-tab[aria-selected="true"],.vb-tab[aria-selected="true"]{
+    border-color:transparent;
+    background-origin:border-box;
+    background-clip:padding-box,border-box;
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 55%,rgba(0,0,0,.10) 100%),
+      linear-gradient(180deg,rgba(255,255,255,.50) 0%,rgba(255,255,255,.06) 42%,rgba(0,0,0,.28) 100%)}
+  /* pressed: the part tips in — crown light dies, the base rim lifts toward the eye */
+  .btn:active,.vb-room:active,.vb-pill:active,.vb-dots:active,.vb-act:active,.vb-jump:active,.lk-row:active,.dq-chip:active,.dq-tab:active,.dq-x:active,.dq-rng:active,.dq-sma:active,.vb-tab:active,.wsdot:active,.iconbtn:active,.curpill:active,.pc-tab:active{
+    background-image:
+      linear-gradient(180deg,rgba(0,0,0,.06) 0%,rgba(255,255,255,.04) 100%),
+      linear-gradient(180deg,color-mix(in srgb,var(--line) 60%,#000000) 0%,var(--line) 55%,color-mix(in srgb,var(--line) 45%,#FFFFFF) 100%)}
 </style>
 </head>
 <body data-theme="light">
