@@ -1412,6 +1412,47 @@
         color-mix(in srgb,var(--line) 55%,#000000) 100%)}
   /* the workspace bar stopped leaping: the tagline always holds two lines */
   #appTagline{display:block;min-height:2.6em}
+  /* ══ THE RING — shading that travels the WHOLE perimeter ═══════════════════
+     A LINEAR gradient varies only top-to-bottom, so the left and right flanks
+     hold one flat mid value: the part reads as a lit top, a dark base, and two
+     dead sides. That is the "quarter of a button".
+     A bevel lit from above varies by ANGLE. So the rim becomes a CONIC ring —
+     lightest at twelve o'clock, mid through three and nine, darkest at six,
+     and continuous all the way round. Every point on the edge now holds the
+     value its angle deserves, corners included.
+     Intensity pulled back again: the face is now almost nothing — a breath at
+     the crown — because the ring is carrying the form. Filled/blue controls are
+     NOT in this block; they already read as machined and stay untouched.
+     ══════════════════════════════════════════════════════════════════════ */
+  @supports (background:conic-gradient(from 0deg,#000,#fff)){
+    .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+      background-image:
+        linear-gradient(180deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,0) 26%,rgba(0,0,0,0) 90%,rgba(0,0,0,.015) 100%),
+        conic-gradient(from 0deg at 50% 50%,
+          color-mix(in srgb,var(--line) 74%,#FFFFFF) 0deg,
+          var(--line)                                90deg,
+          color-mix(in srgb,var(--line) 74%,#000000) 180deg,
+          var(--line)                                270deg,
+          color-mix(in srgb,var(--line) 74%,#FFFFFF) 360deg)}
+    [data-theme="dark"] .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+      background-image:
+        linear-gradient(180deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,0) 26%,rgba(0,0,0,0) 90%,rgba(0,0,0,.05) 100%),
+        conic-gradient(from 0deg at 50% 50%,
+          color-mix(in srgb,var(--line) 62%,#FFFFFF) 0deg,
+          var(--line)                                90deg,
+          color-mix(in srgb,var(--line) 70%,#000000) 180deg,
+          var(--line)                                270deg,
+          color-mix(in srgb,var(--line) 62%,#FFFFFF) 360deg)}
+    .btn:active,.vb-room:active,.vb-pill:active,.vb-dots:active,.vb-act:active,.vb-jump:active,.lk-row:active,.dq-chip:active,.dq-tab:active,.dq-x:active,.dq-rng:active,.dq-sma:active,.vb-tab:active,.wsdot:active,.iconbtn:active,.curpill:active,.pc-tab:active{
+      background-image:
+        linear-gradient(180deg,rgba(0,0,0,.035) 0%,rgba(0,0,0,0) 40%,rgba(255,255,255,.02) 100%),
+        conic-gradient(from 0deg at 50% 50%,
+          color-mix(in srgb,var(--line) 74%,#000000) 0deg,
+          var(--line)                                90deg,
+          color-mix(in srgb,var(--line) 74%,#FFFFFF) 180deg,
+          var(--line)                                270deg,
+          color-mix(in srgb,var(--line) 74%,#000000) 360deg)}
+  }
 </style>
 </head>
 <body data-theme="light">
