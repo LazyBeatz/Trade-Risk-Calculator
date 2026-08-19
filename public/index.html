@@ -1453,6 +1453,48 @@
           var(--line)                                270deg,
           color-mix(in srgb,var(--line) 74%,#000000) 360deg)}
   }
+  /* ══ SHADED EDGES, ALL ROUND ══════════════════════════════════════════════
+     The conic ring had an APEX. On a circle you never see it; on a wide
+     rectangle it sits in the middle as a dot with the shading fanning out of
+     it. Wrong tool: a cone radiates from a centre, and an edge treatment must
+     FOLLOW THE EDGE.
+     So the rim goes back to a solid line for definition, and the bevel is made
+     of INSET shadows, which hug the border by construction:
+       · a soft inner vignette darkens every edge evenly and fades to nothing
+         in the middle — shaded all the way round, flat where the label sits
+       · a light along the top lip and the left flank, shade along the bottom
+         and the right, because the light still comes from above
+     No apex, no dot, no dead sides. Filled/blue controls stay untouched.
+     ══════════════════════════════════════════════════════════════════════ */
+  .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+    border-color:var(--line);
+    background-origin:padding-box;
+    background-clip:padding-box;
+    background-image:linear-gradient(180deg,rgba(255,255,255,.05) 0%,rgba(255,255,255,0) 32%,rgba(0,0,0,0) 100%);
+    box-shadow:
+      inset 0 0 7px rgba(0,0,0,.05),
+      inset 0 1px 1px rgba(255,255,255,.45),
+      inset 1px 0 0 rgba(255,255,255,.20),
+      inset -1px 0 0 rgba(0,0,0,.045),
+      inset 0 -1px 1px rgba(0,0,0,.06),
+      0 1px 2px rgba(0,0,0,.07)}
+  [data-theme="dark"] .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+    background-image:linear-gradient(180deg,rgba(255,255,255,.035) 0%,rgba(255,255,255,0) 32%,rgba(0,0,0,0) 100%);
+    box-shadow:
+      inset 0 0 8px rgba(0,0,0,.24),
+      inset 0 1px 1px rgba(255,255,255,.07),
+      inset 1px 0 0 rgba(255,255,255,.04),
+      inset -1px 0 0 rgba(0,0,0,.22),
+      inset 0 -1px 1px rgba(0,0,0,.28),
+      0 1px 2px rgba(0,0,0,.35)}
+  /* pressed: the vignette deepens as the face sinks — and the glow still fires */
+  .btn:active,.vb-room:active,.vb-pill:active,.vb-dots:active,.vb-act:active,.vb-jump:active,.lk-row:active,.dq-chip:active,.dq-tab:active,.dq-x:active,.dq-rng:active,.dq-sma:active,.vb-tab:active,.wsdot:active,.iconbtn:active,.curpill:active,.pc-tab:active{
+    background-image:linear-gradient(180deg,rgba(0,0,0,.03) 0%,rgba(0,0,0,0) 45%,rgba(255,255,255,.02) 100%);
+    box-shadow:
+      inset 0 0 11px rgba(0,0,0,.11),
+      inset 0 1px 1px rgba(0,0,0,.06),
+      0 0 0 4px color-mix(in srgb,var(--glow) 85%,transparent),
+      0 0 14px color-mix(in srgb,var(--glow) 30%,transparent)}
 </style>
 </head>
 <body data-theme="light">
