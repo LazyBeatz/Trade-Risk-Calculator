@@ -46,7 +46,10 @@
   header.app h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
   header.app p{font-size:.78rem;color:var(--muted);margin-top:2px;line-height:1.35;min-height:calc(1.35em * 2)}
   .apptop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-  .headbtns{display:flex;gap:8px;flex:0 0 auto;align-items:center}
+  .apptop>div:first-child{flex:1 1 auto;min-width:0}   /* the title takes the width the icons gave back */
+  .headbtns{display:grid;grid-template-columns:auto auto auto;gap:6px;flex:0 0 auto;
+    align-items:center;justify-items:center}
+  .headbtns .curpill{grid-row:1 / span 2;align-self:center}   /* the pill spans both rows */
   .curpill{
     position:relative;display:inline-flex;align-items:center;gap:3px;height:34px;padding:0 10px;
     border:1.5px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);
@@ -912,8 +915,8 @@
   [data-theme="dark"] .vb-msgs{box-shadow:inset 0 2px 8px rgba(0,0,0,.4);border-color:var(--line,#2A3040)}
   .vb-msgswrap::before,.vb-msgswrap::after{content:"";position:absolute;left:1px;right:1px;height:8px;pointer-events:none;z-index:4}
   /* GRACEFUL DEFAULT (perf over polish): the certified gradient fade. Frost is opt-in below. */
-  .vb-msgswrap::before{top:1px;border-radius:13px 13px 0 0;background:linear-gradient(var(--bg) 10%,rgba(0,0,0,0))}
-  .vb-msgswrap::after{bottom:0;border-radius:0 0 13px 13px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 90%)}
+  .vb-msgswrap::before{top:0;border-radius:14px 14px 0 0;background:linear-gradient(var(--bg) 10%,rgba(0,0,0,0))}
+  .vb-msgswrap::after{bottom:0;border-radius:0 0 14px 14px;background:linear-gradient(rgba(0,0,0,0),var(--bg) 90%)}
   /* 🧊 FROSTED LIP — glossy front-door glass. Blur intensifies toward the very edge via
      mask-gradient; only where the browser supports it AND the user hasn't asked for
      reduced transparency. Any stutter on a target phone → delete this @supports block
@@ -1357,14 +1360,14 @@
     background-origin:border-box;
     background-clip:padding-box,border-box;
     background-image:
-      linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.05) 34%,rgba(255,255,255,0) 62%,rgba(0,0,0,.045) 100%),
+      linear-gradient(180deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,.028) 16%,rgba(255,255,255,0) 34%,rgba(0,0,0,0) 84%,rgba(0,0,0,.03) 100%),
       linear-gradient(180deg,
         color-mix(in srgb,var(--line) 72%,#FFFFFF) 0%,   /* lit, but never dissolved */
         var(--line) 48%,
         color-mix(in srgb,var(--line) 55%,#000000) 100%)}
   [data-theme="dark"] .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
     background-image:
-      linear-gradient(180deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.03) 36%,rgba(255,255,255,0) 64%,rgba(0,0,0,.16) 100%),
+      linear-gradient(180deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.02) 16%,rgba(255,255,255,0) 34%,rgba(0,0,0,0) 84%,rgba(0,0,0,.10) 100%),
       linear-gradient(180deg,
         color-mix(in srgb,var(--line) 55%,#FFFFFF) 0%,
         var(--line) 46%,
@@ -1382,8 +1385,33 @@
   /* pressed: the part tips in — crown light dies, the base rim lifts toward the eye */
   .btn:active,.vb-room:active,.vb-pill:active,.vb-dots:active,.vb-act:active,.vb-jump:active,.lk-row:active,.dq-chip:active,.dq-tab:active,.dq-x:active,.dq-rng:active,.dq-sma:active,.vb-tab:active,.wsdot:active,.iconbtn:active,.curpill:active,.pc-tab:active{
     background-image:
-      linear-gradient(180deg,rgba(0,0,0,.06) 0%,rgba(255,255,255,.04) 100%),
+      linear-gradient(180deg,rgba(0,0,0,.045) 0%,rgba(0,0,0,0) 30%,rgba(255,255,255,.03) 100%),
       linear-gradient(180deg,color-mix(in srgb,var(--line) 60%,#000000) 0%,var(--line) 55%,color-mix(in srgb,var(--line) 45%,#FFFFFF) 100%)}
+  /* ══ TEMPER (founder eye, 18-Au) ══════════════════════════════════════════
+     The face was already confined to the crown and the base — the "halfway
+     shading" was the RIM: its dark half began at the equator, so the outline
+     read as shaded from the middle down. A real chamfer only turns dark where
+     it actually turns away from the light, which on a shallow bevel is the
+     last quarter. Pulled the transition down to 74% and softened the base.
+     The FILLED controls are left exactly as they are — they were the ones
+     that finally read as machined, and they are not to be touched.
+     ══════════════════════════════════════════════════════════════════════ */
+  .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.025) 14%,rgba(255,255,255,0) 30%,rgba(0,0,0,0) 86%,rgba(0,0,0,.025) 100%),
+      linear-gradient(180deg,
+        color-mix(in srgb,var(--line) 72%,#FFFFFF) 0%,
+        var(--line) 74%,
+        color-mix(in srgb,var(--line) 68%,#000000) 100%)}
+  [data-theme="dark"] .btn,.vb-room,.vb-pill,.vb-dots,.vb-act,.vb-jump,.lk-row,.dq-chip,.dq-tab,.dq-x,.dq-rng,.dq-sma,.vb-tab,.wsdot,.iconbtn,.curpill,.pc-tab{
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.02) 14%,rgba(255,255,255,0) 30%,rgba(0,0,0,0) 86%,rgba(0,0,0,.07) 100%),
+      linear-gradient(180deg,
+        color-mix(in srgb,var(--line) 55%,#FFFFFF) 0%,
+        var(--line) 72%,
+        color-mix(in srgb,var(--line) 55%,#000000) 100%)}
+  /* the workspace bar stopped leaping: the tagline always holds two lines */
+  #appTagline{display:block;min-height:2.6em}
 </style>
 </head>
 <body data-theme="light">
@@ -1404,10 +1432,10 @@
             <option value="A$|AUD">A$ AUD</option><option value="custom">Custom…</option>
           </select>
         </span>
-        <button id="btnTheme" class="iconbtn" type="button" aria-label="Theme: Auto" title="Theme">🌓</button>
-        <button id="btnVibe" class="iconbtn" type="button" aria-label="Choose your vibe" title="Choose your vibe">🎨</button>
         <button id="btnData" class="iconbtn" type="button" aria-label="Back up or restore your data" title="Back up / restore data">💾</button>
         <button id="btnExplain" class="explainbtn" type="button" aria-pressed="false" aria-label="Explain terms in plain language" title="Explain terms in plain language">?</button>
+        <button id="btnTheme" class="iconbtn" type="button" aria-label="Theme: Auto" title="Theme">🌓</button>
+        <button id="btnVibe" class="iconbtn" type="button" aria-label="Choose your vibe" title="Choose your vibe">🎨</button>
       </div>
     </div>
     <input type="file" id="restoreFile" style="display:none">
@@ -6286,28 +6314,44 @@ function vbScrollLatest(smooth){
   else{m.scrollTop=m.scrollHeight;}
   vbUpdJump();
 }
-let vbLastTop=0;
+let vbLastTop=0, vbDownRun=0, vbIdleT=null;
+const VB_RUN_SLOW=1300;   // px of steady downward travel before the anchor is offered
+const VB_RUN_FAST=2200;   // …less if the thumb is moving with intent
+const VB_FAST_DELTA=220;  // a single flick of this size counts as "with intent"
+const VB_JUMP=600;        // above this, the scroll was programmatic, not performed
+const VB_IDLE_MS=1400;    // reading, not travelling → give the screen back
 function vbUpdJump(){
   const m=$("vbMsgs"),b=$("vbJumpLatest");if(!m||!b)return;
   const top=m.scrollTop;
   const gap=m.scrollHeight-top-m.clientHeight;
   const at=gap<=VB_NEAR_BOTTOM;
-  b.classList.toggle("show",!at);
-  if(at){b.classList.remove("pulse");vbLastTop=top;return;}
-  /* DIRECTION OF TRAVEL, not distance. Heading DOWN toward the newest is the moment the
-     anchor belongs: you are already making that journey, and one tap finishes it. Reading
-     BACK through history is not a journey to end — it is a place you chose to be — so the
-     glyph stays a quiet arrow that offers a way home without nagging. A one-screen
-     deadband keeps a jitter from flipping the glyph mid-sentence. */
-  const movingAway=top<vbLastTop-4;                 // scrolling BACK through history
-  const towards=top>vbLastTop+4;                    // heading DOWN toward the newest
-  if(towards&&gap>m.clientHeight)b.dataset.mode="anchor";
-  else if(movingAway)b.dataset.mode="arrow";
+  const d=top-vbLastTop;
+  if(at){b.classList.remove("show","pulse");vbDownRun=0;vbLastTop=top;
+    if(vbIdleT){clearTimeout(vbIdleT);vbIdleT=null;}return;}
+  /* THE ANCHOR IS EARNED, NOT GIVEN. It appears only after a sustained run TOWARD the
+     newest — roughly five decisive flicks, or ten unhurried ones. Travel accumulates
+     while you keep going the same way and resets the moment you turn around, so a
+     single stray swipe can never summon it. */
+  /* A single event contributes at most one flick's worth. A programmatic jump — a
+     backfill landing, a restore, vbScrollLatest — can move thousands of pixels in one
+     tick, and travel that nobody's thumb performed must never earn the anchor. */
+  if(d>VB_JUMP){vbDownRun=0;}                    // nobody's thumb moved that far in one tick
+  else if(d>0){vbDownRun+=d; if(d>=VB_FAST_DELTA)vbDownRun+=Math.round(d*0.6);}
+  else if(d<-4){vbDownRun=0;}
+  const earned=vbDownRun>=(Math.abs(d)>=VB_FAST_DELTA?VB_RUN_FAST:VB_RUN_SLOW)&&gap>m.clientHeight;
+  if(earned)b.dataset.mode="anchor";
+  else if(d<-4)b.dataset.mode="arrow";
   else if(!b.dataset.mode)b.dataset.mode="arrow";
   const anchor=b.dataset.mode==="anchor";
+  b.classList.add("show");
   b.textContent=anchor?"\u2693":"\u2193";
   b.setAttribute("aria-label",anchor?"Drop anchor \u2014 jump to the latest messages":"Jump to the latest messages");
   b.setAttribute("title",anchor?"Drop anchor":"Jump to latest");
+  /* AND IT GIVES THE SCREEN BACK. Once the thumb stops, you are reading, not
+     travelling — an arrow hovering over the text you came here for is clutter.
+     The anchor stays: you asked for it, so it waits to be used. */
+  if(vbIdleT){clearTimeout(vbIdleT);vbIdleT=null;}
+  if(!anchor)vbIdleT=setTimeout(function(){b.classList.remove("show","pulse");vbIdleT=null;},VB_IDLE_MS);
   vbLastTop=top;
 }
 function vbAfterAppend(m,stick){
