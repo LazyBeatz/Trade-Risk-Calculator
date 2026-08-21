@@ -115,8 +115,20 @@ async function handleQuoteDetail(url) {
       sharesOut: n(K.sharesOutstanding),
       // dividend — RATE + dates only; yield is computed at the surface, never forwarded
       divRate: n(S.dividendRate), exDivDate: n(S.exDividendDate), divPayDate: n(C.dividendDate),
-      // short interest
+      // short interest — BI-MONTHLY DATA. The as-of date is not decoration: it is what makes
+      // the other figures admissible at all (foreign-vintage law). Absence of the date is
+      // absence of the CLAIM, so a surface that cannot show siAsOf must show nothing.
+      // Dates ride as EPOCH SECONDS, matching exDivDate/earningsDate/divPayDate — dqDate()
+      // renders the house 2-letter-month form at the surface. One date convention, one home.
+      // siPctFloat is Yahoo's OWN percentage, shipped as a FRACTION exactly as received; the
+      // float DENOMINATOR is deliberately NOT forwarded (it carries no as-of date anywhere in
+      // the module, so it can be neither gated on nor printed — and with no denominator on
+      // screen the two-floats contradiction is unconstructible rather than merely forbidden).
       sharesShort: n(K.sharesShort), daysToCover: n(K.shortRatio),
+      siPctFloat: n(K.shortPercentOfFloat),
+      siAsOf: n(K.dateShortInterest),
+      siPriorShort: n(K.sharesShortPriorMonth),
+      siPriorAsOf: n(K.sharesShortPreviousMonthDate),
       // events
       earningsDate: earn ? n(earn) : null,
       earningsEstimated: (C.earnings && C.earnings.isEarningsDateEstimate === true) ? true
