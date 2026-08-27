@@ -1541,6 +1541,16 @@
   /* the bubble keeps its breath: ambient separation rides ABOVE the plane,
      ten times quieter than any signal — space, never a message */
   [data-theme="dark"] .vb-m{box-shadow:var(--e1),0 0 14px 2px rgba(52,199,123,.09)}
+
+  /* ══ DANGER TEXT, DARK THEME — dark ink on a light tint ════════════════════
+     Dark's --red (#F06A6A) is a TINT, not a shade; white text on it computes
+     3.01:1 (crown) — a failure that never surfaced because .btn.danger has
+     never been called. Dark text is correct material behaviour on a tint.
+     ⚠ NOT var(--ink): in this dark-scoped rule that token resolves to #E8EAF0
+     (near-white, 2.50:1 — WORSE than the defect). The value needed is the
+     LIGHT root's ink, and no token means "always-dark ink", so the literal is
+     the honest form. Computed: crown 5.96 · base(+.10 K) 4.89, both PASS. */
+  [data-theme="dark"] .btn.danger{color:#15171C}
 </style>
 </head>
 <body data-theme="light">
