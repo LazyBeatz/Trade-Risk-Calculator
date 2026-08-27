@@ -3303,9 +3303,36 @@ $("btnImport").addEventListener("click",()=>{
   ]);
   $("mText").readOnly=false;$("mText").value="";$("mText").focus();
 });
+/* ---------- RESET GUARD — a destructive tap must name what it destroys ----------
+   The sheet is the app's own (openSheet), so the warning speaks in our material and
+   voice, not the browser's. It names the loss SPECIFICALLY — field count, stacked
+   entries, memo character count — all computed AT CALL TIME, never cached: a number
+   the user recognises as theirs is what stops the thumb. If there is nothing to
+   lose, reset runs silently: a confirmation that fires on an empty form teaches
+   users to tap through confirmations. "Keep my work" is listed first and primary;
+   the destructive choice is never the default and carries the red glow (--glow),
+   warning at contact, never at rest. */
+function resetGuard(fields,memoKey,extra,doReset){
+  const filled=fields.filter(k=>String(S[k]||"").trim()!=="").length;
+  const memoLen=memoKey?String(S[memoKey]||"").length:0;
+  const extraN=extra?extra.count:0;
+  if(!filled&&!memoLen&&!extraN){doReset();return;}
+  const parts=[];
+  if(filled)parts.push(filled+" filled field"+(filled===1?"":"s"));
+  if(extraN)parts.push("your "+extraN+" "+(extraN===1?extra.one:extra.many));
+  if(memoLen)parts.push("your memo ("+memoLen.toLocaleString()+" character"+(memoLen===1?"":"s")+")");
+  const list=parts.length===1?parts[0]:parts.slice(0,-1).join(", ")+(parts.length>2?",":"")+" and "+parts[parts.length-1];
+  openSheet("Clear this workspace?","This clears "+list+". This cannot be undone.",null,[
+    ["Keep my work",closeSheet,true],
+    ["Clear everything",function(){closeSheet();doReset();},"danger"]
+  ]);
+}
+
 $("btnReset").addEventListener("click",()=>{
-  ["portfolio","riskPct","riskAmt","entry","stopPct","memo"].forEach(k=>S[k]="");
-  S.editOrder=["pct","port"];S.direction="long";onChange();
+  resetGuard(["portfolio","riskPct","riskAmt","entry","stopPct"],"memo",null,()=>{
+    ["portfolio","riskPct","riskAmt","entry","stopPct","memo"].forEach(k=>S[k]="");
+    S.editOrder=["pct","port"];S.direction="long";onChange();
+  });
 });
 
 /* ---------- Explain Mode ---------- */
@@ -3603,11 +3630,13 @@ $("ciModeAnnual").addEventListener("click",()=>{S.ciMode="annual";persist();ciRe
 $("ciModeTrade").addEventListener("click",()=>{S.ciMode="trade";persist();ciRender();});
 document.querySelectorAll("[data-ciview]").forEach(b=>b.addEventListener("click",()=>{S.ciView=b.dataset.ciview;persist();ciRender();}));
 $("ciReset").addEventListener("click",()=>{
+  resetGuard(["ciStart","ciRate","ciTopup","ciTopupMo","ciStopYr","ciCurAge","ciRetAge"],"ciMemo",null,()=>{
   ["ciStart","ciRate","ciTopup","ciTopupMo","ciStopYr","ciMemo","ciCurAge","ciRetAge"].forEach(k=>S[k]="");
   S.ciReinvest="25";S.ciPeriods="70";S.ciMode="annual";S.ciView="all";
   S.ciStopEnabled=false;S.ciStopYr="";S.ciRowsCollapsed=false;S.ciAgeMode=false;
   S.ciMilestones=[18,21,55,65,70];
   ciApplyStopToggle();ciApplyRowsCollapse();persist();ciRender();
+  });
 });
 // share / import for CI
 function ciEncode(){
@@ -3826,9 +3855,12 @@ $("glDateSell").addEventListener("change",e=>{S.glDateSell=e.target.value;persis
 $("glMemo").addEventListener("input",e=>{S.glMemo=e.target.value;persist();});
 $("glClearStack").addEventListener("click",()=>{S.glStack=[];persist();glRenderStack();});
 $("glReset").addEventListener("click",()=>{
+  resetGuard(["glCost","glSale","glBuyPx","glSellPx","glShares","glBase","glDateBuy","glDateSell"],"glMemo",
+    {count:(S.glStack||[]).length,one:"stacked entry",many:"stacked entries"},()=>{
   ["glCost","glSale","glBuyPx","glSellPx","glShares","glBase","glDateBuy","glDateSell","glMemo"].forEach(k=>S[k]="");
   S.glStack=[];S.glAnnualOn=false;S.glInMode="total";S.glMode="tracker";
   glApplyMode();glApplyInMode();glApplyAnnualToggle();persist();glRender();
+  });
 });
 function glEncode(){
   const p={t:"gl",glMode:S.glMode,glInMode:S.glInMode,glCost:S.glCost,glSale:S.glSale,
@@ -3994,8 +4026,10 @@ function pmLookup(){
 }
 $("pmMemo").addEventListener("input",e=>{S.pmMemo=e.target.value;persist();});
 $("pmReset").addEventListener("click",()=>{
+  resetGuard(["pmPrice"],"pmMemo",null,()=>{
   S.pmPrice="";S.pmMemo="";S.pmDir="long";S.pmChips=[1,2,3,4,5,7,10,15,20];
   persist();pmRender();
+  });
 });
 function pmEncode(){
   const p={t:"pm",pmDir:S.pmDir,pmPrice:S.pmPrice,pmChips:S.pmChips,pmMemo:S.pmMemo,curSym:S.curSym,curCode:S.curCode};
