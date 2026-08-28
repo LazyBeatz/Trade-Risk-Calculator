@@ -6555,7 +6555,7 @@ function vbMsgRow(o){
     dl.setAttribute("aria-label","Delete your message");
     dl.addEventListener("click",vbSafe(function(){
       openSheet("Delete this message?","It disappears for everyone in the room. This cannot be undone.",null,
-        [["Delete",function(){closeSheet();vbTx({op:"del",id:o.id});},"danger"],["Keep it",closeSheet,true]]);
+        [["Keep it",closeSheet,true],["Delete",function(){closeSheet();vbTx({op:"del",id:o.id});},"danger"]]);
     }));
     hd.appendChild(dl);
   }else if(h_lc&&!mineRow){
