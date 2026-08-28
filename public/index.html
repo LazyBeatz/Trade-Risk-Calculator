@@ -1271,7 +1271,7 @@
     --e1:0 1px 2px rgba(0,0,0,.35),inset 0 1px 1.5px rgba(255,255,255,.08),inset 0 -1px 1px rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.04),inset -1px 0 0 rgba(0,0,0,.22);
     --e2:0 1px 3px rgba(0,0,0,.5),0 6px 18px rgba(0,0,0,.35),inset 0 1px 2px rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.30);
     --e3:0 10px 34px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.08),inset 0 -1px 0 rgba(0,0,0,.30);
-    --well:inset 0 2px 8px rgba(0,0,0,.45),inset 0 -1px 0 rgba(255,255,255,.04);
+    --well:inset 0 2px 8px rgba(0,0,0,.45),inset 0 -1px 0 rgba(255,255,255,.09);
   }
   /* ── WS9 · the showroom. Every field becomes a well; ids and .cls beat the
         global input rule (0,1,1) without !important, per the specificity law. ── */
@@ -1555,6 +1555,28 @@
   /* the vintage tag: same cell, same glance, never a tooltip. Sans at muted \u2014 it is a
      label carrying a date, and "bi-monthly" is the word; "delayed" means 15 minutes here. */
   .dq-asof{display:block;font-size:.68rem;color:var(--muted);margin-top:2px;font-family:var(--sans)}
+
+  /* ══ PAINT PLAN STEP 2 — A FIELD IS A WELL YOU POUR WORDS INTO ═════════════
+     The showroom proved it (WS9 carries the well at rest since the pilot); the
+     fleet now inherits what the pilot earned. The focus rule has composited
+     var(--well) all along — this block only lets fields be AT REST what they
+     already are under the finger. Same selector as the global rule, appended:
+     identical specificity, later source order, wins exactly where it wins.
+     Dynamic fields (13, created in wl/pm/op builders) inherit by selector. */
+  input[type="text"],input[type="number"],input[type="date"],textarea{box-shadow:var(--well)}
+  /* the key slot is a FIELD (Ruling A): highest-stakes typing in the product,
+     deliberately included by its OWN selector — more material honesty, not less */
+  input[type="password"].vb-key{box-shadow:var(--well)}
+  /* the required-field ring rides ABOVE the well — the well is the material,
+     the ring is the message; composited, never traded (Ruling B, pre-ruled) */
+  .inrow.needfill input{box-shadow:var(--well),0 0 0 1px var(--accent) inset}
+  /* …and the ring SURVIVES focus without doubling AND without eating the focus
+     halo: one declaration carries all three layers. Without this line, the
+     composite above (later in source) would beat the focus rule and a required
+     field would look IDENTICAL focused and unfocused — a focus-visible
+     regression this very stroke would have introduced. Caught by executing the
+     cascade, not by intending it. */
+  .inrow.needfill input:focus{box-shadow:var(--well),0 0 0 1px var(--accent) inset,0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
 </style>
 </head>
 <body data-theme="light">
