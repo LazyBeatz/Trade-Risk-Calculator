@@ -1551,6 +1551,10 @@
      LIGHT root's ink, and no token means "always-dark ink", so the literal is
      the honest form. Computed: crown 5.96 · base(+.10 K) 4.89, both PASS. */
   [data-theme="dark"] .btn.danger{color:#15171C}
+
+  /* the vintage tag: same cell, same glance, never a tooltip. Sans at muted \u2014 it is a
+     label carrying a date, and "bi-monthly" is the word; "delayed" means 15 minutes here. */
+  .dq-asof{display:block;font-size:.68rem;color:var(--muted);margin-top:2px;font-family:var(--sans)}
 </style>
 </head>
 <body data-theme="light">
@@ -5982,11 +5986,13 @@ function dqSection(title,rows){
   return d;
 }
 /* ── the four exits + focus discipline ── */
-function dqSqueezeSheet(pct,dtc){
-  openSheet("\ud83c\udf4b Elevated short interest",
-    "Two public figures are elevated on this name: about "+dqNum(pct,1)+"% of shares outstanding are sold short, "+
-    "and it would take roughly "+dqNum(dtc)+" days of average volume for those positions to be bought back.\n\n"+
-    "WHAT SHORT INTEREST IS \u2014 shares borrowed and sold by traders betting the price falls. They must eventually buy the shares back to close the position.\n\n"+
+function dqSqueezeSheet(){
+  /* RE-DOORED (founder 🍋 ruling): the threshold died; the writing lives. This sheet is
+     reachable from a plain, always-present door on EVERY name — it never fires on its own,
+     never picks a stock, and its opening no longer speaks about "this name" at all.
+     The education below is retained VERBATIM; it argues the reader OUT of the excitement. */
+  openSheet("What is short interest?",
+    "SHORT INTEREST \u2014 shares borrowed and sold by traders betting the price falls. They must eventually buy the shares back to close the position.\n\n"+
     "DAYS TO COVER \u2014 short shares divided by average daily volume. A larger number means the exit is crowded relative to normal trading.\n\n"+
     "WHY PEOPLE WATCH IT \u2014 if a heavily shorted stock rises, some shorts buy back to limit losses, and that buying can push the price higher still, prompting more of the same. That feedback loop is what people mean by a squeeze.\n\n"+
     "WHY IT IS NOT A PREDICTION \u2014 high short interest is far more often a sign that many people have researched a company and expect it to fall. Most heavily shorted stocks keep falling. A squeeze needs a catalyst nobody can schedule, and shorts can be right for years. These figures are also reported with a lag.\n\n"+
@@ -6045,20 +6051,35 @@ async function dqPaint(){
      it; Short interest beside Prev close. Volume runs GREEN and larger when today beats
      its own average — a factual comparison of two numbers, not a signal. */
   const hot=(d.volume!=null&&d.avgVolume!=null&&d.avgVolume>0&&d.volume>d.avgVolume);
-  const shortTxt=(d.sharesShort==null&&d.daysToCover==null)?null
-    :[d.sharesShort==null?null:dqCompact(d.sharesShort)+" sh",
-      d.daysToCover==null?null:dqNum(d.daysToCover)+"d cover"].filter(Boolean).join(" \u00b7 ");
+  /* SHORT INTEREST — a PRODUCTION REPAIR (SI spec rev 3.1). Four ruled figures, nothing
+     else: % of float \u00b7 days to cover \u00b7 MoM change \u00b7 the as-of date. The date is the
+     load-bearing half: bi-monthly data was rendering beside a live price with nothing
+     marking its age. VINTAGE-OR-NOTHING: a glance-level figure never appears bare.
+     THE SANITY FLOOR lives HERE by explicit handoff (the worker measures, the surface
+     classifies): Yahoo's own pctFloat below 0.01% is feed garbage (BAC/F canaries), an
+     exact zero is indistinguishable from a quiet book \u2014 both render "\u2014", never 0%.
+     daysToCover can fail INDEPENDENTLY (BAC ships dtc:0 \u2014 a sentinel, not a measurement),
+     so each figure earns its own em-dash. Machine statuses never reach the user. */
+  const siStatus=(d.siAsOf==null)?"unverifiable"
+    :(d.sharesShort===0)?"reported-zero"
+    :(d.siPctFloat==null)?"unverifiable"
+    :((d.siPctFloat*100)<0.01)?"implausible":"plausible";
+  const siPct=(siStatus==="plausible")?dqNum(d.siPctFloat*100)+"% float":null;
+  const siDtc=(siStatus==="plausible"&&d.daysToCover!=null&&d.daysToCover>0)?dqNum(d.daysToCover)+"d cover":null;
+  const shortTxt=(siPct==null&&siDtc==null)?null:[siPct==null?"\u2014":siPct,siDtc==null?"\u2014":siDtc].join(" \u00b7 ");
+  const siAsOfTxt=(d.siAsOf==null)?null:"bi-monthly \u00b7 as of "+dqDate(d.siAsOf);
   [["Open",d.open==null?null:cur+dqNum(d.open),false],
    ["Volume",dqCompact(d.volume),hot],
    ["Prev close",d.prevClose==null?null:cur+dqNum(d.prevClose),false],
    ["Avg volume",dqCompact(d.avgVolume),false],
    ["Day range",(d.dayLow!=null&&d.dayHigh!=null)?(cur+dqNum(d.dayLow)+" \u2013 "+cur+dqNum(d.dayHigh)):null,false],
-   ["Short interest",shortTxt,false]
+   ["Short interest",shortTxt,false,siAsOfTxt]
   ].forEach(function(p){
     const c=dqEl("div","dq-pincell","");
     c.appendChild(dqEl("span","dq-k",p[0]));
     c.appendChild(dqEl("span","dq-v"+(p[2]?" hot":""),p[1]==null?"\u2014":p[1]));
     if(p[2])c.appendChild(dqEl("span","dq-hotnote","above average"));
+    if(p[3])c.appendChild(dqEl("span","dq-asof",p[3]));   /* the vintage, same cell, same glance */
     pr.appendChild(c);
   });
   pin.appendChild(pr); body.appendChild(pin);
@@ -6090,17 +6111,21 @@ async function dqPaint(){
     dqPair("Rate (annual)",d.divRate==null?null:cur+dqNum(d.divRate),"Ex-dividend",dqDate(d.exDivDate)),
     dqPair("Yield",dy==null?null:dqNum(dy)+"%","Pay date",dqDate(d.divPayDate))
   ]));
-  /* SHORT-INTEREST EDUCATION — NOT a signal and deliberately not called an opportunity.
-     Two public numbers crossing a threshold is a FACT; what it implies is contested and
-     depends on float, borrow cost and catalyst. The card states the fact and offers to
-     explain the mechanics; it never suggests a trade (FRAMING LAW). */
-  const shPct=(d.sharesShort!=null&&d.sharesOut!=null&&d.sharesOut>0)?(d.sharesShort/d.sharesOut*100):null;
-  if(shPct!=null&&d.daysToCover!=null&&shPct>=10&&d.daysToCover>=5){
-    const e=dqEl("button","dq-edu","\ud83c\udf4b Elevated short interest \u2014 "+dqNum(shPct,1)+"% of shares out, "+dqNum(d.daysToCover)+" days to cover. What this means \u203a");
-    e.type="button";
-    e.addEventListener("click",function(){dqSqueezeSheet(shPct,d.daysToCover);});
-    body.appendChild(e);
-  }
+  /* THE THRESHOLD DIED, THE DOOR LIVES (founder 🍋 ruling): a door that opens on SOME
+     names is the app pointing, however careful its words. This door opens on EVERY name,
+     identically \u2014 the education is in the glovebox of every car, and no windshield gets
+     a tag. MoM change renders in NEUTRAL INK \u2014 rising short interest is not bad and
+     falling is not good; colouring it would render a verdict. */
+  const siMom=(siStatus==="plausible"&&d.siPriorShort!=null&&d.siPriorShort>0&&d.siPriorAsOf!=null&&d.sharesShort!=null)
+    ?((d.sharesShort-d.siPriorShort)/d.siPriorShort*100):null;
+  const siSec=dqSection("Short interest",[
+    dqRow("Change MoM",siMom==null?null:(siMom>0?"+":"")+dqNum(siMom)+"%")
+  ]);
+  const door=dqEl("button","dq-edu","What is short interest? \u203a");
+  door.type="button";
+  door.addEventListener("click",function(){dqSqueezeSheet();});
+  siSec.appendChild(door);
+  body.appendChild(siSec);
   /* RULE 4 — the delayed label rides through to the surface. */
   const foot=$("dqFoot"); foot.textContent="";
   const fl=dqEl("span",null,"Data via "+(d.source||"Yahoo")+".");
