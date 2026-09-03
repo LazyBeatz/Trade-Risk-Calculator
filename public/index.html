@@ -6141,6 +6141,11 @@ async function dqPaint(){
   const siMom=(siStatus==="plausible"&&d.siPriorShort!=null&&d.siPriorShort>0&&d.siPriorAsOf!=null&&d.sharesShort!=null)
     ?((d.sharesShort-d.siPriorShort)/d.siPriorShort*100):null;
   const siSec=dqSection("Short interest",[
+    /* three depths, one term (founder-ruled (a)): compact where the eye lands
+       (pinned "2.19d cover"), COMPLETE where it rests (this row, full words),
+       defined where it asks (the door's sentence). Same source field as the
+       pinned figure — two homes cannot diverge because neither derives. */
+    dqRow("Days to cover",(siStatus==="plausible"&&d.daysToCover!=null&&d.daysToCover>0)?dqNum(d.daysToCover):null),
     dqRow("Change MoM",siMom==null?null:(siMom>0?"+":"")+dqNum(siMom)+"%")
   ]);
   const door=dqEl("button","dq-edu","What is short interest? \u203a");
