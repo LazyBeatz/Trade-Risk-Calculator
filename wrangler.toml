@@ -6,7 +6,7 @@ name = "trade-risk-calculator-app"
 main = "worker.js"
 compatibility_date = "2025-06-01"
 
-# ── Static frontend ────────────────────────────────────────────────────────── 
+# ── Static frontend ──────────────────────────────────────────────────────────  
 [assets]
 directory = "public"
 binding = "ASSETS"
