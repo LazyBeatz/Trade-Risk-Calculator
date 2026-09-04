@@ -17,7 +17,7 @@ binding = "VIBE_DB"
 database_name = "portfolio-vibe"
 database_id = "65d722a5-904a-4e93-8951-5bc8bfa15a18"
 
-# ── Portfolio Vibe: Durable Objects (live rooms) ─────────────────────────────
+# ── Portfolio Vibe: Durable Objects (live rooms) ───────────────────────────── 
 [[durable_objects.bindings]]
 name = "VIBE_ROOM"
 class_name = "VibeRoom"
