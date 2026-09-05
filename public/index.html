@@ -1595,6 +1595,10 @@
   .vb-codewrap[hidden]{display:none}
   .vb-code{display:block;font-family:var(--mono);font-size:.72rem;line-height:1.35;overflow-wrap:anywhere;user-select:all;padding:6px 8px;border-radius:8px;background:var(--bg);box-shadow:var(--well);color:var(--ink)}
   .vb-codecopy{margin-top:6px;font-size:.78rem;padding:4px 10px}
+
+  /* the one maxim in the app — italic so it reads as borrowed wisdom, not an instruction
+     from the app; --muted; same slot and size as a subtitle; no quotes, no attribution */
+  .card h2.pop .maxim{font-style:italic;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:.35em}
 </style>
 </head>
 <body data-theme="light">
@@ -1730,7 +1734,7 @@
 
   <!-- Memo -->
   <section class="card">
-    <h2 class="pop">Memo · trade catalyst</h2>
+    <h2 class="pop">Notes <span class="maxim">Plan your trade and trade your plan.</span></h2>
     <textarea id="memo" placeholder="Why this trade? e.g. Q2 earnings beat, breakout above 50-day MA…" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="memoCount"></div>
     <div class="explain" data-explain="memo"></div>
@@ -1777,7 +1781,7 @@
 
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
-      <h2 class="pop">Memo · your notes</h2>
+      <h2 class="pop">Notes</h2>
       <textarea id="pmMemo" placeholder="Note your plan — e.g. 'Long entry $100, take profit at +7%, stop at −3%.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="pmMemoCount"></div>
       <div class="explain" data-explain="pmMemo"></div>
@@ -1888,7 +1892,7 @@
 
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
-      <h2 class="pop">Memo · your notes</h2>
+      <h2 class="pop">Notes</h2>
       <textarea id="glMemo" placeholder="Journal this trade or share your win/loss — e.g. 'Sold NVDA +30%, rotated into energy.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="glMemoCount"></div>
       <div class="explain" data-explain="glMemo"></div>
@@ -2011,7 +2015,7 @@
     <div class="ci-rows" id="ciRows"></div>
 
     <section class="card" style="margin-top:12px">
-      <h2 class="pop">Memo · your notes</h2>
+      <h2 class="pop">Notes</h2>
       <textarea id="ciMemo" placeholder="Journal your plan or leave notes to share — e.g. 'Contribute $1k/yr until kids graduate at 18, then let it ride to retirement.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="ciMemoCount"></div>
       <div class="explain" data-explain="ciMemo"></div>
@@ -2105,7 +2109,7 @@
 
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
-      <h2 class="pop">Memo · your notes</h2>
+      <h2 class="pop">Notes</h2>
       <textarea id="opMemo" placeholder="Note your options play — e.g. 'Comparing 1 / 10 / 100 calls into earnings.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="opMemoCount"></div>
       <div class="explain" data-explain="opMemo"></div>
@@ -2218,7 +2222,7 @@
 
     <!-- Memo -->
     <section class="card" style="margin-top:12px">
-      <h2 class="pop">Memo · your notes</h2>
+      <h2 class="pop">Notes</h2>
       <textarea id="hgMemo" placeholder="Note your hedge plan — e.g. 'Hedging $100k with 6-month SPY puts when the market looks toppy.'" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
       <div class="wl-memo-count" id="hgMemoCount"></div>
       <div class="explain" data-explain="hgMemo"></div>
@@ -2575,24 +2579,24 @@ const GLOSSARY={
   oRisk:"<strong>Total at risk</strong> — The real money you'd lose if the stop triggers. This is the number that matters most.",
   gauge:"<strong>Risk gauge & Portfolio at risk %</strong> — Your potential loss shown as a slice of your whole account. Green = comfortable, red = over your limit. The pros keep this small (1–2%).",
   threshold:"<strong>Max risk per trade</strong> — Your personal line in the sand for how much of your account one trade can lose. Cross it and the gauge turns red to warn you. Note: this is your <strong>loss</strong> limit, which is different from the \"% of portfolio\" above (how much you put <strong>in</strong>).",
-  memo:"<strong>Memo</strong> — A note to your future self about why you took this trade.",
+  memo:"<strong>Notes</strong> — A note to your future self about why you took this trade.",
   ciMode:"<strong>Annual vs Trade Compounder</strong> — Annual grows your money once per year and lets you add a yearly top-up. Trade grows it per winning trade and lets you reinvest only part of each gain while taking the rest home. Same compounding math, two ways to think about it.",
   ciReinvestExp:"<strong>Reinvest %</strong> — In Trade mode, the share of each gain you let ride with your principal. The rest is 'withdrawn' (your take-home). Example: 25% reinvested means 75% goes in your pocket — and the calculator tallies both your growing balance and your cumulative take-home.",
   ciStopYr:"<strong>Stop top-ups after</strong> — The year your yearly contributions end, while the money keeps compounding. Great for 'what if I add $1,000/yr until my kid turns 18, then stop?' Leave blank to contribute every year. The year you enter still gets its top-up; the next year onward gets none.",
-  ciMemo:"<strong>Memo</strong> — A space to journal your plan or leave notes for others — your strategy, your milestones, why you chose these numbers. Saved with your scenario and included when you share.",
+  ciMemo:"<strong>Notes</strong> — A space to journal your plan or leave notes for others — your strategy, your milestones, why you chose these numbers. Saved with your scenario and included when you share.",
   ciAge:"<strong>Plan around my age</strong> — Enter your current age and your target retirement age, and the projection automatically runs for exactly the working years you have left (retirement − current). Rows are then labeled by age, so you see what you'll have at 'Age 65' rather than an abstract year number. Milestone markers are read as ages in this mode.",
   glTracker:"<strong>Tracker</strong> — Log a real trade: enter what you paid (cost) and what you sold for (sale value), or switch to per-share to enter buy price, sell price, and share count. You'll get your dollar gain/loss and % change.",
   glSandbox:"<strong>Sandbox</strong> — Experiment freely. Enter a base amount, then tap % or $ chips to stack up what-if scenarios and compare them side by side — great for seeing what different gains or losses would mean in dollars. Tap ✎ to set your own chip values.",
   glAnnual:"<strong>Annualized return</strong> — Your return restated as a yearly rate, so trades held for different lengths can be compared fairly. A 10% gain in 6 months is roughly 21% annualized; the same 10% over 2 years is about 5%. Enter your buy and sell dates to calculate it.",
-  glMemo:"<strong>Memo</strong> — Journal this trade or jot notes to share — what you did, why, and how it turned out. Saved with your scenario and included when you share.",
+  glMemo:"<strong>Notes</strong> — Journal this trade or jot notes to share — what you did, why, and how it turned out. Saved with your scenario and included when you share.",
   pmLadder:"<strong>Price-move ladder</strong> — Enter your entry price and see exactly where each percentage move lands. Long shows up-moves as green profit targets and down-moves as red stops; Short flips it (you profit when price falls). Tap a % chip to jump to that rung; tap ✎ to set your own % steps.",
-  pmMemo:"<strong>Memo</strong> — Note your trade plan or share it — entry, targets, stops. Saved with your scenario and included when you share.",
+  pmMemo:"<strong>Notes</strong> — Note your trade plan or share it — entry, targets, stops. Saved with your scenario and included when you share.",
   opSizer:"<strong>Options Sizer</strong> — One option contract controls 100 shares. Enter how many contracts you hold and the calculator shows your share-equivalent exposure, then a ladder of what your whole position gains for each dollar the stock moves. Calls profit when the stock rises; Puts profit when it falls. Optionally look up the current price — each row then shows how big a move it is in percentage terms, so you can judge how realistic each scenario is. Tap ✎ to set your own move steps.",
-  opMemo:"<strong>Memo</strong> — Note your options play or share it — contracts, your thesis, the move you're betting on. Saved with your scenario and included when you share.",
+  opMemo:"<strong>Notes</strong> — Note your options play or share it — contracts, your thesis, the move you're betting on. Saved with your scenario and included when you share.",
   hgBand:"<strong>Hedge trigger band</strong> — The ± percentage off the hedge ETF's last price that frames your hedge. The −% level is roughly where you want protection to kick in; the +% level is shown for symmetry. Both use the same editable percentage (default 5%).",
   hgPut:"<strong>The protective put</strong> — A put gains value as the market falls, offsetting portfolio losses. You want one at least 6 months out (ideally ~1 year) so time-decay is slow, with the lowest implied volatility you can find, and a breakeven just above your −% level. <strong>Breakeven</strong> = strike − premium. <strong>Delta</strong> (negative for puts) drives how much it moves per $1 drop in the ETF. Greeks are Black-Scholes estimates.",
   hgEff:"<strong>Hedge effectiveness</strong> — Honest math on your protection. Your puts gain roughly (contracts × 100 × |delta|) dollars per $1 the ETF moves; compared against what your portfolio loses per 1% drop, that's your coverage right now. Crucially, coverage <em>grows</em> as a selloff deepens, because a put's delta heads toward −1.00 as it goes in-the-money — so a cheap put hedge protects more in a real crash than in a small dip. It is normally partial protection, not a perfect 1-for-1 offset.",
-  hgMemo:"<strong>Memo</strong> — Note your hedge plan or share it. Saved with your scenario and included when you share.",
+  hgMemo:"<strong>Notes</strong> — Note your hedge plan or share it. Saved with your scenario and included when you share.",
   wlDash:"<strong>Watchlist Dashboard</strong> — Track multiple tickers as expandable cards. The collapsed card shows the essentials (price, change, tick) and your story; expand it for fundamentals, your Fibonacci levels, the +3% level, and where you heard about it. Live quotes are delayed and cost an API call, so refresh each row (or all) when you want a fresh reading rather than continuously. Fundamentals are entered by hand for now.",
   wlLists:"<strong>Your watchlists</strong> — Keep up to 25 separate named watchlists (e.g. “Cramer picks”, “Earnings plays”), each holding up to 100 tickers. Switch between them with the dropdown; use New, Rename and Delete to manage them. Everything auto-saves in your browser, so your lists are here when you come back. Recent tickers are remembered across all lists.",
   pmirAlerts:"<strong>Custom alerts</strong> — Your own reminders in your own words. Pick a condition (e.g. price below the 20-day average, or MACD below zero) and write the message you need to see when it happens. When you run the mirror, any holding meeting that condition shows your message. It's your personal discipline system — the app never tells you to buy or sell.",
@@ -3801,7 +3805,7 @@ function ciShareText(){
     L.push("Total growth: "+ciFmtMoney(r.totalGains));
     if(S.ciMode==="trade")L.push("Total taken home: "+ciFmtMoney(r.totalWithdrawn));
   }
-  if(S.ciMemo&&S.ciMemo.trim())L.push("Memo: "+S.ciMemo.trim());
+  if(S.ciMemo&&S.ciMemo.trim())L.push("Notes: "+S.ciMemo.trim());
   const code=ciEncode();
   if(isDeployed()){L.push("");L.push("Open this scenario:");L.push(location.origin+location.pathname+"#d="+code);}
   else{L.push("");L.push("Import code:");L.push(code);}
@@ -4025,7 +4029,7 @@ function glShareText(){
       L.push("  "+mv+" → "+glSign(s.gain)+glFmt(s.gain)+" ("+glSign(s.pct)+glFmtPct(s.pct)+"), final "+glFmt(s.fin));
     });
   }
-  if(S.glMemo&&S.glMemo.trim())L.push("Memo: "+S.glMemo.trim());
+  if(S.glMemo&&S.glMemo.trim())L.push("Notes: "+S.glMemo.trim());
   L.push("");L.push(location.origin+location.pathname+"#d="+glEncode());
   return L.join("\n");
 }
@@ -4187,7 +4191,7 @@ function pmShareText(){
     L.push(long?"🛑 Stops (down):":"🛑 Stops (up):");
     steps.forEach(pct=>{const t=long?price*(1-pct/100):price*(1+pct/100);L.push("  "+(long?"−":"+")+pct+"% → "+pmFmt(t));});
   }
-  if(S.pmMemo&&S.pmMemo.trim())L.push("Memo: "+S.pmMemo.trim());
+  if(S.pmMemo&&S.pmMemo.trim())L.push("Notes: "+S.pmMemo.trim());
   L.push("");L.push(location.origin+location.pathname+"#d="+pmEncode());
   return L.join("\n");
 }
@@ -4619,7 +4623,7 @@ function opShareText(){
       [...S.opChips].sort((a,b)=>a-b).forEach(mv=>{L.push("  if "+dir+" "+opFmtMove(mv)+" → "+opFmt(c*100*mv));});
     }
   });
-  if(S.opMemo&&S.opMemo.trim()){L.push("");L.push("Memo: "+S.opMemo.trim());}
+  if(S.opMemo&&S.opMemo.trim()){L.push("");L.push("Notes: "+S.opMemo.trim());}
   L.push("");L.push(location.origin+location.pathname+"#d="+opEncode());
   return L.join("\n");
 }
@@ -4885,7 +4889,7 @@ function hgShareText(){
     L.push("Hedge budget ("+bp+"%): "+hgFmt0(budget));
     L.push("Puts affordable: "+ct+" at "+hgFmt(ask)+" premium");
   }
-  if(S.hgMemo&&S.hgMemo.trim()){L.push("");L.push("Memo: "+S.hgMemo.trim());}
+  if(S.hgMemo&&S.hgMemo.trim()){L.push("");L.push("Notes: "+S.hgMemo.trim());}
   L.push("");L.push(location.origin+location.pathname+"#d="+hgEncode());
   return L.join("\n");
 }
