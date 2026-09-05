@@ -1599,10 +1599,6 @@
   /* the one maxim in the app — italic so it reads as borrowed wisdom, not an instruction
      from the app; --muted; same slot and size as a subtitle; no quotes, no attribution */
   .card h2.pop .maxim{font-style:italic;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:.35em}
-
-  /* entrance pass: the copy pill sits INSIDE the invite tag; the room ⋮ is the message ⋮ */
-  .vb-copypill{margin-left:.5em;font-size:.72rem;padding:2px 9px;vertical-align:middle}
-  .vb-roomdots{margin-right:6px}
 </style>
 </head>
 <body data-theme="light">
@@ -2463,12 +2459,6 @@
     <div class="vb-msg-line" id="vbAdmMsg" aria-live="polite"></div>
   </section>
 
-  <section class="card" style="margin-top:12px">
-    <h2 class="pop">Notes \u00b7 private to this device</h2>
-    <textarea id="vbMemo" placeholder="ex. ABC said watch the FOMC" maxlength="2000" spellcheck="true" autocapitalize="sentences" autocorrect="on"></textarea>
-    <div class="wl-memo-count" id="vbMemoCount"></div>
-    <div class="srow" style="margin-top:8px"><button class="btn" id="vbNotesShare" type="button">Share notes</button></div>
-  </section>
   <div class="vb-hiccup" id="vbHiccup" hidden></div>
 </div>
 
@@ -2519,7 +2509,7 @@ const DEFAULTS={vibeSkin:"circuit",dqRange:"6mo",dqSMA:[20,50],
   hgPort:"",hgTickerSym:"SPY",hgSpy:"",hgPct:5,hgBudgetPct:5,hgLinked:true,hgStrike:"",hgExpiry:"",hgAsk:"",hgIV:"",hgPutOpen:true,hgMemo:"",
   wlItems:[],wlMemo:"",wlRecent:[],watchlists:null,wlActive:0,
   pmirHoldings:[],pmirAlerts:[],pmirMemo:"",pmirAlertsOpen:false,pmirPortfolios:null,pmirActive:0,
-  vibe:{handle:"",syncCode:"",isAdmin:false,activeRoom:""},vbMemo:"",
+  vibe:{handle:"",syncCode:"",isAdmin:false,activeRoom:""},
   ciMilestones:[18,21,55,65,70]
 };
 let S=JSON.parse(JSON.stringify(DEFAULTS));
@@ -2981,10 +2971,6 @@ $("entry").addEventListener("input",()=>{
 });
 bindNum("stopPct","stopPct");
 $("memo").addEventListener("input",e=>{S.memo=e.target.value;persist()});
-/* E7a — WS9's private notes: same widget, same position, one extra word in the label,
-   because it is the only workspace with a second box that goes to OTHER PEOPLE. */
-if($("vbMemo")){$("vbMemo").value=S.vbMemo||"";$("vbMemo").addEventListener("input",e=>{S.vbMemo=e.target.value;persist();});}
-if($("vbNotesShare")){$("vbNotesShare").addEventListener("click",vbSafe(function(){const t=(S.vbMemo||"").trim();if(!t){openSheet("Nothing to share yet","Write a note first \u2014 it stays private until you share it.",null,[["Got it",closeSheet,true]]);return;}vbShareOut("Portfolio Vibe notes",t);}));}
 $("threshold").addEventListener("input",e=>{e.target.value=clean(e.target.value);S.threshold=num(e.target.value)||"";onChange()});
 $("btnLong").addEventListener("click",()=>{S.direction="long";onChange()});
 $("btnShort").addEventListener("click",()=>{S.direction="short";onChange()});
@@ -5357,7 +5343,7 @@ if($("wlMemo"))$("wlMemo").addEventListener("input",e=>{wlL().memo=e.target.valu
 function wlNotesCount(){const el=$("wlMemoCount"),ta=$("wlMemo");if(!el||!ta)return;const len=ta.value.length;if(len===0){el.style.display="none";return;}el.style.display="";const left=2000-len;el.textContent=left+" character"+(left===1?"":"s")+" left";el.classList.toggle("low",left<=75);}
 // generic memo character counter — hidden when empty, "N characters left" when typing
 function memoCount(taId,countId){const ta=$(taId),el=$(countId);if(!ta||!el)return;const len=ta.value.length;if(len===0){el.style.display="none";return;}el.style.display="";const left=(parseInt(ta.getAttribute("maxlength"),10)||2000)-len;el.textContent=left+" character"+(left===1?"":"s")+" left";el.classList.toggle("low",left<=75);}
-const MEMO_PAIRS=[["memo","memoCount"],["pmMemo","pmMemoCount"],["glMemo","glMemoCount"],["ciMemo","ciMemoCount"],["opMemo","opMemoCount"],["hgMemo","hgMemoCount"],["vbMemo","vbMemoCount"]];
+const MEMO_PAIRS=[["memo","memoCount"],["pmMemo","pmMemoCount"],["glMemo","glMemoCount"],["ciMemo","ciMemoCount"],["opMemo","opMemoCount"],["hgMemo","hgMemoCount"]];
 function refreshMemoCounters(){MEMO_PAIRS.forEach(([t,c])=>memoCount(t,c));}
 (function wireMemoCounters(){
   MEMO_PAIRS.forEach(([t,c])=>{const ta=$(t);if(!ta)return;ta.addEventListener("input",()=>memoCount(t,c));memoCount(t,c);});
@@ -6553,11 +6539,9 @@ function vbRenderAuth(){
   const ac=$("vbAdminCard");if(ac)ac.hidden=!(signed&&S.vibe.isAdmin);
 }
 function vbCodeSheet(title,intro){
-  /* E2 — an irreversible SAVE gets safe-first too: neither button is the default, the
-     body ends on the instruction, and "I saved it" carries no checkmark it has not earned. */
-  openSheet(title,intro+"\n\nScreenshot this now \u2014 there is no way to recover it.",S.vibe.syncCode,[
-    ["\ud83d\udccb Copy code",async function(){const ok=await copyText(S.vibe.syncCode);this.textContent=ok?"\u2713 Copied":"Copy failed \u2014 long-press the code";},false],
-    ["I saved it",closeSheet,false]
+  openSheet(title,intro,S.vibe.syncCode,[
+    ["📋 Copy code",async function(){const ok=await copyText(S.vibe.syncCode);this.textContent=ok?"✓ Copied":"Copy failed — long-press the code";},false],
+    ["I saved it ✓",closeSheet,true]
   ]);
 }
 const vbClaim=vbSafe(async function(){
@@ -6608,55 +6592,12 @@ function vbRoomRow(r,kind){
   const left=document.createElement("div");left.style.minWidth="0";
   const nm=document.createElement("div");nm.className="vb-rn";nm.textContent=r.name;left.appendChild(nm);
   if(kind==="official"){const t=document.createElement("div");t.className="vb-tag";t.textContent="OFFICIAL";left.appendChild(t);}
-  else if(r.inviteCode){
-    const t=document.createElement("div");t.className="vb-tag";t.textContent="invite: "+r.inviteCode;
-    /* E1 — the code is where a user RETURNS for it; the copy button lives beside it.
-       Idiom verbatim from the sync-code sheet: one vocabulary for one interaction. */
-    const cp=document.createElement("button");cp.type="button";cp.className="vb-pill vb-copypill";cp.textContent="\ud83d\udccb Copy";
-    cp.setAttribute("aria-label","Copy invite code "+r.inviteCode);
-    cp.addEventListener("click",vbSafe(async function(){const ok=await copyText(r.inviteCode);this.textContent=ok?"\u2713 Copied":"Copy failed \u2014 long-press the code";}));
-    t.appendChild(cp);left.appendChild(t);
-  }
+  else if(r.inviteCode){const t=document.createElement("div");t.className="vb-tag";t.textContent="invite: "+r.inviteCode;left.appendChild(t);}
   row.appendChild(left);
-  /* E7b — actions ON a room live in the same ⋮ affordance the message row already uses:
-     one idiom for "actions on a thing," app-wide. Share is the only action today; the
-     lifecycle (leave · rename · delete) joins this menu in E-B. */
-  const dots=document.createElement("button");dots.type="button";dots.className="vb-act vb-roomdots";dots.textContent="\u22EE";
-  dots.setAttribute("aria-label","Room actions");
-  dots.addEventListener("click",vbSafe(function(){vbRoomMenu(r,kind==="official");}));
-  row.appendChild(dots);
   const b=document.createElement("button");b.type="button";b.className="btn primary";b.textContent="Open";
   b.addEventListener("click",vbSafe(function(){vbOpenRoom(r,kind==="official");}));
   row.appendChild(b);
   return row;
-}
-/* ── room share (E7b) — the house voice does not exclaim; an invite that reads like
-   marketing gets read as marketing. Share path mirrors WS1's: OS sheet first, then a
-   sheet with Email (copies first as the guaranteed fallback) and Copy. ── */
-function vbRoomShareText(r,official){
-  const L=["Meet me on Portfolio Vibe \u2014 "+r.name];
-  if(!official&&r.inviteCode)L.push("Invite code: "+r.inviteCode);
-  L.push(location.origin+location.pathname);
-  return L.join("\n");
-}
-async function vbShareOut(title,text){
-  if(navigator.share){try{await navigator.share({title:title,text:text});return}catch(e){if(e&&e.name==="AbortError")return}}
-  openSheet(title,"Your share sheet isn't available here \u2014 use email or copy instead.",text,[
-    ["Email",async function(){
-      const copied=await copyText(text);
-      const a=document.createElement("a");a.href="mailto:?subject="+encodeURIComponent(title)+"&body="+encodeURIComponent(text);
-      a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();document.body.removeChild(a);
-      this.textContent=copied?"\u2713 Copied & opened mail":"Opened mail";
-    },false],
-    ["\ud83d\udccb Copy",async function(){const ok=await copyText(text);this.textContent=ok?"\u2713 Copied":"Copy failed \u2014 long-press the text";},true],
-    ["Close",closeSheet,false]
-  ]);
-}
-function vbRoomMenu(r,official){
-  openSheet(r.name,official?"An official room \u2014 open to everyone.":"Your room travels by invite code.",null,[
-    ["Share room",function(){closeSheet();vbShareOut("Meet me on Portfolio Vibe",vbRoomShareText(r,official));},true],
-    ["Cancel",closeSheet,false]
-  ]);
 }
 function vbRenderRooms(data){
   const ol=$("vbOfficialList"),ml=$("vbMineList");
@@ -6683,12 +6624,7 @@ const vbCreate=vbSafe(async function(){
   if(!name){if(msg)msg.textContent="Give the room a name.";return;}
   if(msg)msg.textContent="Creating…";
   const r=await vbApi("/api/vibe/rooms",{op:"create",handle:S.vibe.handle,syncCode:S.vibe.syncCode,name});
-  if(r.status===200&&r.data&&r.data.ok){if(el)el.value="";
-    if(msg){const code=r.data.room.inviteCode;msg.textContent="Room created \u2014 invite code "+code+" ";
-      const cp=document.createElement("button");cp.type="button";cp.className="vb-pill vb-copypill";cp.textContent="\ud83d\udccb Copy";
-      cp.addEventListener("click",vbSafe(async function(){const ok=await copyText(code);this.textContent=ok?"\u2713 Copied":"Copy failed \u2014 long-press the code";}));
-      msg.appendChild(cp);}
-    vbLoadRooms();}
+  if(r.status===200&&r.data&&r.data.ok){if(el)el.value="";if(msg)msg.textContent="Room created — invite code "+r.data.room.inviteCode;vbLoadRooms();}
   else if(msg){msg.textContent=(r.data&&r.data.error)||"Couldn't create the room.";}
 });
 const vbJoin=vbSafe(async function(){
