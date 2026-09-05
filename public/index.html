@@ -1577,6 +1577,16 @@
      regression this very stroke would have introduced. Caught by executing the
      cascade, not by intending it. */
   .inrow.needfill input:focus{box-shadow:var(--well),0 0 0 1px var(--accent) inset,0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+
+  /* ══ STORAGE BANNER — a REPORT, not a control (Care Ladder colours actions; status
+     surfaces report state). Red = destruction in progress; amber = careful. Ink text on a
+     tinted card so both themes clear 4.5:1 without a white-on-red gamble. ══ */
+  .st-banner{margin:10px 14px 0;padding:10px 12px;border-radius:12px;border-left:4px solid var(--amber,#B45309);
+    background:color-mix(in srgb,var(--amber,#B45309) 12%,var(--card));color:var(--ink);font-family:var(--sans);font-size:.92rem;box-shadow:var(--e1)}
+  .st-banner.st-bad{border-left-color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--card))}
+  .st-banner .st-txt{margin-bottom:8px;line-height:1.35}
+  .st-banner .st-acts{display:flex;flex-wrap:wrap;gap:8px}
+  @media (prefers-reduced-motion:reduce){.st-banner{transition:none}}
 </style>
 </head>
 <body data-theme="light">
@@ -2585,11 +2595,106 @@ const GLOSSARY={
 };
 
 /* ---------- storage: artifact storage -> localStorage -> memory ---------- */
+/* ---------- STORAGE HONESTY (quota repair) ----------
+   A write's return value is not the store's word. After every setItem the value is READ
+   BACK and compared; any exception or mismatch flips storageState and raises the banner.
+   The in-memory fallback STAYS (it preserves the session) — but it can never again engage
+   in silence: before this repair, a full jar meant the app kept "saving" into memory,
+   looked perfect all session, and lost everything on reload. Data loss wearing the face
+   of normal operation. Now the banner names the consequence the moment it starts. */
+const ST_BUDGET=5*1024*1024;                       // nominal per-origin budget — stated as "about"
+const storageState={ok:true,reason:"",used:0,lastOkAt:null,dismissedAmber:false};
+function stFmt(n){return n>=1048576?(n/1048576).toFixed(2)+" MB":n>=1024?Math.round(n/1024)+" KB":n+" B";}
 async function store(val){
   const str=JSON.stringify(val);
-  if(window.storage&&window.storage.set){try{await window.storage.set(KEY,str);return}catch(e){}}
-  try{window.localStorage.setItem(KEY,str);return}catch(e){}
+  storageState.used=str.length;
+  if(window.storage&&window.storage.set){try{await window.storage.set(KEY,str);storageState.ok=true;storageState.reason="";stBanner();return}catch(e){}}
+  try{
+    window.localStorage.setItem(KEY,str);
+    const back=window.localStorage.getItem(KEY);
+    if(back==null||back.length!==str.length){const err=new Error("read-back mismatch");err.name="ReadBackMismatch";throw err;}
+    storageState.ok=true;storageState.reason="";storageState.lastOkAt=Date.now();stBanner();return;
+  }catch(e){
+    const nm=(e&&e.name)||"";const code=e&&e.code;
+    storageState.ok=false;
+    storageState.reason=(nm==="QuotaExceededError"||code===22||code===1014)?"quota":(nm==="ReadBackMismatch")?"readback":"unavailable";
+    console.error("store failed:",nm||e);
+  }
   mem[KEY]=str;
+  stBanner();
+}
+/* what is using the space — measured per key, never estimated */
+function stBreakdown(){
+  const memoKeys=["memo","ciMemo","glMemo","pmMemo","opMemo","hgMemo","wlMemo","pmirMemo"];
+  const sz=k=>{try{return JSON.stringify(S[k]===undefined?null:S[k]).length}catch(e){return 0}};
+  const rows=[];
+  const wl=Array.isArray(S.watchlists)?S.watchlists:[];
+  const wlSyms=wl.reduce((n,L)=>n+((L&&Array.isArray(L.items))?L.items.length:0),0);
+  const wlMemos=wl.reduce((n,L)=>n+((L&&Array.isArray(L.items))?L.items.filter(it=>it&&it.memo&&String(it.memo).trim()).length:0),0);
+  rows.push(["Watchlists",sz("watchlists"),wl.length+" list"+(wl.length===1?"":"s")+" · "+wlSyms+" symbol"+(wlSyms===1?"":"s")+" · "+wlMemos+" story memo"+(wlMemos===1?"":"s")]);
+  const pm=Array.isArray(S.pmirPortfolios)?S.pmirPortfolios:[];
+  const pmHold=pm.reduce((n,P)=>n+((P&&Array.isArray(P.holdings))?P.holdings.length:0),0);
+  rows.push(["Mirror portfolios",sz("pmirPortfolios"),pm.length+" portfolio"+(pm.length===1?"":"s")+" · "+pmHold+" holding"+(pmHold===1?"":"s")]);
+  rows.push(["Workspace memos",memoKeys.reduce((n,k)=>n+sz(k),0),memoKeys.filter(k=>S[k]&&String(S[k]).trim()).length+" written"]);
+  const vibeKeys=Object.keys(S).filter(k=>/^vibe|^vb/i.test(k));
+  rows.push(["Vibe identity",vibeKeys.reduce((n,k)=>n+sz(k),0),"handle + sync-code"]);
+  rows.push(["Recent tickers",sz("recentTickers"),""]);
+  const counted=new Set(["watchlists","pmirPortfolios","recentTickers",...memoKeys,...vibeKeys]);
+  rows.push(["Settings & fields",Object.keys(S).filter(k=>!counted.has(k)).reduce((n,k)=>n+sz(k),0),""]);
+  rows.sort((a,b)=>b[1]-a[1]);
+  return rows;
+}
+async function stSiteData(){
+  /* the browser's own meter (IndexedDB, caches). Absence is a VALUE — the row is never
+     omitted and never printed as zero; where the API is missing the row says so. */
+  try{
+    if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();
+      if(e&&typeof e.usage==="number"&&typeof e.quota==="number")return stFmt(e.usage)+" of "+stFmt(e.quota)+" (browser's own meter)";}
+  }catch(err){}
+  return "not measurable on this browser";
+}
+async function openStorageSheet(){
+  const rows=stBreakdown();const used=storageState.used||JSON.stringify(S).length;
+  const lines=rows.map(r=>r[0].padEnd(18)+stFmt(r[1]).padStart(9)+(r[2]?"   "+r[2]:""));
+  lines.push("\u2500".repeat(28));
+  lines.push("Used".padEnd(18)+stFmt(used).padStart(9)+"   of about "+stFmt(ST_BUDGET)+" (varies by browser)");
+  lines.push("Site data (all stores)".padEnd(18)+"   "+await stSiteData());
+  if(!storageState.ok)lines.push("","⚠ Saving is currently FAILING — see the banner above.");
+  const omitted=stOmitted();
+  if(omitted.length)lines.push("","Not carried by 💾 backups: "+omitted.join(", "));
+  openSheet("Storage",lines.join("\n"),null,[["💾 Back up now",function(){const ok=downloadBackup();this.textContent=ok?"✓ Downloaded":"Try again";},true],["Close",closeSheet,false]]);
+}
+/* the backup names what it does NOT carry — the shape ships EMPTY today, before the
+   whiteboard needs it, so nobody has to remember to add it later (Treaty's ruling) */
+function stOmitted(){return [];}
+/* the banner — a REPORT, not a control: red = destruction in progress, amber = careful.
+   Never a toast; the red state cannot be dismissed while it is true. */
+function stBanner(){
+  let el=document.getElementById("stBanner");
+  const pct=storageState.used/ST_BUDGET;
+  const bad=!storageState.ok;
+  const warn=!bad&&pct>=0.8;
+  if(!bad&&!warn){if(el)el.hidden=true;return;}
+  if(!el){el=document.createElement("div");el.id="stBanner";el.className="st-banner";el.setAttribute("role","status");el.setAttribute("aria-live","polite");
+    const hdr=document.querySelector("header.app");if(hdr&&hdr.parentNode)hdr.parentNode.insertBefore(el,hdr.nextSibling);else document.body.prepend(el);}
+  el.hidden=false;el.className="st-banner "+(bad?"st-bad":"st-warn");el.innerHTML="";
+  const t=document.createElement("div");t.className="st-txt";
+  if(bad){
+    const r=storageState.reason;
+    const why=r==="quota"?"This browser's storage is full ("+stFmt(storageState.used)+" of about "+stFmt(ST_BUDGET)+")."
+      :r==="readback"?"What this browser stored didn't read back correctly."
+      :"This browser isn't allowing saves (private mode, or storage is switched off).";
+    t.textContent="\u26A0 Back up now \u2014 your changes aren't being saved. "+why+" Anything you change now will vanish when you close this tab.";
+  }else{
+    t.textContent="Storage "+Math.round(pct*100)+"% full \u2014 back up soon.";
+  }
+  el.appendChild(t);
+  const acts=document.createElement("div");acts.className="st-acts";
+  /* the backup button is FIRST and PRIMARY — the only control here that saves anything */
+  const b1=document.createElement("button");b1.type="button";b1.className="btn primary";b1.textContent="\ud83d\udcbe Back up now";b1.addEventListener("click",function(){const ok=downloadBackup();this.textContent=ok?"\u2713 Downloaded":"Try again";});
+  const b2=document.createElement("button");b2.type="button";b2.className="btn";b2.textContent="Show what's using space";b2.addEventListener("click",openStorageSheet);
+  acts.appendChild(b1);acts.appendChild(b2);
+  el.appendChild(acts);
 }
 async function load(){
   if(window.storage&&window.storage.get){
@@ -2650,7 +2755,7 @@ function openVibePicker(){
     return [(S.vibeSkin===v.id?"\u2713 ":"")+v.emoji+" "+v.name,function(){S.vibeSkin=v.id;persist();applyVibeSkin();closeSheet();},false];
   });
   acts.push(["Cancel",closeSheet,true]);
-  openSheet("\ud83c\udfa8 Choose your vibe","Artwork sits behind the app; your cards stay readable on top. Your choice is saved and rides your \ud83d\udcbe backup.",null,acts);
+  openSheet("\ud83d\uddbc\ufe0f Choose your vibe","Artwork sits behind the app; your cards stay readable on top. Your choice is saved and rides your \ud83d\udcbe backup.",null,acts);
 }
 function cycleTheme(){
   const i=THEME_CYCLE.indexOf((S.theme==="light"||S.theme==="dark"||S.theme==="auto")?S.theme:"auto");
@@ -3241,7 +3346,7 @@ function collectBackup(){
   const clone=JSON.parse(JSON.stringify(S));
   delete clone._sharedType;
   if(Array.isArray(clone.watchlists))clone.watchlists.forEach(L=>{if(L&&Array.isArray(L.items))L.items.forEach(it=>{delete it._open;});});
-  return {app:"trade-risk-calculator",kind:"full-backup",version:1,exportedAt:new Date().toISOString(),state:clone};
+  return {app:"trade-risk-calculator",kind:"full-backup",version:1,exportedAt:new Date().toISOString(),omitted:stOmitted(),state:clone};
 }
 function downloadBackup(){
   try{
@@ -3284,6 +3389,7 @@ if($("btnData")){
     openSheet("Back up your data","Download a single file containing everything — every workspace and all your watchlists. Keep it somewhere safe (email it to yourself, or save it to Google Drive / iCloud). You can restore it anytime, on any device.",null,[
       ["⬇ Download backup",function(){const ok=downloadBackup();this.textContent=ok?"✓ Downloaded":"Try again";},true],
       ["⬆ Restore from file",function(){const f=$("restoreFile");if(f)f.click();},false],
+      ["Storage — what's using space",function(){closeSheet();openStorageSheet();},false],
       ["Close",closeSheet,false]
     ]);
   });
@@ -6354,6 +6460,8 @@ document.addEventListener("focusin",e=>{
 (async function(){
   const saved=await load();
   if(saved)Object.keys(DEFAULTS).forEach(k=>{if(k in saved)S[k]=saved[k]});
+  try{const r=window.localStorage.getItem(KEY);storageState.used=r?r.length:0;}catch(e){}   /* measured at boot, before the first write */
+  stBanner();
   // ensure monthly top-up reflects saved annual value (back-compat)
   if((!S.ciTopupMo||S.ciTopupMo==="")&&num(S.ciTopup)>0){S.ciTopupMo=String(Math.round(num(S.ciTopup)/12*100)/100);}
   let sharedCI=false, sharedGL=false, sharedPM=false, sharedOP=false, sharedHG=false, sharedWL=false, sharedPMIR=false;
