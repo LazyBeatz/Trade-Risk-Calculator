@@ -1587,6 +1587,14 @@
   .st-banner .st-txt{margin-bottom:8px;line-height:1.35}
   .st-banner .st-acts{display:flex;flex-wrap:wrap;gap:8px}
   @media (prefers-reduced-motion:reduce){.st-banner{transition:none}}
+
+  /* share-code drawer: the pill is .vb-pill (no new material); the revealed code is a
+     small well — a basin you read from, mono, selectable, wrapping anywhere */
+  .vb-codepill{margin:0 .35em;font-size:.72rem;padding:2px 9px}
+  .vb-codewrap{display:block;margin-top:6px}
+  .vb-codewrap[hidden]{display:none}
+  .vb-code{display:block;font-family:var(--mono);font-size:.72rem;line-height:1.35;overflow-wrap:anywhere;user-select:all;padding:6px 8px;border-radius:8px;background:var(--bg);box-shadow:var(--well);color:var(--ink)}
+  .vb-codecopy{margin-top:6px;font-size:.78rem;padding:4px 10px}
 </style>
 </head>
 <body data-theme="light">
@@ -6726,7 +6734,8 @@ function vbMsgRow(o){
   }
   hd.appendChild(h);hd.appendChild(t);      // handle left, stamp pushed right, one baseline
   div.appendChild(hd);div.appendChild(b);
-  try{vbRenderDrop(div,o.body);}catch(e){console.error("vibe drop render:",(e&&e.message)||e);div.appendChild(vbGray("couldn't render this drop"));}
+  try{const res=vbRenderDrop(div,o.body);if(res&&res.kind==="card"&&res.match)vbCollapseCode(b,res.match);}
+  catch(e){console.error("vibe drop render:",(e&&e.message)||e);div.appendChild(vbGray("couldn't render this drop"));}
   const stick=vbAtBottom(m);m.appendChild(div);vbAfterAppend(m,stick);
 }
 function vbRosterN(){const el=$("vbRosterN");if(el)el.textContent=vbRoster.size+" here";}
@@ -7146,51 +7155,75 @@ function vbCardGeneric(p){
 }
 
 /* ── detection: envelope-first, collision-law order (GFSB1 before GFS1) ── */
+
+/* ── SHARE-CODE EYESORE (Lane 2) · receiver-side · the code is HIDDEN, never deleted ──
+   Only when vbRenderDrop reports a REAL card does the envelope collapse behind a small
+   "show code" pill; the sender's own words around it stay as written. On a gray card or
+   no card, nothing here runs and the raw text stays fully visible — hiding an unparseable
+   blob would leave the user nothing. The bytes never leave the page: show reveals a
+   selectable mono block with a Copy button (the copyText helper, five proofs of life). */
+function vbCollapseCode(b,match){
+  const text=b.textContent||"";const i=text.indexOf(match);if(i<0)return;
+  b.textContent="";
+  b.appendChild(document.createTextNode(text.slice(0,i)));
+  const pill=vbEl("button","vb-pill vb-codepill","show code \u25B8");pill.type="button";pill.setAttribute("aria-expanded","false");
+  const wrap=vbEl("span","vb-codewrap","");wrap.hidden=true;
+  const code=vbEl("code","vb-code",match);
+  const cp=vbEl("button","btn vb-codecopy","Copy");cp.type="button";
+  cp.addEventListener("click",function(){const btn=this;copyText(match).then(function(ok){btn.textContent=ok?"\u2713 Copied":"Copy failed \u2014 long-press the code";});});
+  wrap.appendChild(code);wrap.appendChild(cp);
+  pill.addEventListener("click",function(){const open=wrap.hidden;wrap.hidden=!open;pill.textContent=open?"hide code \u25BE":"show code \u25B8";pill.setAttribute("aria-expanded",open?"true":"false");});
+  b.appendChild(pill);b.appendChild(wrap);
+  b.appendChild(document.createTextNode(text.slice(i+match.length)));
+}
 function vbRenderDrop(container,body){
+  /* returns {kind:"card"|"gray"|"none", match} — a function that cannot tell its caller
+     what happened cannot be branched on safely (share-code eyesore, Lane 2) */
+  let kind="gray";
   const text=String(body||"");
   let m;
   if((m=text.match(/GFSB1-([A-Za-z0-9_-]{8,})/))){
     try{
       const p=vbB64JsonUTF8(m[1]);
-      if(p&&p.v===1&&(p.mode==="1v1"||p.mode==="rumble"||p.mode==="tourney")){container.appendChild(vbCardBattle(p));}
+      if(p&&p.v===1&&(p.mode==="1v1"||p.mode==="rumble"||p.mode==="tourney")){kind="card";container.appendChild(vbCardBattle(p));}
       else container.appendChild(vbGray("newer battle format — open in Casino 🎰"));
     }catch(e){container.appendChild(vbGray("battle code — couldn't read"));}
-    return true;
+    return {kind,match:m[0]};
   }
   if((m=text.match(/GFSM1:([A-Za-z0-9_-]{8,})/))){
     try{
       const p=vbB64JsonUTF8(m[1]);
-      if(p&&p.v===1&&Array.isArray(p.h)){container.appendChild(vbCardGFMirror(p));}
+      if(p&&p.v===1&&Array.isArray(p.h)){kind="card";container.appendChild(vbCardGFMirror(p));}
       else container.appendChild(vbGray("newer mirror format — open in Casino 🎰"));
     }catch(e){container.appendChild(vbGray("mirror code — couldn't read"));}
-    return true;
+    return {kind,match:m[0]};
   }
   if((m=text.match(/GFTS1-([A-Za-z0-9_-]{8,})/))){
     try{
       const p=vbB64JsonUTF8(m[1]);
-      if(p&&p.v===1){container.appendChild(vbCardTrend(p));}
+      if(p&&p.v===1){kind="card";container.appendChild(vbCardTrend(p));}
       else container.appendChild(vbGray("newer trend format \u2014 open in Casino \ud83c\udfb0"));
     }catch(e){container.appendChild(vbGray("trend code \u2014 couldn't read"));}
-    return true;
+    return {kind,match:m[0]};
   }
   if((m=text.match(/GFS1-([A-Za-z0-9_-]{8,})/))){
     try{
       const p=vbB64JsonUTF8(m[1]);
-      if(p&&p.v===1&&p.r){container.appendChild(vbCardSpin(p));}
+      if(p&&p.v===1&&p.r){kind="card";container.appendChild(vbCardSpin(p));}
       else container.appendChild(vbGray("newer spin format — open in Casino 🎰"));
     }catch(e){container.appendChild(vbGray("spin code — couldn't read"));}
-    return true;
+    return {kind,match:m[0]};
   }
   if((m=text.match(/[#&]d=([A-Za-z0-9_-]{8,})/))){
     try{
       const p=decodeState(m[1]);
-      if(p&&p.t==="pmir"){container.appendChild(vbCardPmir(p));}
-      else if(p&&VB_T_LABEL[p.t]){container.appendChild(vbCardGeneric(p));}
+      if(p&&p.t==="pmir"){kind="card";container.appendChild(vbCardPmir(p));}
+      else if(p&&VB_T_LABEL[p.t]){kind="card";container.appendChild(vbCardGeneric(p));}
       else container.appendChild(vbGray("share code — open in the calculator"));
     }catch(e){container.appendChild(vbGray("share code — couldn't read"));}
-    return true;
+    return {kind,match:m[0]};
   }
-  return false;
+  return {kind:"none",match:null};
 }
 
 
