@@ -2616,7 +2616,7 @@ const GLOSSARY={
    of normal operation. Now the banner names the consequence the moment it starts. */
 const ST_BUDGET=5*1024*1024;                       // nominal per-origin budget — stated as "about"
 const storageState={ok:true,reason:"",used:0,lastOkAt:null,dismissedAmber:false};
-function stFmt(n){return n>=1048576?(n/1048576).toFixed(2)+" MB":n>=1024?Math.round(n/1024)+" KB":n+" B";}
+function stFmt(n){const G=1073741824,T=G*1024;return n>=T?(n/T).toFixed(2)+" TB":n>=G?(n/G).toFixed(1)+" GB":n>=1048576?(n/1048576).toFixed(2)+" MB":n>=1024?Math.round(n/1024)+" KB":n+" B";}
 async function store(val){
   const str=JSON.stringify(val);
   storageState.used=str.length;
@@ -2661,7 +2661,7 @@ async function stSiteData(){
      omitted and never printed as zero; where the API is missing the row says so. */
   try{
     if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();
-      if(e&&typeof e.usage==="number"&&typeof e.quota==="number")return stFmt(e.usage)+" of "+stFmt(e.quota)+" (browser's own meter)";}
+      if(e&&typeof e.quota==="number")return stFmt(e.quota)+" (browser's own meter)";}
   }catch(err){}
   return "not measurable on this browser";
 }
@@ -2669,8 +2669,14 @@ async function openStorageSheet(){
   const rows=stBreakdown();const used=storageState.used||JSON.stringify(S).length;
   const lines=rows.map(r=>r[0].padEnd(18)+stFmt(r[1]).padStart(9)+(r[2]?"   "+r[2]:""));
   lines.push("\u2500".repeat(28));
-  lines.push("Used".padEnd(18)+stFmt(used).padStart(9)+"   of about "+stFmt(ST_BUDGET)+" (varies by browser)");
-  lines.push("Site data (all stores)".padEnd(18)+"   "+await stSiteData());
+  /* TWO STORES, NEVER ONE TOTAL (Chief ruling, 05-Se): the app's notes and portfolios live in
+     a ~5 MB store; navigator.storage.estimate() measures a DIFFERENT store (IndexedDB /
+     caches) with a disk-scale quota. Side by side and unlabelled, a user reads half a
+     terabyte of headroom while the 5 MB line is the one that fails — two-floats in a new
+     coat. Each row names what it measures. The second store is OMITTED until something on
+     this floor writes to it (the whiteboard will); stSiteData() waits for that day. */
+  lines.push("Your notes and portfolios".padEnd(26)+stFmt(used).padStart(9)+"  of about "+stFmt(ST_BUDGET)+" (varies by browser)");
+  if(typeof ST_SECOND_STORE_LIVE!=="undefined"&&ST_SECOND_STORE_LIVE)lines.push("Whiteboards and files".padEnd(26)+"        \u2014  of about "+await stSiteData());
   if(!storageState.ok)lines.push("","⚠ Saving is currently FAILING — see the banner above.");
   const omitted=stOmitted();
   if(omitted.length)lines.push("","Not carried by 💾 backups: "+omitted.join(", "));
